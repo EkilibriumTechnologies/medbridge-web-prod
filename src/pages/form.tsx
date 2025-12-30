@@ -1,12 +1,15 @@
 import SEO from "@/components/SEO";
 import { MedicalForm } from "@/components/MedicalForm";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function FormPage() {
+  const { t } = useLanguage();
+  
   return (
     <>
       <SEO
-        title="Medical Form - MedBridge"
-        description="Complete your medical profile for emergency situations"
+        title={`${t("form.title")} - MedBridge`}
+        description={t("form.subtitle")}
       />
       <MedicalForm />
     </>

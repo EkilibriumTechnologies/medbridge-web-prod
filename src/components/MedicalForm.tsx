@@ -9,15 +9,7 @@ import { Card } from "@/components/ui/card";
 import { AlertCircle, ArrowLeft, ArrowRight, Check, User, Heart, AlertTriangle, FileText, Phone, Stethoscope, IdCard } from "lucide-react";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
-
-const STEPS = [
-  { id: 1, title: "Información Personal", icon: User },
-  { id: 2, title: "Información Médica Básica", icon: Heart },
-  { id: 3, title: "Alergias", icon: AlertTriangle },
-  { id: 4, title: "Historial Médico", icon: FileText },
-  { id: 5, title: "Contactos de Emergencia", icon: Phone },
-  { id: 6, title: "Médico Primario", icon: Stethoscope },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const initialProfile: MedicalProfile = {
   personalInfo: {
@@ -59,20 +51,19 @@ const initialProfile: MedicalProfile = {
 
 // Validation helper functions
 const validateEmail = (email: string): boolean => {
-  if (!email) return true; // Optional field
+  if (!email) return true;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
 const validatePhone = (phone: string): boolean => {
-  if (!phone) return true; // Will be caught by required field validation
-  // Allow formats: +52 55 1234 5678, (555) 123-4567, 555-123-4567, 5551234567
+  if (!phone) return true;
   const phoneRegex = /^[\d\s\-\+\(\)]+$/;
   return phoneRegex.test(phone) && phone.replace(/\D/g, "").length >= 10;
 };
 
 const validateDate = (date: string): boolean => {
-  if (!date) return true; // Optional field
+  if (!date) return true;
   const selectedDate = new Date(date);
   const today = new Date();
   const minDate = new Date("1900-01-01");
@@ -80,7 +71,7 @@ const validateDate = (date: string): boolean => {
 };
 
 const validateAge = (dateOfBirth: string): boolean => {
-  if (!dateOfBirth) return true; // Optional field
+  if (!dateOfBirth) return true;
   const birthDate = new Date(dateOfBirth);
   const today = new Date();
   const age = today.getFullYear() - birthDate.getFullYear();
@@ -93,10 +84,20 @@ const validateTextLength = (text: string, maxLength: number): boolean => {
 
 export function MedicalForm() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [profile, setProfile] = useState<MedicalProfile>(initialProfile);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const STEPS = [
+    { id: 1, title: t("form.personal.title"), icon: User },
+    { id: 2, title: t("form.history.title").split(" ")[0], icon: Heart },
+    { id: 3, title: t("card.allergies"), icon: AlertTriangle },
+    { id: 4, title: t("form.history.title"), icon: FileText },
+    { id: 5, title: t("form.emergency.title"), icon: Phone },
+    { id: 6, title: t("form.insurance.primaryPhysician"), icon: Stethoscope },
+  ];
 
   useEffect(() => {
     const saved = localStorage.getItem("medicalProfile");
@@ -131,103 +132,69 @@ export function MedicalForm() {
   }, []);
 
   const validateField = (fieldName: string, value: string): string => {
-    // Step 1: Personal Information
     if (fieldName === "firstName") {
-      if (!value.trim()) return "El nombre es requerido";
-      if (value.trim().length < 2) return "El nombre debe tener al menos 2 caracteres";
-      if (!validateTextLength(value, 50)) return "El nombre no puede exceder 50 caracteres";
-      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return "El nombre solo puede contener letras";
+      if (!value.trim()) return t("validation.required");
+      if (value.trim().length < 2) return t("validation.required");
+      if (!validateTextLength(value, 50)) return t("validation.required");
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return t("validation.required");
     }
 
     if (fieldName === "middleName") {
-      if (value && !validateTextLength(value, 50)) return "El segundo nombre no puede exceder 50 caracteres";
-      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return "El segundo nombre solo puede contener letras";
+      if (value && !validateTextLength(value, 50)) return t("validation.required");
+      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return t("validation.required");
     }
 
     if (fieldName === "lastName") {
-      if (!value.trim()) return "El apellido es requerido";
-      if (value.trim().length < 2) return "El apellido debe tener al menos 2 caracteres";
-      if (!validateTextLength(value, 50)) return "El apellido no puede exceder 50 caracteres";
-      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return "El apellido solo puede contener letras";
+      if (!value.trim()) return t("validation.required");
+      if (value.trim().length < 2) return t("validation.required");
+      if (!validateTextLength(value, 50)) return t("validation.required");
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return t("validation.required");
     }
 
     if (fieldName === "dateOfBirth") {
-      if (value && !validateDate(value)) return "Fecha de nacimiento inválida";
-      if (value && !validateAge(value)) return "La edad debe estar entre 0 y 150 años";
+      if (value && !validateDate(value)) return t("validation.invalidDate");
+      if (value && !validateAge(value)) return t("validation.invalidDate");
     }
 
-    if (fieldName === "nationality") {
-      if (value && !validateTextLength(value, 50)) return "La nacionalidad no puede exceder 50 caracteres";
-    }
-
-    if (fieldName === "passportNumber") {
-      if (value && !validateTextLength(value, 20)) return "El número de pasaporte no puede exceder 20 caracteres";
+    if (fieldName === "nationality" || fieldName === "passportNumber") {
+      if (value && !validateTextLength(value, 50)) return t("validation.required");
     }
 
     if (fieldName === "permanentAddress") {
-      if (value && !validateTextLength(value, 200)) return "La dirección no puede exceder 200 caracteres";
+      if (value && !validateTextLength(value, 200)) return t("validation.required");
     }
 
-    // Step 3: Allergies
-    if (fieldName === "medicationDetails") {
-      if (profile.allergies.medication.hasAllergies && !value.trim()) {
-        return "Por favor especifica los medicamentos a los que eres alérgico";
-      }
-      if (value && !validateTextLength(value, 500)) return "Los detalles no pueden exceder 500 caracteres";
+    if (fieldName === "medicationDetails" || fieldName === "foodDetails") {
+      if (value && !validateTextLength(value, 500)) return t("validation.required");
     }
 
-    if (fieldName === "foodDetails") {
-      if (profile.allergies.food.hasAllergies && !value.trim()) {
-        return "Por favor especifica los alimentos a los que eres alérgico";
-      }
-      if (value && !validateTextLength(value, 500)) return "Los detalles no pueden exceder 500 caracteres";
-    }
-
-    // Step 4: Medical History
     if (fieldName === "previousDiagnoses" || fieldName === "currentDiagnoses" || 
         fieldName === "currentMedications" || fieldName === "previousSurgeries") {
-      if (value && !validateTextLength(value, 1000)) return "El texto no puede exceder 1000 caracteres";
+      if (value && !validateTextLength(value, 1000)) return t("validation.required");
     }
 
-    // Step 5: Emergency Contacts
     if (fieldName === "primaryName") {
-      if (!value.trim()) return "El nombre del contacto principal es requerido";
-      if (value.trim().length < 2) return "El nombre debe tener al menos 2 caracteres";
-      if (!validateTextLength(value, 100)) return "El nombre no puede exceder 100 caracteres";
+      if (!value.trim()) return t("validation.required");
+      if (value.trim().length < 2) return t("validation.required");
+      if (!validateTextLength(value, 100)) return t("validation.required");
     }
 
     if (fieldName === "primaryPhone") {
-      if (!value.trim()) return "El teléfono móvil del contacto principal es requerido";
-      if (!validatePhone(value)) return "Formato de teléfono inválido (mínimo 10 dígitos)";
+      if (!value.trim()) return t("validation.required");
+      if (!validatePhone(value)) return t("validation.invalidPhone");
     }
 
-    if (fieldName === "primaryOfficePhone" || fieldName === "secondaryPhone" || fieldName === "secondaryOfficePhone") {
-      if (value && !validatePhone(value)) return "Formato de teléfono inválido (mínimo 10 dígitos)";
+    if (fieldName === "primaryOfficePhone" || fieldName === "secondaryPhone" || 
+        fieldName === "secondaryOfficePhone" || fieldName === "doctorPhone") {
+      if (value && !validatePhone(value)) return t("validation.invalidPhone");
     }
 
-    if (fieldName === "primaryEmail" || fieldName === "secondaryEmail") {
-      if (value && !validateEmail(value)) return "Formato de correo electrónico inválido";
+    if (fieldName === "primaryEmail" || fieldName === "secondaryEmail" || fieldName === "doctorEmail") {
+      if (value && !validateEmail(value)) return t("validation.invalidEmail");
     }
 
-    if (fieldName === "secondaryName") {
-      if (value && !validateTextLength(value, 100)) return "El nombre no puede exceder 100 caracteres";
-    }
-
-    // Step 6: Primary Physician
-    if (fieldName === "doctorName") {
-      if (value && !validateTextLength(value, 100)) return "El nombre no puede exceder 100 caracteres";
-    }
-
-    if (fieldName === "doctorPhone") {
-      if (value && !validatePhone(value)) return "Formato de teléfono inválido (mínimo 10 dígitos)";
-    }
-
-    if (fieldName === "doctorEmail") {
-      if (value && !validateEmail(value)) return "Formato de correo electrónico inválido";
-    }
-
-    if (fieldName === "doctorClinic") {
-      if (value && !validateTextLength(value, 200)) return "El nombre no puede exceder 200 caracteres";
+    if (fieldName === "secondaryName" || fieldName === "doctorName" || fieldName === "doctorClinic") {
+      if (value && !validateTextLength(value, 200)) return t("validation.required");
     }
 
     return "";
@@ -248,15 +215,6 @@ export function MedicalForm() {
 
       const dobError = validateField("dateOfBirth", profile.personalInfo.dateOfBirth);
       if (dobError) newErrors.dateOfBirth = dobError;
-
-      const nationalityError = validateField("nationality", profile.personalInfo.nationality);
-      if (nationalityError) newErrors.nationality = nationalityError;
-
-      const passportError = validateField("passportNumber", profile.personalInfo.passportNumber);
-      if (passportError) newErrors.passportNumber = passportError;
-
-      const addressError = validateField("permanentAddress", profile.personalInfo.permanentAddress);
-      if (addressError) newErrors.permanentAddress = addressError;
     }
 
     if (step === 3) {
@@ -265,20 +223,6 @@ export function MedicalForm() {
 
       const foodError = validateField("foodDetails", profile.allergies.food.details);
       if (foodError) newErrors.foodDetails = foodError;
-    }
-
-    if (step === 4) {
-      const prevDiagError = validateField("previousDiagnoses", profile.medicalHistory.previousDiagnoses);
-      if (prevDiagError) newErrors.previousDiagnoses = prevDiagError;
-
-      const currDiagError = validateField("currentDiagnoses", profile.medicalHistory.currentDiagnoses);
-      if (currDiagError) newErrors.currentDiagnoses = currDiagError;
-
-      const medsError = validateField("currentMedications", profile.medicalHistory.currentMedications);
-      if (medsError) newErrors.currentMedications = medsError;
-
-      const surgError = validateField("previousSurgeries", profile.medicalHistory.previousSurgeries);
-      if (surgError) newErrors.previousSurgeries = surgError;
     }
 
     if (step === 5) {
@@ -293,32 +237,6 @@ export function MedicalForm() {
 
       const primaryEmailError = validateField("primaryEmail", profile.emergencyContacts.primary.email);
       if (primaryEmailError) newErrors.primaryEmail = primaryEmailError;
-
-      const secondaryNameError = validateField("secondaryName", profile.emergencyContacts.secondary.fullName);
-      if (secondaryNameError) newErrors.secondaryName = secondaryNameError;
-
-      const secondaryPhoneError = validateField("secondaryPhone", profile.emergencyContacts.secondary.mobilePhone);
-      if (secondaryPhoneError) newErrors.secondaryPhone = secondaryPhoneError;
-
-      const secondaryOfficeError = validateField("secondaryOfficePhone", profile.emergencyContacts.secondary.officePhone);
-      if (secondaryOfficeError) newErrors.secondaryOfficePhone = secondaryOfficeError;
-
-      const secondaryEmailError = validateField("secondaryEmail", profile.emergencyContacts.secondary.email);
-      if (secondaryEmailError) newErrors.secondaryEmail = secondaryEmailError;
-    }
-
-    if (step === 6) {
-      const doctorNameError = validateField("doctorName", profile.primaryPhysician.fullName);
-      if (doctorNameError) newErrors.doctorName = doctorNameError;
-
-      const doctorPhoneError = validateField("doctorPhone", profile.primaryPhysician.phone);
-      if (doctorPhoneError) newErrors.doctorPhone = doctorPhoneError;
-
-      const doctorEmailError = validateField("doctorEmail", profile.primaryPhysician.email);
-      if (doctorEmailError) newErrors.doctorEmail = doctorEmailError;
-
-      const doctorClinicError = validateField("doctorClinic", profile.primaryPhysician.clinicHospital);
-      if (doctorClinicError) newErrors.doctorClinic = doctorClinicError;
     }
 
     setErrors(newErrors);
@@ -392,7 +310,7 @@ export function MedicalForm() {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {currentStep <= 6 ? `Paso ${currentStep} de 6` : "Revisión"}
+              {currentStep <= 6 ? `${t("form.step")} ${currentStep} ${t("form.of")} 6` : t("form.review.title")}
             </h2>
             <span className="text-sm text-gray-600 dark:text-gray-400">
               {currentStep <= 6 ? Math.round((currentStep / 6) * 100) : 100}%
@@ -425,7 +343,7 @@ export function MedicalForm() {
             <div className="space-y-6">
               <div>
                 <Label htmlFor="firstName" className="text-lg font-medium">
-                  Nombre *
+                  {t("form.personal.fullName")} *
                 </Label>
                 <Input
                   id="firstName"
@@ -433,7 +351,7 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange(["personalInfo", "firstName"], e.target.value, "firstName")}
                   onBlur={() => handleBlur("firstName")}
                   className={`mt-2 h-12 text-lg ${errors.firstName ? "border-red-500" : ""}`}
-                  placeholder="Juan"
+                  placeholder={t("form.personal.fullNamePlaceholder")}
                 />
                 {errors.firstName && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -445,7 +363,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="middleName" className="text-lg font-medium">
-                  Segundo Nombre
+                  {t("common.optional")}
                 </Label>
                 <Input
                   id="middleName"
@@ -453,7 +371,7 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange(["personalInfo", "middleName"], e.target.value, "middleName")}
                   onBlur={() => handleBlur("middleName")}
                   className={`mt-2 h-12 text-lg ${errors.middleName ? "border-red-500" : ""}`}
-                  placeholder="Carlos"
+                  placeholder={t("form.personal.fullNamePlaceholder")}
                 />
                 {errors.middleName && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -465,7 +383,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="lastName" className="text-lg font-medium">
-                  Apellido *
+                  {t("form.personal.fullName")} *
                 </Label>
                 <Input
                   id="lastName"
@@ -473,7 +391,7 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange(["personalInfo", "lastName"], e.target.value, "lastName")}
                   onBlur={() => handleBlur("lastName")}
                   className={`mt-2 h-12 text-lg ${errors.lastName ? "border-red-500" : ""}`}
-                  placeholder="Pérez"
+                  placeholder={t("form.personal.fullNamePlaceholder")}
                 />
                 {errors.lastName && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -485,7 +403,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="dateOfBirth" className="text-lg font-medium">
-                  Fecha de Nacimiento
+                  {t("form.personal.dateOfBirth")}
                 </Label>
                 <Input
                   id="dateOfBirth"
@@ -505,7 +423,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="nationality" className="text-lg font-medium">
-                  Nacionalidad
+                  {t("form.personal.fullName")}
                 </Label>
                 <Input
                   id="nationality"
@@ -513,72 +431,52 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange(["personalInfo", "nationality"], e.target.value, "nationality")}
                   onBlur={() => handleBlur("nationality")}
                   className={`mt-2 h-12 text-lg ${errors.nationality ? "border-red-500" : ""}`}
-                  placeholder="Mexicana"
+                  placeholder={t("form.personal.fullNamePlaceholder")}
                 />
-                {errors.nationality && (
-                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.nationality}
-                  </p>
-                )}
               </div>
 
               <div>
                 <Label htmlFor="maritalStatus" className="text-lg font-medium">
-                  Estado Civil
+                  {t("form.personal.gender")}
                 </Label>
                 <Select
                   value={profile.personalInfo.maritalStatus}
                   onValueChange={(value) => updateProfile(["personalInfo", "maritalStatus"], value)}
                 >
                   <SelectTrigger className="mt-2 h-12 text-lg">
-                    <SelectValue placeholder="Selecciona tu estado civil" />
+                    <SelectValue placeholder={t("form.personal.genderPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Single">Soltero/a</SelectItem>
-                    <SelectItem value="Married">Casado/a</SelectItem>
+                    <SelectItem value="Single">{t("common.optional")}</SelectItem>
+                    <SelectItem value="Married">{t("common.optional")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
                 <Label htmlFor="passportNumber" className="text-lg font-medium">
-                  Número de Pasaporte
+                  {t("form.personal.fullName")}
                 </Label>
                 <Input
                   id="passportNumber"
                   value={profile.personalInfo.passportNumber}
                   onChange={(e) => handleFieldChange(["personalInfo", "passportNumber"], e.target.value, "passportNumber")}
-                  onBlur={() => handleBlur("passportNumber")}
-                  className={`mt-2 h-12 text-lg ${errors.passportNumber ? "border-red-500" : ""}`}
+                  className="mt-2 h-12 text-lg"
                   placeholder="A12345678"
                 />
-                {errors.passportNumber && (
-                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.passportNumber}
-                  </p>
-                )}
               </div>
 
               <div>
                 <Label htmlFor="permanentAddress" className="text-lg font-medium">
-                  Dirección Permanente
+                  {t("form.personal.fullName")}
                 </Label>
                 <Textarea
                   id="permanentAddress"
                   value={profile.personalInfo.permanentAddress}
                   onChange={(e) => handleFieldChange(["personalInfo", "permanentAddress"], e.target.value, "permanentAddress")}
-                  onBlur={() => handleBlur("permanentAddress")}
-                  className={`mt-2 text-lg min-h-24 ${errors.permanentAddress ? "border-red-500" : ""}`}
-                  placeholder="Calle, número, colonia, ciudad, estado, código postal"
+                  className="mt-2 text-lg min-h-24"
+                  placeholder={t("form.personal.fullNamePlaceholder")}
                 />
-                {errors.permanentAddress && (
-                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.permanentAddress}
-                  </p>
-                )}
               </div>
             </div>
           )}
@@ -588,14 +486,14 @@ export function MedicalForm() {
             <div className="space-y-8">
               <div>
                 <Label htmlFor="bloodType" className="text-lg font-medium">
-                  Tipo de Sangre
+                  {t("form.personal.bloodType")}
                 </Label>
                 <Select
                   value={profile.bloodType}
                   onValueChange={(value) => updateProfile(["bloodType"], value)}
                 >
                   <SelectTrigger className="mt-2 h-12 text-lg">
-                    <SelectValue placeholder="Selecciona tu tipo de sangre" />
+                    <SelectValue placeholder={t("form.personal.bloodTypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="O+">O+</SelectItem>
@@ -614,10 +512,10 @@ export function MedicalForm() {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-lg font-medium">
-                      ¿Acepta transfusiones de sangre?
+                      {t("form.additional.advanceDirectives")}
                     </Label>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Información crítica para emergencias
+                      {t("form.review.subtitle")}
                     </p>
                   </div>
                   <Switch
@@ -628,7 +526,7 @@ export function MedicalForm() {
                 </div>
                 <div className="mt-4 text-center">
                   <span className={`text-2xl font-bold ${profile.acceptsTransfusion ? "text-green-600" : "text-red-600"}`}>
-                    {profile.acceptsTransfusion ? "SÍ" : "NO"}
+                    {profile.acceptsTransfusion ? t("common.yes") : t("common.no")}
                   </span>
                 </div>
               </div>
@@ -642,16 +540,15 @@ export function MedicalForm() {
                 <div className="flex items-center gap-2 mb-4">
                   <AlertTriangle className="w-6 h-6 text-red-600" />
                   <h3 className="text-xl font-bold text-red-900 dark:text-red-100">
-                    Información Crítica de Alergias
+                    {t("card.allergies")}
                   </h3>
                 </div>
 
                 <div className="space-y-6">
-                  {/* Medication Allergies */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <Label className="text-lg font-medium">
-                        ¿Alergia a medicamentos?
+                        {t("form.history.allergies")}
                       </Label>
                       <Switch
                         checked={profile.allergies.medication.hasAllergies}
@@ -666,7 +563,7 @@ export function MedicalForm() {
                           onChange={(e) => handleFieldChange(["allergies", "medication", "details"], e.target.value, "medicationDetails")}
                           onBlur={() => handleBlur("medicationDetails")}
                           className={`mt-2 text-lg min-h-24 ${errors.medicationDetails ? "border-red-500" : ""}`}
-                          placeholder="Lista todos los medicamentos a los que eres alérgico..."
+                          placeholder={t("form.history.allergiesPlaceholder")}
                         />
                         {errors.medicationDetails && (
                           <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -678,11 +575,10 @@ export function MedicalForm() {
                     )}
                   </div>
 
-                  {/* Food Allergies */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <Label className="text-lg font-medium">
-                        ¿Alergia a alimentos?
+                        {t("form.history.allergies")}
                       </Label>
                       <Switch
                         checked={profile.allergies.food.hasAllergies}
@@ -697,7 +593,7 @@ export function MedicalForm() {
                           onChange={(e) => handleFieldChange(["allergies", "food", "details"], e.target.value, "foodDetails")}
                           onBlur={() => handleBlur("foodDetails")}
                           className={`mt-2 text-lg min-h-24 ${errors.foodDetails ? "border-red-500" : ""}`}
-                          placeholder="Lista todos los alimentos a los que eres alérgico..."
+                          placeholder={t("form.history.allergiesPlaceholder")}
                         />
                         {errors.foodDetails && (
                           <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -718,90 +614,61 @@ export function MedicalForm() {
             <div className="space-y-6">
               <div>
                 <Label htmlFor="previousDiagnoses" className="text-lg font-medium">
-                  Diagnósticos Previos
+                  {t("form.history.chronicConditions")}
                 </Label>
                 <Textarea
                   id="previousDiagnoses"
                   value={profile.medicalHistory.previousDiagnoses}
                   onChange={(e) => handleFieldChange(["medicalHistory", "previousDiagnoses"], e.target.value, "previousDiagnoses")}
-                  onBlur={() => handleBlur("previousDiagnoses")}
-                  className={`mt-2 text-lg min-h-24 ${errors.previousDiagnoses ? "border-red-500" : ""}`}
-                  placeholder="Enfermedades o condiciones diagnosticadas anteriormente..."
+                  className="mt-2 text-lg min-h-24"
+                  placeholder={t("form.history.chronicConditionsPlaceholder")}
                 />
-                {errors.previousDiagnoses && (
-                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.previousDiagnoses}
-                  </p>
-                )}
               </div>
 
               <div>
                 <Label htmlFor="currentDiagnoses" className="text-lg font-medium">
-                  Diagnósticos Actuales
+                  {t("form.history.chronicConditions")}
                 </Label>
                 <Textarea
                   id="currentDiagnoses"
                   value={profile.medicalHistory.currentDiagnoses}
                   onChange={(e) => handleFieldChange(["medicalHistory", "currentDiagnoses"], e.target.value, "currentDiagnoses")}
-                  onBlur={() => handleBlur("currentDiagnoses")}
-                  className={`mt-2 text-lg min-h-24 ${errors.currentDiagnoses ? "border-red-500" : ""}`}
-                  placeholder="Condiciones médicas que padeces actualmente..."
+                  className="mt-2 text-lg min-h-24"
+                  placeholder={t("form.history.chronicConditionsPlaceholder")}
                 />
-                {errors.currentDiagnoses && (
-                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.currentDiagnoses}
-                  </p>
-                )}
               </div>
 
               <div>
                 <Label htmlFor="currentMedications" className="text-lg font-medium">
-                  Medicamentos Actuales
+                  {t("form.history.currentMedications")}
                 </Label>
                 <Textarea
                   id="currentMedications"
                   value={profile.medicalHistory.currentMedications}
                   onChange={(e) => handleFieldChange(["medicalHistory", "currentMedications"], e.target.value, "currentMedications")}
-                  onBlur={() => handleBlur("currentMedications")}
-                  className={`mt-2 text-lg min-h-24 ${errors.currentMedications ? "border-red-500" : ""}`}
-                  placeholder="Lista todos los medicamentos que tomas regularmente..."
+                  className="mt-2 text-lg min-h-24"
+                  placeholder={t("form.history.currentMedicationsPlaceholder")}
                 />
-                {errors.currentMedications && (
-                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.currentMedications}
-                  </p>
-                )}
               </div>
 
               <div>
                 <Label htmlFor="previousSurgeries" className="text-lg font-medium">
-                  Cirugías Previas
+                  {t("form.history.previousSurgeries")}
                 </Label>
                 <Textarea
                   id="previousSurgeries"
                   value={profile.medicalHistory.previousSurgeries}
                   onChange={(e) => handleFieldChange(["medicalHistory", "previousSurgeries"], e.target.value, "previousSurgeries")}
-                  onBlur={() => handleBlur("previousSurgeries")}
-                  className={`mt-2 text-lg min-h-24 ${errors.previousSurgeries ? "border-red-500" : ""}`}
-                  placeholder="Lista cirugías que has tenido, con fechas si es posible..."
+                  className="mt-2 text-lg min-h-24"
+                  placeholder={t("form.history.previousSurgeriesPlaceholder")}
                 />
-                {errors.previousSurgeries && (
-                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.previousSurgeries}
-                  </p>
-                )}
               </div>
 
-              {/* Conditional Questions */}
               <div className="space-y-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <Label className="text-base font-medium">
-                      ¿Complicaciones en cirugías?
+                      {t("common.optional")}
                     </Label>
                     <Switch
                       checked={profile.medicalHistory.surgeryComplications.hasComplications}
@@ -813,7 +680,7 @@ export function MedicalForm() {
                       value={profile.medicalHistory.surgeryComplications.details}
                       onChange={(e) => updateProfile(["medicalHistory", "surgeryComplications", "details"], e.target.value)}
                       className="mt-2 text-base"
-                      placeholder="Describe las complicaciones..."
+                      placeholder={t("form.history.previousSurgeriesPlaceholder")}
                     />
                   )}
                 </div>
@@ -821,7 +688,7 @@ export function MedicalForm() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <Label className="text-base font-medium">
-                      ¿Reacción a anestesia?
+                      {t("common.optional")}
                     </Label>
                     <Switch
                       checked={profile.medicalHistory.anesthesiaReaction.hasReaction}
@@ -833,7 +700,7 @@ export function MedicalForm() {
                       value={profile.medicalHistory.anesthesiaReaction.details}
                       onChange={(e) => updateProfile(["medicalHistory", "anesthesiaReaction", "details"], e.target.value)}
                       className="mt-2 text-base"
-                      placeholder="Describe la reacción..."
+                      placeholder={t("form.history.previousSurgeriesPlaceholder")}
                     />
                   )}
                 </div>
@@ -841,7 +708,7 @@ export function MedicalForm() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <Label className="text-base font-medium">
-                      ¿Historial de trasplantes?
+                      {t("common.optional")}
                     </Label>
                     <Switch
                       checked={profile.medicalHistory.transplantHistory.hasTransplant}
@@ -853,7 +720,7 @@ export function MedicalForm() {
                       value={profile.medicalHistory.transplantHistory.details}
                       onChange={(e) => updateProfile(["medicalHistory", "transplantHistory", "details"], e.target.value)}
                       className="mt-2 text-base"
-                      placeholder="Describe el trasplante y fecha..."
+                      placeholder={t("form.history.previousSurgeriesPlaceholder")}
                     />
                   )}
                 </div>
@@ -864,17 +731,16 @@ export function MedicalForm() {
           {/* Step 5: Emergency Contacts */}
           {currentStep === 5 && (
             <div className="space-y-8">
-              {/* Primary Contact */}
               <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <Phone className="w-5 h-5" />
-                  Contacto Principal *
+                  {t("form.emergency.title")} *
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="primaryName" className="text-base font-medium">
-                      Nombre Completo *
+                      {t("form.emergency.name")} *
                     </Label>
                     <Input
                       id="primaryName"
@@ -882,7 +748,7 @@ export function MedicalForm() {
                       onChange={(e) => handleFieldChange(["emergencyContacts", "primary", "fullName"], e.target.value, "primaryName")}
                       onBlur={() => handleBlur("primaryName")}
                       className={`mt-2 h-12 text-lg ${errors.primaryName ? "border-red-500" : ""}`}
-                      placeholder="María García"
+                      placeholder={t("form.emergency.namePlaceholder")}
                     />
                     {errors.primaryName && (
                       <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -894,7 +760,7 @@ export function MedicalForm() {
 
                   <div>
                     <Label htmlFor="primaryMobile" className="text-base font-medium">
-                      Teléfono Móvil *
+                      {t("form.emergency.phone")} *
                     </Label>
                     <Input
                       id="primaryMobile"
@@ -903,7 +769,7 @@ export function MedicalForm() {
                       onChange={(e) => handleFieldChange(["emergencyContacts", "primary", "mobilePhone"], e.target.value, "primaryPhone")}
                       onBlur={() => handleBlur("primaryPhone")}
                       className={`mt-2 h-12 text-lg ${errors.primaryPhone ? "border-red-500" : ""}`}
-                      placeholder="+52 55 1234 5678"
+                      placeholder={t("form.emergency.phonePlaceholder")}
                     />
                     {errors.primaryPhone && (
                       <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -915,7 +781,7 @@ export function MedicalForm() {
 
                   <div>
                     <Label htmlFor="primaryOffice" className="text-base font-medium">
-                      Teléfono de Oficina
+                      {t("form.emergency.phone")}
                     </Label>
                     <Input
                       id="primaryOffice"
@@ -924,19 +790,13 @@ export function MedicalForm() {
                       onChange={(e) => handleFieldChange(["emergencyContacts", "primary", "officePhone"], e.target.value, "primaryOfficePhone")}
                       onBlur={() => handleBlur("primaryOfficePhone")}
                       className={`mt-2 h-12 text-lg ${errors.primaryOfficePhone ? "border-red-500" : ""}`}
-                      placeholder="+52 55 8765 4321"
+                      placeholder={t("form.emergency.phonePlaceholder")}
                     />
-                    {errors.primaryOfficePhone && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.primaryOfficePhone}
-                      </p>
-                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="primaryEmail" className="text-base font-medium">
-                      Correo Electrónico
+                      {t("form.emergency.email")}
                     </Label>
                     <Input
                       id="primaryEmail"
@@ -945,107 +805,72 @@ export function MedicalForm() {
                       onChange={(e) => handleFieldChange(["emergencyContacts", "primary", "email"], e.target.value, "primaryEmail")}
                       onBlur={() => handleBlur("primaryEmail")}
                       className={`mt-2 h-12 text-lg ${errors.primaryEmail ? "border-red-500" : ""}`}
-                      placeholder="maria@ejemplo.com"
+                      placeholder={t("form.emergency.emailPlaceholder")}
                     />
-                    {errors.primaryEmail && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.primaryEmail}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Secondary Contact */}
               <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <Phone className="w-5 h-5" />
-                  Contacto Secundario (Opcional)
+                  {t("common.optional")}
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="secondaryName" className="text-base font-medium">
-                      Nombre Completo
+                      {t("form.emergency.name")}
                     </Label>
                     <Input
                       id="secondaryName"
                       value={profile.emergencyContacts.secondary.fullName}
                       onChange={(e) => handleFieldChange(["emergencyContacts", "secondary", "fullName"], e.target.value, "secondaryName")}
-                      onBlur={() => handleBlur("secondaryName")}
-                      className={`mt-2 h-12 text-lg ${errors.secondaryName ? "border-red-500" : ""}`}
-                      placeholder="Pedro López"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.emergency.namePlaceholder")}
                     />
-                    {errors.secondaryName && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.secondaryName}
-                      </p>
-                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="secondaryMobile" className="text-base font-medium">
-                      Teléfono Móvil
+                      {t("form.emergency.phone")}
                     </Label>
                     <Input
                       id="secondaryMobile"
                       type="tel"
                       value={profile.emergencyContacts.secondary.mobilePhone}
                       onChange={(e) => handleFieldChange(["emergencyContacts", "secondary", "mobilePhone"], e.target.value, "secondaryPhone")}
-                      onBlur={() => handleBlur("secondaryPhone")}
-                      className={`mt-2 h-12 text-lg ${errors.secondaryPhone ? "border-red-500" : ""}`}
-                      placeholder="+52 55 9876 5432"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.emergency.phonePlaceholder")}
                     />
-                    {errors.secondaryPhone && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.secondaryPhone}
-                      </p>
-                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="secondaryOffice" className="text-base font-medium">
-                      Teléfono de Oficina
+                      {t("form.emergency.phone")}
                     </Label>
                     <Input
                       id="secondaryOffice"
                       type="tel"
                       value={profile.emergencyContacts.secondary.officePhone}
                       onChange={(e) => handleFieldChange(["emergencyContacts", "secondary", "officePhone"], e.target.value, "secondaryOfficePhone")}
-                      onBlur={() => handleBlur("secondaryOfficePhone")}
-                      className={`mt-2 h-12 text-lg ${errors.secondaryOfficePhone ? "border-red-500" : ""}`}
-                      placeholder="+52 55 2345 6789"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.emergency.phonePlaceholder")}
                     />
-                    {errors.secondaryOfficePhone && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.secondaryOfficePhone}
-                      </p>
-                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="secondaryEmail" className="text-base font-medium">
-                      Correo Electrónico
+                      {t("form.emergency.email")}
                     </Label>
                     <Input
                       id="secondaryEmail"
                       type="email"
                       value={profile.emergencyContacts.secondary.email}
                       onChange={(e) => handleFieldChange(["emergencyContacts", "secondary", "email"], e.target.value, "secondaryEmail")}
-                      onBlur={() => handleBlur("secondaryEmail")}
-                      className={`mt-2 h-12 text-lg ${errors.secondaryEmail ? "border-red-500" : ""}`}
-                      placeholder="pedro@ejemplo.com"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.emergency.emailPlaceholder")}
                     />
-                    {errors.secondaryEmail && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.secondaryEmail}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1058,90 +883,62 @@ export function MedicalForm() {
               <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <Stethoscope className="w-5 h-5" />
-                  Información del Médico Primario
+                  {t("form.insurance.primaryPhysician")}
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="doctorName" className="text-base font-medium">
-                      Nombre Completo del Doctor
+                      {t("form.insurance.primaryPhysician")}
                     </Label>
                     <Input
                       id="doctorName"
                       value={profile.primaryPhysician.fullName}
                       onChange={(e) => handleFieldChange(["primaryPhysician", "fullName"], e.target.value, "doctorName")}
-                      onBlur={() => handleBlur("doctorName")}
-                      className={`mt-2 h-12 text-lg ${errors.doctorName ? "border-red-500" : ""}`}
-                      placeholder="Dr. Roberto Martínez"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.insurance.primaryPhysicianPlaceholder")}
                     />
-                    {errors.doctorName && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.doctorName}
-                      </p>
-                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="doctorPhone" className="text-base font-medium">
-                      Teléfono
+                      {t("form.emergency.phone")}
                     </Label>
                     <Input
                       id="doctorPhone"
                       type="tel"
                       value={profile.primaryPhysician.phone}
                       onChange={(e) => handleFieldChange(["primaryPhysician", "phone"], e.target.value, "doctorPhone")}
-                      onBlur={() => handleBlur("doctorPhone")}
-                      className={`mt-2 h-12 text-lg ${errors.doctorPhone ? "border-red-500" : ""}`}
-                      placeholder="+52 55 3456 7890"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.insurance.physicianPhonePlaceholder")}
                     />
-                    {errors.doctorPhone && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.doctorPhone}
-                      </p>
-                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="doctorEmail" className="text-base font-medium">
-                      Correo Electrónico
+                      {t("form.emergency.email")}
                     </Label>
                     <Input
                       id="doctorEmail"
                       type="email"
                       value={profile.primaryPhysician.email}
                       onChange={(e) => handleFieldChange(["primaryPhysician", "email"], e.target.value, "doctorEmail")}
-                      onBlur={() => handleBlur("doctorEmail")}
-                      className={`mt-2 h-12 text-lg ${errors.doctorEmail ? "border-red-500" : ""}`}
-                      placeholder="dr.martinez@clinica.com"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.emergency.emailPlaceholder")}
                     />
-                    {errors.doctorEmail && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.doctorEmail}
-                      </p>
-                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="doctorClinic" className="text-base font-medium">
-                      Clínica / Hospital
+                      {t("common.optional")}
                     </Label>
                     <Input
                       id="doctorClinic"
                       value={profile.primaryPhysician.clinicHospital}
                       onChange={(e) => handleFieldChange(["primaryPhysician", "clinicHospital"], e.target.value, "doctorClinic")}
-                      onBlur={() => handleBlur("doctorClinic")}
-                      className={`mt-2 h-12 text-lg ${errors.doctorClinic ? "border-red-500" : ""}`}
-                      placeholder="Hospital General de México"
+                      className="mt-2 h-12 text-lg"
+                      placeholder={t("form.personal.fullNamePlaceholder")}
                     />
-                    {errors.doctorClinic && (
-                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {errors.doctorClinic}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1151,50 +948,43 @@ export function MedicalForm() {
           {/* Step 7: Review */}
           {currentStep === 7 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-center mb-6">Revisión de Información</h2>
+              <h2 className="text-2xl font-bold text-center mb-6">{t("form.review.title")}</h2>
 
-              {/* Personal Information */}
               <div className="border-l-4 border-blue-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Información Personal</h3>
+                <h3 className="font-bold text-lg mb-2">{t("form.review.personalInfo")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Nombre:</span> {profile.personalInfo.firstName} {profile.personalInfo.middleName} {profile.personalInfo.lastName}</p>
-                  <p><span className="font-medium">Fecha de Nacimiento:</span> {profile.personalInfo.dateOfBirth || "No especificado"}</p>
-                  <p><span className="font-medium">Nacionalidad:</span> {profile.personalInfo.nationality || "No especificado"}</p>
-                  <p><span className="font-medium">Estado Civil:</span> {profile.personalInfo.maritalStatus || "No especificado"}</p>
+                  <p><span className="font-medium">{t("card.name")}:</span> {profile.personalInfo.firstName} {profile.personalInfo.middleName} {profile.personalInfo.lastName}</p>
+                  <p><span className="font-medium">{t("card.dob")}:</span> {profile.personalInfo.dateOfBirth || t("common.unknown")}</p>
                 </div>
               </div>
 
-              {/* Medical Information */}
               <div className="border-l-4 border-red-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Información Médica</h3>
+                <h3 className="font-bold text-lg mb-2">{t("form.review.medicalHistory")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Tipo de Sangre:</span> {profile.bloodType || "No especificado"}</p>
-                  <p><span className="font-medium">Acepta Transfusiones:</span> {profile.acceptsTransfusion ? "Sí" : "No"}</p>
+                  <p><span className="font-medium">{t("card.bloodType")}:</span> {profile.bloodType || t("common.unknown")}</p>
+                  <p><span className="font-medium">{t("form.additional.advanceDirectives")}:</span> {profile.acceptsTransfusion ? t("common.yes") : t("common.no")}</p>
                 </div>
               </div>
 
-              {/* Allergies */}
               <div className="border-l-4 border-yellow-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Alergias</h3>
+                <h3 className="font-bold text-lg mb-2">{t("card.allergies")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Medicamentos:</span> {profile.allergies.medication.hasAllergies ? profile.allergies.medication.details : "Ninguna"}</p>
-                  <p><span className="font-medium">Alimentos:</span> {profile.allergies.food.hasAllergies ? profile.allergies.food.details : "Ninguna"}</p>
+                  <p><span className="font-medium">{t("form.history.currentMedications")}:</span> {profile.allergies.medication.hasAllergies ? profile.allergies.medication.details : t("card.none")}</p>
+                  <p><span className="font-medium">{t("common.optional")}:</span> {profile.allergies.food.hasAllergies ? profile.allergies.food.details : t("card.none")}</p>
                 </div>
               </div>
 
-              {/* Emergency Contact */}
               <div className="border-l-4 border-green-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Contacto de Emergencia</h3>
+                <h3 className="font-bold text-lg mb-2">{t("form.review.emergencyContact")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Nombre:</span> {profile.emergencyContacts.primary.fullName}</p>
-                  <p><span className="font-medium">Teléfono:</span> {profile.emergencyContacts.primary.mobilePhone}</p>
+                  <p><span className="font-medium">{t("card.name")}:</span> {profile.emergencyContacts.primary.fullName}</p>
+                  <p><span className="font-medium">{t("card.phone")}:</span> {profile.emergencyContacts.primary.mobilePhone}</p>
                 </div>
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Revisa cuidadosamente toda la información antes de guardar.
-                  Esta información será utilizada en emergencias médicas.
+                  {t("form.review.subtitle")}
                 </p>
               </div>
             </div>
@@ -1211,7 +1001,7 @@ export function MedicalForm() {
               className="flex-1 h-14 text-lg"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Atrás
+              {t("common.back")}
             </Button>
           )}
 
@@ -1221,7 +1011,7 @@ export function MedicalForm() {
               size="lg"
               className="flex-1 h-14 text-lg bg-blue-600 hover:bg-blue-700"
             >
-              Siguiente
+              {t("common.next")}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           )}
@@ -1232,7 +1022,7 @@ export function MedicalForm() {
               size="lg"
               className="flex-1 h-14 text-lg bg-blue-600 hover:bg-blue-700"
             >
-              Revisar
+              {t("form.review.title")}
               <Check className="w-5 h-5 ml-2" />
             </Button>
           )}
@@ -1244,16 +1034,16 @@ export function MedicalForm() {
               className="flex-1 h-14 text-lg bg-green-600 hover:bg-green-700"
             >
               <Check className="w-5 h-5 mr-2" />
-              Guardar Perfil Médico
+              {t("form.review.submit")}
             </Button>
           )}
         </div>
 
-        {/* Optional ID Upload - Only shown in review step */}
+        {/* Optional ID Upload */}
         {currentStep === 7 && (
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Opcional: Agrega una foto de tu identificación
+              {t("form.review.uploadIdOptional")}
             </p>
             <Button
               onClick={handleSaveAndUploadId}
@@ -1262,7 +1052,7 @@ export function MedicalForm() {
               className="w-full h-14 text-lg"
             >
               <IdCard className="w-5 h-5 mr-2" />
-              Agregar Documento de Identificación
+              {t("form.review.uploadId")}
             </Button>
           </div>
         )}

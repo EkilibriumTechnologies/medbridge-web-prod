@@ -1,12 +1,15 @@
 import SEO from "@/components/SEO";
 import { MedicalCard } from "@/components/MedicalCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function MedicalCardPage() {
+  const { t } = useLanguage();
+  
   return (
     <>
       <SEO
-        title="Medical Emergency Card - MedBridge"
-        description="Access medical information for emergency situations"
+        title={`${t("card.title")} - MedBridge`}
+        description={t("card.emergencyInfo")}
       />
       <MedicalCard />
     </>
