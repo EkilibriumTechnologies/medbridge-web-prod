@@ -27,7 +27,7 @@ export default function Home() {
       />
       
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950">
-        {/* Language Selector - Fixed Top Right */}
+        {/* Global Language Selector - Fixed Top Right */}
         <div className="fixed top-4 right-4 z-50">
           <LanguageSelector />
         </div>

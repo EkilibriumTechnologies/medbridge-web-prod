@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CardLanguageSelector } from "@/components/CardLanguageSelector";
 
 export function MedicalCard() {
   const router = useRouter();
@@ -68,6 +69,11 @@ export function MedicalCard() {
 
   return (
     <div className={`min-h-screen ${cardBgGradient} p-4 pb-24`}>
+      {/* Language Selector - Fixed Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <CardLanguageSelector />
+      </div>
+
       <div className={`max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-4 ${cardAccentColor} overflow-hidden`}>
         
         <div className={`${hasAllergies ? "bg-red-500" : "bg-blue-500"} text-white p-6`}>
