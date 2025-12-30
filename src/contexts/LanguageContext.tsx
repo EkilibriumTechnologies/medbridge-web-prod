@@ -1,0 +1,728 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+
+type Language = "es" | "en" | "pt";
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+const translations: Record<Language, Record<string, string>> = {
+  es: {
+    // Navigation & Common
+    "nav.home": "Inicio",
+    "nav.createCard": "Crear Tarjeta",
+    "nav.viewCard": "Ver Tarjeta",
+    "nav.identification": "Identificación",
+    "common.loading": "Cargando...",
+    "common.save": "Guardar",
+    "common.cancel": "Cancelar",
+    "common.continue": "Continuar",
+    "common.back": "Atrás",
+    "common.next": "Siguiente",
+    "common.edit": "Editar",
+    "common.delete": "Eliminar",
+    "common.close": "Cerrar",
+    "common.optional": "Opcional",
+    "common.required": "Requerido",
+    "common.yes": "Sí",
+    "common.no": "No",
+    "common.unknown": "Desconocido",
+    
+    // Hero Section
+    "hero.title": "Tu Información Médica,",
+    "hero.titleHighlight": "Siempre Contigo",
+    "hero.subtitle": "Acceso instantáneo a tu historial médico completo en situaciones de emergencia. Porque cada segundo cuenta cuando se trata de tu salud.",
+    "hero.cta": "Crear Mi Tarjeta Médica",
+    "hero.learnMore": "Conocer Más",
+    
+    // Problem Section
+    "problem.title": "El Problema",
+    "problem.subtitle": "En situaciones de emergencia, cada segundo cuenta",
+    "problem.communication": "Dificultad de comunicación cuando más importa",
+    "problem.history": "Historial médico disperso en múltiples lugares",
+    "problem.access": "Sin acceso rápido a información crítica",
+    
+    // Solution Section
+    "solution.title": "La Solución",
+    "solution.subtitle": "Una tarjeta médica digital completa y accesible al instante",
+    "solution.instant": "Acceso instantáneo a tu información médica vital",
+    "solution.complete": "Historial médico completo en un solo lugar",
+    "solution.secure": "Información segura y protegida",
+    
+    // Features Section
+    "features.title": "Características",
+    "features.instant": "Acceso Instantáneo",
+    "features.instantDesc": "Información médica disponible en segundos",
+    "features.complete": "Perfil Completo",
+    "features.completeDesc": "Todo tu historial médico en un lugar",
+    "features.secure": "Seguro y Privado",
+    "features.secureDesc": "Tu información protegida con los más altos estándares",
+    
+    // Privacy Section
+    "privacy.title": "Tu Privacidad es Nuestra Prioridad",
+    "privacy.subtitle": "Control total sobre tu información médica",
+    "privacy.local": "Almacenamiento local en tu dispositivo",
+    "privacy.noServers": "Sin servidores externos",
+    "privacy.yourControl": "Tú decides qué compartir y cuándo",
+    
+    // Access Section
+    "access.title": "Acceso en Emergencias",
+    "access.subtitle": "Diseñado para salvar vidas",
+    "access.qr": "Código QR para acceso rápido",
+    "access.offline": "Funciona sin conexión a internet",
+    "access.universal": "Compatible con cualquier dispositivo",
+    
+    // Medical Form
+    "form.title": "Información Médica",
+    "form.subtitle": "Complete su perfil médico para emergencias",
+    "form.step": "Paso",
+    "form.of": "de",
+    
+    // Step 1: Personal Info
+    "form.personal.title": "Información Personal",
+    "form.personal.fullName": "Nombre Completo",
+    "form.personal.fullNamePlaceholder": "Ej: Juan Pérez García",
+    "form.personal.dateOfBirth": "Fecha de Nacimiento",
+    "form.personal.bloodType": "Tipo de Sangre",
+    "form.personal.bloodTypePlaceholder": "Seleccione su tipo de sangre",
+    "form.personal.gender": "Género",
+    "form.personal.genderPlaceholder": "Seleccione su género",
+    "form.personal.male": "Masculino",
+    "form.personal.female": "Femenino",
+    "form.personal.other": "Otro",
+    "form.personal.height": "Altura (cm)",
+    "form.personal.heightPlaceholder": "Ej: 170",
+    "form.personal.weight": "Peso (kg)",
+    "form.personal.weightPlaceholder": "Ej: 70",
+    
+    // Step 2: Emergency Contact
+    "form.emergency.title": "Contacto de Emergencia",
+    "form.emergency.name": "Nombre del Contacto",
+    "form.emergency.namePlaceholder": "Ej: María García",
+    "form.emergency.relationship": "Relación",
+    "form.emergency.relationshipPlaceholder": "Ej: Esposa, Madre, Hermano",
+    "form.emergency.phone": "Teléfono",
+    "form.emergency.phonePlaceholder": "Ej: +34 600 123 456",
+    "form.emergency.email": "Email",
+    "form.emergency.emailPlaceholder": "Ej: contacto@ejemplo.com",
+    
+    // Step 3: Medical History
+    "form.history.title": "Historial Médico",
+    "form.history.allergies": "Alergias",
+    "form.history.allergiesPlaceholder": "Ej: Penicilina, Maní, Polen",
+    "form.history.chronicConditions": "Condiciones Crónicas",
+    "form.history.chronicConditionsPlaceholder": "Ej: Diabetes tipo 2, Hipertensión",
+    "form.history.currentMedications": "Medicamentos Actuales",
+    "form.history.currentMedicationsPlaceholder": "Ej: Metformina 500mg (2x/día), Losartán 50mg (1x/día)",
+    "form.history.previousSurgeries": "Cirugías Previas",
+    "form.history.previousSurgeriesPlaceholder": "Ej: Apendicectomía (2015), Cesárea (2018)",
+    "form.history.immunizations": "Vacunas",
+    "form.history.immunizationsPlaceholder": "Ej: COVID-19 (2023), Gripe (2023)",
+    
+    // Step 4: Insurance & Physician
+    "form.insurance.title": "Seguro y Médico",
+    "form.insurance.provider": "Proveedor de Seguro",
+    "form.insurance.providerPlaceholder": "Ej: Sanitas, Adeslas",
+    "form.insurance.policyNumber": "Número de Póliza",
+    "form.insurance.policyNumberPlaceholder": "Ej: 123456789",
+    "form.insurance.primaryPhysician": "Médico de Cabecera",
+    "form.insurance.primaryPhysicianPlaceholder": "Ej: Dr. Juan Martínez",
+    "form.insurance.physicianPhone": "Teléfono del Médico",
+    "form.insurance.physicianPhonePlaceholder": "Ej: +34 900 123 456",
+    
+    // Step 5: Additional Info
+    "form.additional.title": "Información Adicional",
+    "form.additional.organDonor": "Donante de Órganos",
+    "form.additional.organDonorYes": "Sí, soy donante",
+    "form.additional.organDonorNo": "No soy donante",
+    "form.additional.organDonorUnknown": "Prefiero no especificar",
+    "form.additional.advanceDirectives": "¿Tiene Testamento Vital?",
+    "form.additional.advanceDirectivesYes": "Sí",
+    "form.additional.advanceDirectivesNo": "No",
+    "form.additional.specialNotes": "Notas Especiales",
+    "form.additional.specialNotesPlaceholder": "Cualquier información adicional que el personal médico deba conocer",
+    
+    // Step 6: Review
+    "form.review.title": "Revisar Información",
+    "form.review.subtitle": "Por favor revise toda su información antes de guardar",
+    "form.review.personalInfo": "Información Personal",
+    "form.review.emergencyContact": "Contacto de Emergencia",
+    "form.review.medicalHistory": "Historial Médico",
+    "form.review.insurancePhysician": "Seguro y Médico",
+    "form.review.additionalInfo": "Información Adicional",
+    "form.review.uploadId": "Subir Documento de Identidad",
+    "form.review.uploadIdOptional": "(Opcional)",
+    "form.review.submit": "Guardar Información Médica",
+    
+    // Validation Errors
+    "validation.required": "Este campo es requerido",
+    "validation.invalidEmail": "Email inválido",
+    "validation.invalidPhone": "Número de teléfono inválido",
+    "validation.invalidDate": "Fecha inválida",
+    "validation.futureDate": "La fecha no puede estar en el futuro",
+    "validation.invalidHeight": "Altura inválida (50-250 cm)",
+    "validation.invalidWeight": "Peso inválido (20-300 kg)",
+    
+    // Medical Card
+    "card.title": "Mi Tarjeta Médica",
+    "card.noData": "No hay información médica guardada",
+    "card.createNow": "Crear ahora",
+    "card.qrCode": "Código QR",
+    "card.qrCodeDesc": "Escanear para acceso rápido",
+    "card.downloadQR": "Descargar QR",
+    "card.downloadPDF": "Descargar PDF",
+    "card.editInfo": "Editar Información",
+    "card.viewId": "Ver Identificación",
+    "card.emergencyInfo": "INFORMACIÓN DE EMERGENCIA",
+    "card.medicalInfo": "INFORMACIÓN MÉDICA",
+    "card.insuranceInfo": "SEGURO MÉDICO",
+    "card.additionalInfo": "INFORMACIÓN ADICIONAL",
+    "card.name": "Nombre",
+    "card.dob": "Fecha de Nacimiento",
+    "card.age": "Edad",
+    "card.years": "años",
+    "card.bloodType": "Tipo de Sangre",
+    "card.gender": "Género",
+    "card.height": "Altura",
+    "card.weight": "Peso",
+    "card.contactName": "Contacto",
+    "card.relationship": "Relación",
+    "card.phone": "Teléfono",
+    "card.email": "Email",
+    "card.allergies": "Alergias",
+    "card.conditions": "Condiciones",
+    "card.medications": "Medicamentos",
+    "card.surgeries": "Cirugías",
+    "card.immunizations": "Vacunas",
+    "card.provider": "Proveedor",
+    "card.policyNumber": "Número de Póliza",
+    "card.physician": "Médico de Cabecera",
+    "card.physicianPhone": "Teléfono del Médico",
+    "card.organDonor": "Donante de Órganos",
+    "card.advanceDirectives": "Testamento Vital",
+    "card.specialNotes": "Notas Especiales",
+    "card.none": "Ninguno",
+    
+    // Identification
+    "id.title": "Documento de Identidad",
+    "id.noDocument": "No se ha subido ningún documento de identidad",
+    "id.uploadNow": "Subir ahora",
+    "id.uploadDocument": "Subir Documento de Identidad",
+    "id.dragDrop": "Arrastra tu documento aquí o haz clic para seleccionar",
+    "id.uploadButton": "Seleccionar Archivo",
+    "id.acceptedFormats": "Formatos aceptados: JPG, PNG, PDF (máx. 5MB)",
+    "id.preview": "Vista Previa del Documento",
+    "id.remove": "Eliminar Documento",
+    "id.upload": "Subir Documento",
+    "id.uploading": "Subiendo...",
+    "id.uploadSuccess": "Documento subido exitosamente",
+    "id.uploadError": "Error al subir el documento",
+    "id.removeConfirm": "¿Estás seguro de que deseas eliminar este documento?",
+    "id.currentDocument": "Documento Actual",
+    "id.downloadDocument": "Descargar Documento",
+    "id.replaceDocument": "Reemplazar Documento",
+    "id.backToCard": "Volver a Tarjeta Médica",
+    
+    // Paywall
+    "paywall.title": "Funcionalidad Premium",
+    "paywall.message": "Esta función estará disponible en la versión premium de MedBridge.",
+    "paywall.features": "Próximamente:",
+    "paywall.feature1": "Descarga de tarjeta en PDF",
+    "paywall.feature2": "Múltiples perfiles familiares",
+    "paywall.feature3": "Sincronización en la nube",
+    "paywall.feature4": "Historial de actualizaciones",
+    "paywall.comingSoon": "Próximamente",
+  },
+  
+  en: {
+    // Navigation & Common
+    "nav.home": "Home",
+    "nav.createCard": "Create Card",
+    "nav.viewCard": "View Card",
+    "nav.identification": "Identification",
+    "common.loading": "Loading...",
+    "common.save": "Save",
+    "common.cancel": "Cancel",
+    "common.continue": "Continue",
+    "common.back": "Back",
+    "common.next": "Next",
+    "common.edit": "Edit",
+    "common.delete": "Delete",
+    "common.close": "Close",
+    "common.optional": "Optional",
+    "common.required": "Required",
+    "common.yes": "Yes",
+    "common.no": "No",
+    "common.unknown": "Unknown",
+    
+    // Hero Section
+    "hero.title": "Your Medical Information,",
+    "hero.titleHighlight": "Always With You",
+    "hero.subtitle": "Instant access to your complete medical history in emergency situations. Because every second counts when it comes to your health.",
+    "hero.cta": "Create My Medical Card",
+    "hero.learnMore": "Learn More",
+    
+    // Problem Section
+    "problem.title": "The Problem",
+    "problem.subtitle": "In emergency situations, every second counts",
+    "problem.communication": "Communication difficulties when it matters most",
+    "problem.history": "Medical history scattered across multiple places",
+    "problem.access": "No quick access to critical information",
+    
+    // Solution Section
+    "solution.title": "The Solution",
+    "solution.subtitle": "A complete digital medical card, instantly accessible",
+    "solution.instant": "Instant access to your vital medical information",
+    "solution.complete": "Complete medical history in one place",
+    "solution.secure": "Secure and protected information",
+    
+    // Features Section
+    "features.title": "Features",
+    "features.instant": "Instant Access",
+    "features.instantDesc": "Medical information available in seconds",
+    "features.complete": "Complete Profile",
+    "features.completeDesc": "Your entire medical history in one place",
+    "features.secure": "Safe and Private",
+    "features.secureDesc": "Your information protected with the highest standards",
+    
+    // Privacy Section
+    "privacy.title": "Your Privacy is Our Priority",
+    "privacy.subtitle": "Full control over your medical information",
+    "privacy.local": "Local storage on your device",
+    "privacy.noServers": "No external servers",
+    "privacy.yourControl": "You decide what to share and when",
+    
+    // Access Section
+    "access.title": "Emergency Access",
+    "access.subtitle": "Designed to save lives",
+    "access.qr": "QR code for quick access",
+    "access.offline": "Works without internet connection",
+    "access.universal": "Compatible with any device",
+    
+    // Medical Form
+    "form.title": "Medical Information",
+    "form.subtitle": "Complete your medical profile for emergencies",
+    "form.step": "Step",
+    "form.of": "of",
+    
+    // Step 1: Personal Info
+    "form.personal.title": "Personal Information",
+    "form.personal.fullName": "Full Name",
+    "form.personal.fullNamePlaceholder": "e.g., John Smith",
+    "form.personal.dateOfBirth": "Date of Birth",
+    "form.personal.bloodType": "Blood Type",
+    "form.personal.bloodTypePlaceholder": "Select your blood type",
+    "form.personal.gender": "Gender",
+    "form.personal.genderPlaceholder": "Select your gender",
+    "form.personal.male": "Male",
+    "form.personal.female": "Female",
+    "form.personal.other": "Other",
+    "form.personal.height": "Height (cm)",
+    "form.personal.heightPlaceholder": "e.g., 170",
+    "form.personal.weight": "Weight (kg)",
+    "form.personal.weightPlaceholder": "e.g., 70",
+    
+    // Step 2: Emergency Contact
+    "form.emergency.title": "Emergency Contact",
+    "form.emergency.name": "Contact Name",
+    "form.emergency.namePlaceholder": "e.g., Mary Smith",
+    "form.emergency.relationship": "Relationship",
+    "form.emergency.relationshipPlaceholder": "e.g., Wife, Mother, Brother",
+    "form.emergency.phone": "Phone",
+    "form.emergency.phonePlaceholder": "e.g., +1 555 123 4567",
+    "form.emergency.email": "Email",
+    "form.emergency.emailPlaceholder": "e.g., contact@example.com",
+    
+    // Step 3: Medical History
+    "form.history.title": "Medical History",
+    "form.history.allergies": "Allergies",
+    "form.history.allergiesPlaceholder": "e.g., Penicillin, Peanuts, Pollen",
+    "form.history.chronicConditions": "Chronic Conditions",
+    "form.history.chronicConditionsPlaceholder": "e.g., Type 2 Diabetes, Hypertension",
+    "form.history.currentMedications": "Current Medications",
+    "form.history.currentMedicationsPlaceholder": "e.g., Metformin 500mg (2x/day), Losartan 50mg (1x/day)",
+    "form.history.previousSurgeries": "Previous Surgeries",
+    "form.history.previousSurgeriesPlaceholder": "e.g., Appendectomy (2015), C-section (2018)",
+    "form.history.immunizations": "Immunizations",
+    "form.history.immunizationsPlaceholder": "e.g., COVID-19 (2023), Flu (2023)",
+    
+    // Step 4: Insurance & Physician
+    "form.insurance.title": "Insurance & Physician",
+    "form.insurance.provider": "Insurance Provider",
+    "form.insurance.providerPlaceholder": "e.g., Blue Cross, Aetna",
+    "form.insurance.policyNumber": "Policy Number",
+    "form.insurance.policyNumberPlaceholder": "e.g., 123456789",
+    "form.insurance.primaryPhysician": "Primary Physician",
+    "form.insurance.primaryPhysicianPlaceholder": "e.g., Dr. John Martinez",
+    "form.insurance.physicianPhone": "Physician Phone",
+    "form.insurance.physicianPhonePlaceholder": "e.g., +1 555 900 1234",
+    
+    // Step 5: Additional Info
+    "form.additional.title": "Additional Information",
+    "form.additional.organDonor": "Organ Donor",
+    "form.additional.organDonorYes": "Yes, I am a donor",
+    "form.additional.organDonorNo": "I am not a donor",
+    "form.additional.organDonorUnknown": "Prefer not to specify",
+    "form.additional.advanceDirectives": "Do you have Advance Directives?",
+    "form.additional.advanceDirectivesYes": "Yes",
+    "form.additional.advanceDirectivesNo": "No",
+    "form.additional.specialNotes": "Special Notes",
+    "form.additional.specialNotesPlaceholder": "Any additional information that medical personnel should know",
+    
+    // Step 6: Review
+    "form.review.title": "Review Information",
+    "form.review.subtitle": "Please review all your information before saving",
+    "form.review.personalInfo": "Personal Information",
+    "form.review.emergencyContact": "Emergency Contact",
+    "form.review.medicalHistory": "Medical History",
+    "form.review.insurancePhysician": "Insurance & Physician",
+    "form.review.additionalInfo": "Additional Information",
+    "form.review.uploadId": "Upload Identification Document",
+    "form.review.uploadIdOptional": "(Optional)",
+    "form.review.submit": "Save Medical Information",
+    
+    // Validation Errors
+    "validation.required": "This field is required",
+    "validation.invalidEmail": "Invalid email",
+    "validation.invalidPhone": "Invalid phone number",
+    "validation.invalidDate": "Invalid date",
+    "validation.futureDate": "Date cannot be in the future",
+    "validation.invalidHeight": "Invalid height (50-250 cm)",
+    "validation.invalidWeight": "Invalid weight (20-300 kg)",
+    
+    // Medical Card
+    "card.title": "My Medical Card",
+    "card.noData": "No medical information saved",
+    "card.createNow": "Create now",
+    "card.qrCode": "QR Code",
+    "card.qrCodeDesc": "Scan for quick access",
+    "card.downloadQR": "Download QR",
+    "card.downloadPDF": "Download PDF",
+    "card.editInfo": "Edit Information",
+    "card.viewId": "View Identification",
+    "card.emergencyInfo": "EMERGENCY INFORMATION",
+    "card.medicalInfo": "MEDICAL INFORMATION",
+    "card.insuranceInfo": "MEDICAL INSURANCE",
+    "card.additionalInfo": "ADDITIONAL INFORMATION",
+    "card.name": "Name",
+    "card.dob": "Date of Birth",
+    "card.age": "Age",
+    "card.years": "years",
+    "card.bloodType": "Blood Type",
+    "card.gender": "Gender",
+    "card.height": "Height",
+    "card.weight": "Weight",
+    "card.contactName": "Contact",
+    "card.relationship": "Relationship",
+    "card.phone": "Phone",
+    "card.email": "Email",
+    "card.allergies": "Allergies",
+    "card.conditions": "Conditions",
+    "card.medications": "Medications",
+    "card.surgeries": "Surgeries",
+    "card.immunizations": "Immunizations",
+    "card.provider": "Provider",
+    "card.policyNumber": "Policy Number",
+    "card.physician": "Primary Physician",
+    "card.physicianPhone": "Physician Phone",
+    "card.organDonor": "Organ Donor",
+    "card.advanceDirectives": "Advance Directives",
+    "card.specialNotes": "Special Notes",
+    "card.none": "None",
+    
+    // Identification
+    "id.title": "Identification Document",
+    "id.noDocument": "No identification document uploaded",
+    "id.uploadNow": "Upload now",
+    "id.uploadDocument": "Upload Identification Document",
+    "id.dragDrop": "Drag your document here or click to select",
+    "id.uploadButton": "Select File",
+    "id.acceptedFormats": "Accepted formats: JPG, PNG, PDF (max. 5MB)",
+    "id.preview": "Document Preview",
+    "id.remove": "Remove Document",
+    "id.upload": "Upload Document",
+    "id.uploading": "Uploading...",
+    "id.uploadSuccess": "Document uploaded successfully",
+    "id.uploadError": "Error uploading document",
+    "id.removeConfirm": "Are you sure you want to remove this document?",
+    "id.currentDocument": "Current Document",
+    "id.downloadDocument": "Download Document",
+    "id.replaceDocument": "Replace Document",
+    "id.backToCard": "Back to Medical Card",
+    
+    // Paywall
+    "paywall.title": "Premium Feature",
+    "paywall.message": "This feature will be available in the premium version of MedBridge.",
+    "paywall.features": "Coming soon:",
+    "paywall.feature1": "PDF card download",
+    "paywall.feature2": "Multiple family profiles",
+    "paywall.feature3": "Cloud synchronization",
+    "paywall.feature4": "Update history",
+    "paywall.comingSoon": "Coming Soon",
+  },
+  
+  pt: {
+    // Navigation & Common
+    "nav.home": "Início",
+    "nav.createCard": "Criar Cartão",
+    "nav.viewCard": "Ver Cartão",
+    "nav.identification": "Identificação",
+    "common.loading": "Carregando...",
+    "common.save": "Salvar",
+    "common.cancel": "Cancelar",
+    "common.continue": "Continuar",
+    "common.back": "Voltar",
+    "common.next": "Próximo",
+    "common.edit": "Editar",
+    "common.delete": "Excluir",
+    "common.close": "Fechar",
+    "common.optional": "Opcional",
+    "common.required": "Obrigatório",
+    "common.yes": "Sim",
+    "common.no": "Não",
+    "common.unknown": "Desconhecido",
+    
+    // Hero Section
+    "hero.title": "Sua Informação Médica,",
+    "hero.titleHighlight": "Sempre Com Você",
+    "hero.subtitle": "Acesso instantâneo ao seu histórico médico completo em situações de emergência. Porque cada segundo conta quando se trata da sua saúde.",
+    "hero.cta": "Criar Meu Cartão Médico",
+    "hero.learnMore": "Saiba Mais",
+    
+    // Problem Section
+    "problem.title": "O Problema",
+    "problem.subtitle": "Em situações de emergência, cada segundo conta",
+    "problem.communication": "Dificuldade de comunicação quando mais importa",
+    "problem.history": "Histórico médico disperso em vários lugares",
+    "problem.access": "Sem acesso rápido a informações críticas",
+    
+    // Solution Section
+    "solution.title": "A Solução",
+    "solution.subtitle": "Um cartão médico digital completo e acessível instantaneamente",
+    "solution.instant": "Acesso instantâneo às suas informações médicas vitais",
+    "solution.complete": "Histórico médico completo em um só lugar",
+    "solution.secure": "Informação segura e protegida",
+    
+    // Features Section
+    "features.title": "Características",
+    "features.instant": "Acesso Instantâneo",
+    "features.instantDesc": "Informação médica disponível em segundos",
+    "features.complete": "Perfil Completo",
+    "features.completeDesc": "Todo o seu histórico médico em um lugar",
+    "features.secure": "Seguro e Privado",
+    "features.secureDesc": "Sua informação protegida com os mais altos padrões",
+    
+    // Privacy Section
+    "privacy.title": "Sua Privacidade é Nossa Prioridade",
+    "privacy.subtitle": "Controle total sobre suas informações médicas",
+    "privacy.local": "Armazenamento local no seu dispositivo",
+    "privacy.noServers": "Sem servidores externos",
+    "privacy.yourControl": "Você decide o que compartilhar e quando",
+    
+    // Access Section
+    "access.title": "Acesso em Emergências",
+    "access.subtitle": "Projetado para salvar vidas",
+    "access.qr": "Código QR para acesso rápido",
+    "access.offline": "Funciona sem conexão à internet",
+    "access.universal": "Compatível com qualquer dispositivo",
+    
+    // Medical Form
+    "form.title": "Informação Médica",
+    "form.subtitle": "Complete seu perfil médico para emergências",
+    "form.step": "Passo",
+    "form.of": "de",
+    
+    // Step 1: Personal Info
+    "form.personal.title": "Informação Pessoal",
+    "form.personal.fullName": "Nome Completo",
+    "form.personal.fullNamePlaceholder": "Ex: João Silva Santos",
+    "form.personal.dateOfBirth": "Data de Nascimento",
+    "form.personal.bloodType": "Tipo Sanguíneo",
+    "form.personal.bloodTypePlaceholder": "Selecione seu tipo sanguíneo",
+    "form.personal.gender": "Gênero",
+    "form.personal.genderPlaceholder": "Selecione seu gênero",
+    "form.personal.male": "Masculino",
+    "form.personal.female": "Feminino",
+    "form.personal.other": "Outro",
+    "form.personal.height": "Altura (cm)",
+    "form.personal.heightPlaceholder": "Ex: 170",
+    "form.personal.weight": "Peso (kg)",
+    "form.personal.weightPlaceholder": "Ex: 70",
+    
+    // Step 2: Emergency Contact
+    "form.emergency.title": "Contato de Emergência",
+    "form.emergency.name": "Nome do Contato",
+    "form.emergency.namePlaceholder": "Ex: Maria Silva",
+    "form.emergency.relationship": "Relação",
+    "form.emergency.relationshipPlaceholder": "Ex: Esposa, Mãe, Irmão",
+    "form.emergency.phone": "Telefone",
+    "form.emergency.phonePlaceholder": "Ex: +55 11 98765-4321",
+    "form.emergency.email": "Email",
+    "form.emergency.emailPlaceholder": "Ex: contato@exemplo.com",
+    
+    // Step 3: Medical History
+    "form.history.title": "Histórico Médico",
+    "form.history.allergies": "Alergias",
+    "form.history.allergiesPlaceholder": "Ex: Penicilina, Amendoim, Pólen",
+    "form.history.chronicConditions": "Condições Crônicas",
+    "form.history.chronicConditionsPlaceholder": "Ex: Diabetes tipo 2, Hipertensão",
+    "form.history.currentMedications": "Medicamentos Atuais",
+    "form.history.currentMedicationsPlaceholder": "Ex: Metformina 500mg (2x/dia), Losartana 50mg (1x/dia)",
+    "form.history.previousSurgeries": "Cirurgias Anteriores",
+    "form.history.previousSurgeriesPlaceholder": "Ex: Apendicectomia (2015), Cesárea (2018)",
+    "form.history.immunizations": "Vacinações",
+    "form.history.immunizationsPlaceholder": "Ex: COVID-19 (2023), Gripe (2023)",
+    
+    // Step 4: Insurance & Physician
+    "form.insurance.title": "Seguro e Médico",
+    "form.insurance.provider": "Provedor de Seguro",
+    "form.insurance.providerPlaceholder": "Ex: Unimed, Amil",
+    "form.insurance.policyNumber": "Número da Apólice",
+    "form.insurance.policyNumberPlaceholder": "Ex: 123456789",
+    "form.insurance.primaryPhysician": "Médico de Família",
+    "form.insurance.primaryPhysicianPlaceholder": "Ex: Dr. João Martins",
+    "form.insurance.physicianPhone": "Telefone do Médico",
+    "form.insurance.physicianPhonePlaceholder": "Ex: +55 11 3456-7890",
+    
+    // Step 5: Additional Info
+    "form.additional.title": "Informação Adicional",
+    "form.additional.organDonor": "Doador de Órgãos",
+    "form.additional.organDonorYes": "Sim, sou doador",
+    "form.additional.organDonorNo": "Não sou doador",
+    "form.additional.organDonorUnknown": "Prefiro não especificar",
+    "form.additional.advanceDirectives": "Possui Diretivas Antecipadas?",
+    "form.additional.advanceDirectivesYes": "Sim",
+    "form.additional.advanceDirectivesNo": "Não",
+    "form.additional.specialNotes": "Notas Especiais",
+    "form.additional.specialNotesPlaceholder": "Qualquer informação adicional que o pessoal médico deva conhecer",
+    
+    // Step 6: Review
+    "form.review.title": "Revisar Informação",
+    "form.review.subtitle": "Por favor, revise toda a sua informação antes de salvar",
+    "form.review.personalInfo": "Informação Pessoal",
+    "form.review.emergencyContact": "Contato de Emergência",
+    "form.review.medicalHistory": "Histórico Médico",
+    "form.review.insurancePhysician": "Seguro e Médico",
+    "form.review.additionalInfo": "Informação Adicional",
+    "form.review.uploadId": "Enviar Documento de Identidade",
+    "form.review.uploadIdOptional": "(Opcional)",
+    "form.review.submit": "Salvar Informação Médica",
+    
+    // Validation Errors
+    "validation.required": "Este campo é obrigatório",
+    "validation.invalidEmail": "Email inválido",
+    "validation.invalidPhone": "Número de telefone inválido",
+    "validation.invalidDate": "Data inválida",
+    "validation.futureDate": "A data não pode estar no futuro",
+    "validation.invalidHeight": "Altura inválida (50-250 cm)",
+    "validation.invalidWeight": "Peso inválido (20-300 kg)",
+    
+    // Medical Card
+    "card.title": "Meu Cartão Médico",
+    "card.noData": "Nenhuma informação médica salva",
+    "card.createNow": "Criar agora",
+    "card.qrCode": "Código QR",
+    "card.qrCodeDesc": "Escaneie para acesso rápido",
+    "card.downloadQR": "Baixar QR",
+    "card.downloadPDF": "Baixar PDF",
+    "card.editInfo": "Editar Informação",
+    "card.viewId": "Ver Identificação",
+    "card.emergencyInfo": "INFORMAÇÃO DE EMERGÊNCIA",
+    "card.medicalInfo": "INFORMAÇÃO MÉDICA",
+    "card.insuranceInfo": "SEGURO MÉDICO",
+    "card.additionalInfo": "INFORMAÇÃO ADICIONAL",
+    "card.name": "Nome",
+    "card.dob": "Data de Nascimento",
+    "card.age": "Idade",
+    "card.years": "anos",
+    "card.bloodType": "Tipo Sanguíneo",
+    "card.gender": "Gênero",
+    "card.height": "Altura",
+    "card.weight": "Peso",
+    "card.contactName": "Contato",
+    "card.relationship": "Relação",
+    "card.phone": "Telefone",
+    "card.email": "Email",
+    "card.allergies": "Alergias",
+    "card.conditions": "Condições",
+    "card.medications": "Medicamentos",
+    "card.surgeries": "Cirurgias",
+    "card.immunizations": "Vacinações",
+    "card.provider": "Provedor",
+    "card.policyNumber": "Número da Apólice",
+    "card.physician": "Médico de Família",
+    "card.physicianPhone": "Telefone do Médico",
+    "card.organDonor": "Doador de Órgãos",
+    "card.advanceDirectives": "Diretivas Antecipadas",
+    "card.specialNotes": "Notas Especiais",
+    "card.none": "Nenhum",
+    
+    // Identification
+    "id.title": "Documento de Identidade",
+    "id.noDocument": "Nenhum documento de identidade enviado",
+    "id.uploadNow": "Enviar agora",
+    "id.uploadDocument": "Enviar Documento de Identidade",
+    "id.dragDrop": "Arraste seu documento aqui ou clique para selecionar",
+    "id.uploadButton": "Selecionar Arquivo",
+    "id.acceptedFormats": "Formatos aceitos: JPG, PNG, PDF (máx. 5MB)",
+    "id.preview": "Visualização do Documento",
+    "id.remove": "Remover Documento",
+    "id.upload": "Enviar Documento",
+    "id.uploading": "Enviando...",
+    "id.uploadSuccess": "Documento enviado com sucesso",
+    "id.uploadError": "Erro ao enviar documento",
+    "id.removeConfirm": "Tem certeza de que deseja remover este documento?",
+    "id.currentDocument": "Documento Atual",
+    "id.downloadDocument": "Baixar Documento",
+    "id.replaceDocument": "Substituir Documento",
+    "id.backToCard": "Voltar ao Cartão Médico",
+    
+    // Paywall
+    "paywall.title": "Funcionalidade Premium",
+    "paywall.message": "Esta funcionalidade estará disponível na versão premium do MedBridge.",
+    "paywall.features": "Em breve:",
+    "paywall.feature1": "Download de cartão em PDF",
+    "paywall.feature2": "Múltiplos perfis familiares",
+    "paywall.feature3": "Sincronização na nuvem",
+    "paywall.feature4": "Histórico de atualizações",
+    "paywall.comingSoon": "Em Breve",
+  },
+};
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState<Language>("es");
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("medbridge-language") as Language;
+    if (savedLanguage && ["es", "en", "pt"].includes(savedLanguage)) {
+      setLanguageState(savedLanguage);
+    }
+  }, []);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem("medbridge-language", lang);
+  };
+
+  const t = (key: string): string => {
+    return translations[language][key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  return context;
+}
