@@ -49,7 +49,7 @@ const initialProfile: MedicalProfile = {
     primary: { fullName: "", mobilePhone: "", officePhone: "", email: "" },
     secondary: { fullName: "", mobilePhone: "", officePhone: "", email: "" },
   },
-  primaryDoctor: {
+  primaryPhysician: {
     fullName: "",
     phone: "",
     email: "",
@@ -717,8 +717,8 @@ export function MedicalForm() {
                     </Label>
                     <Input
                       id="doctorName"
-                      value={profile.primaryDoctor.fullName}
-                      onChange={(e) => updateProfile(["primaryDoctor", "fullName"], e.target.value)}
+                      value={profile.primaryPhysician.fullName}
+                      onChange={(e) => updateProfile(["primaryPhysician", "fullName"], e.target.value)}
                       className="mt-2 h-12 text-lg"
                       placeholder="Dr. Roberto Martínez"
                     />
@@ -731,8 +731,8 @@ export function MedicalForm() {
                     <Input
                       id="doctorPhone"
                       type="tel"
-                      value={profile.primaryDoctor.phone}
-                      onChange={(e) => updateProfile(["primaryDoctor", "phone"], e.target.value)}
+                      value={profile.primaryPhysician.phone}
+                      onChange={(e) => updateProfile(["primaryPhysician", "phone"], e.target.value)}
                       className="mt-2 h-12 text-lg"
                       placeholder="+52 55 3456 7890"
                     />
@@ -745,8 +745,8 @@ export function MedicalForm() {
                     <Input
                       id="doctorEmail"
                       type="email"
-                      value={profile.primaryDoctor.email}
-                      onChange={(e) => updateProfile(["primaryDoctor", "email"], e.target.value)}
+                      value={profile.primaryPhysician.email}
+                      onChange={(e) => updateProfile(["primaryPhysician", "email"], e.target.value)}
                       className="mt-2 h-12 text-lg"
                       placeholder="dr.martinez@clinica.com"
                     />
@@ -758,8 +758,8 @@ export function MedicalForm() {
                     </Label>
                     <Input
                       id="doctorClinic"
-                      value={profile.primaryDoctor.clinicHospital}
-                      onChange={(e) => updateProfile(["primaryDoctor", "clinicHospital"], e.target.value)}
+                      value={profile.primaryPhysician.clinicHospital}
+                      onChange={(e) => updateProfile(["primaryPhysician", "clinicHospital"], e.target.value)}
                       className="mt-2 h-12 text-lg"
                       placeholder="Hospital General de México"
                     />
