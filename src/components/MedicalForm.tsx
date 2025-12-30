@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, ArrowLeft, ArrowRight, Check, User, Heart, AlertTriangle, FileText, Phone, Stethoscope } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Check, User, Heart, AlertTriangle, FileText, Phone, Stethoscope, IdCard } from "lucide-react";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
 
@@ -350,6 +350,11 @@ export function MedicalForm() {
   const handleSave = () => {
     localStorage.setItem("medicalProfile", JSON.stringify(profile));
     router.push("/");
+  };
+
+  const handleSaveAndUploadId = () => {
+    localStorage.setItem("medicalProfile", JSON.stringify(profile));
+    router.push("/identification");
   };
 
   const updateProfile = (path: string[], value: any) => {
@@ -1243,6 +1248,24 @@ export function MedicalForm() {
             </Button>
           )}
         </div>
+
+        {/* Optional ID Upload - Only shown in review step */}
+        {currentStep === 7 && (
+          <div className="text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              Opcional: Agrega una foto de tu identificación
+            </p>
+            <Button
+              onClick={handleSaveAndUploadId}
+              variant="outline"
+              size="lg"
+              className="w-full h-14 text-lg"
+            >
+              <IdCard className="w-5 h-5 mr-2" />
+              Subir Identificación
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
