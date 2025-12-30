@@ -25,12 +25,12 @@ export function CardLanguageSelector() {
         <Button
           variant="outline"
           size="sm"
-          className="h-10 px-4 bg-white dark:bg-gray-900 border-2 border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold text-gray-900 dark:text-white text-base shadow-lg"
+          className="h-8 px-2 bg-white dark:bg-gray-900 border-2 border-gray-900 dark:border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold text-gray-900 dark:text-white text-sm shadow-lg"
         >
-          <span className="text-gray-900 dark:text-white font-extrabold text-base">
+          <span className="text-gray-900 dark:text-white font-extrabold text-sm">
             {currentLang?.short}
           </span>
-          <ChevronDown className="w-4 h-4 ml-2 text-gray-900 dark:text-white" />
+          <ChevronDown className="w-3 h-3 ml-1 text-gray-900 dark:text-white" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
