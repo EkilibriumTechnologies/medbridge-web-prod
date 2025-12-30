@@ -1,36 +1,52 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Languages } from "lucide-react";
+import { Languages, Check } from "lucide-react";
 
 export function CardLanguageSelector() {
   const { language, setLanguage } = useLanguage();
 
   const languages = [
-    { code: "es" as const, label: "ES" },
-    { code: "en" as const, label: "EN" },
-    { code: "pt" as const, label: "PT" },
+    { code: "es" as const, label: "Español", short: "ES" },
+    { code: "en" as const, label: "English", short: "EN" },
+    { code: "pt" as const, label: "Português", short: "PT" },
   ];
 
+  const currentLang = languages.find(lang => lang.code === language);
+
   return (
-    <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-1">
-      <Languages className="w-4 h-4 text-gray-500 dark:text-gray-400 ml-1" />
-      {languages.map((lang) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button
-          key={lang.code}
-          onClick={() => setLanguage(lang.code)}
+          variant="outline"
           size="sm"
-          variant={language === lang.code ? "default" : "ghost"}
-          className={`
-            font-bold min-w-[48px] h-8 transition-all
-            ${language === lang.code 
-              ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm" 
-              : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-            }
-          `}
+          className="h-9 px-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 font-bold shadow-sm"
         >
-          {lang.label}
+          <Languages className="w-4 h-4 mr-2" />
+          {currentLang?.short}
         </Button>
-      ))}
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        {languages.map((lang) => (
+          <DropdownMenuItem
+            key={lang.code}
+            onClick={() => setLanguage(lang.code)}
+            className="cursor-pointer font-medium"
+          >
+            <div className="flex items-center justify-between w-full">
+              <span>{lang.label}</span>
+              {language === lang.code && (
+                <Check className="w-4 h-4 text-blue-600" />
+              )}
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

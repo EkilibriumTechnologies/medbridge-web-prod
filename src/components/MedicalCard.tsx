@@ -69,15 +69,14 @@ export function MedicalCard() {
 
   return (
     <div className={`min-h-screen ${cardBgGradient} p-4 pb-24`}>
-      {/* Language Selector - Fixed Top Right */}
-      <div className="fixed top-4 right-4 z-50">
-        <CardLanguageSelector />
-      </div>
-
       <div className={`max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-4 ${cardAccentColor} overflow-hidden`}>
         
-        <div className={`${hasAllergies ? "bg-red-500" : "bg-blue-500"} text-white p-6`}>
-          <h1 className="text-3xl sm:text-4xl font-black mb-2 leading-tight">
+        <div className={`${hasAllergies ? "bg-red-500" : "bg-blue-500"} text-white p-6 relative`}>
+          <div className="absolute top-4 right-4">
+            <CardLanguageSelector />
+          </div>
+          
+          <h1 className="text-3xl sm:text-4xl font-black mb-2 leading-tight pr-20">
             {profile.personalInfo?.firstName || ""} {profile.personalInfo?.middleName || ""} {profile.personalInfo?.lastName || ""}
           </h1>
           <div className="space-y-1">
