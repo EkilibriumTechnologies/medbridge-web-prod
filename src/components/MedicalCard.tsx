@@ -11,7 +11,11 @@ export function MedicalCard() {
   useEffect(() => {
     const stored = localStorage.getItem("medicalProfile");
     if (stored) {
-      setProfile(JSON.parse(stored));
+      try {
+        setProfile(JSON.parse(stored));
+      } catch (error) {
+        console.error("Failed to parse medical profile:", error);
+      }
     }
   }, []);
 
@@ -40,8 +44,8 @@ export function MedicalCard() {
     );
   }
 
-  const hasMedicationAllergies = profile.allergies.medication.hasAllergies;
-  const hasFoodAllergies = profile.allergies.food.hasAllergies;
+  const hasMedicationAllergies = profile.allergies?.medication?.hasAllergies || false;
+  const hasFoodAllergies = profile.allergies?.food?.hasAllergies || false;
   const hasAllergies = hasMedicationAllergies || hasFoodAllergies;
   
   const cardAccentColor = hasAllergies ? "border-red-500" : "border-blue-500";
@@ -56,10 +60,10 @@ export function MedicalCard() {
         {/* HEADER */}
         <div className={`${hasAllergies ? "bg-red-500" : "bg-blue-500"} text-white p-6`}>
           <h1 className="text-3xl sm:text-4xl font-black mb-2 leading-tight">
-            {profile.personalInfo.firstName} {profile.personalInfo.middleName} {profile.personalInfo.lastName}
+            {profile.personalInfo?.firstName || ""} {profile.personalInfo?.middleName || ""} {profile.personalInfo?.lastName || ""}
           </h1>
           <p className="text-lg sm:text-xl font-semibold opacity-90">
-            DOB: {profile.personalInfo.dateOfBirth || "Not specified"}
+            DOB: {profile.personalInfo?.dateOfBirth || "Not specified"}
           </p>
         </div>
 
@@ -105,7 +109,7 @@ export function MedicalCard() {
               <div>
                 <p className="text-sm font-bold text-red-900 dark:text-red-300 mb-1">MEDICATION:</p>
                 <p className="text-lg sm:text-xl font-bold text-red-800 dark:text-red-200">
-                  {hasMedicationAllergies && profile.allergies.medication.details
+                  {hasMedicationAllergies && profile.allergies?.medication?.details
                     ? profile.allergies.medication.details
                     : "None reported"}
                 </p>
@@ -114,7 +118,7 @@ export function MedicalCard() {
               <div>
                 <p className="text-sm font-bold text-red-900 dark:text-red-300 mb-1">FOOD:</p>
                 <p className="text-lg sm:text-xl font-bold text-red-800 dark:text-red-200">
-                  {hasFoodAllergies && profile.allergies.food.details
+                  {hasFoodAllergies && profile.allergies?.food?.details
                     ? profile.allergies.food.details
                     : "None reported"}
                 </p>
@@ -128,7 +132,7 @@ export function MedicalCard() {
               Current Medications
             </h2>
             <p className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200">
-              {profile.medicalHistory.currentMedications.trim()
+              {profile.medicalHistory?.currentMedications?.trim()
                 ? profile.medicalHistory.currentMedications
                 : "None reported"}
             </p>
@@ -140,9 +144,9 @@ export function MedicalCard() {
               Emergency Contact
             </h2>
             <p className="text-xl sm:text-2xl font-bold text-amber-900 dark:text-amber-100 mb-2">
-              {profile.emergencyContacts.primary.fullName || "Not specified"}
+              {profile.emergencyContacts?.primary?.fullName || "Not specified"}
             </p>
-            {profile.emergencyContacts.primary.mobilePhone && (
+            {profile.emergencyContacts?.primary?.mobilePhone && (
               <a 
                 href={`tel:${profile.emergencyContacts.primary.mobilePhone}`}
                 className="flex items-center gap-3 text-lg sm:text-xl font-bold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors"
