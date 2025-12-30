@@ -9,7 +9,7 @@ import { generateMedicalReportPDF } from "@/lib/generateMedicalReportPDF";
 
 export function MedicalCard() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [profile, setProfile] = useState<MedicalProfile | null>(null);
 
   useEffect(() => {
