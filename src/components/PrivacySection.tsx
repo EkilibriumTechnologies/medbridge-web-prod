@@ -1,22 +1,25 @@
 import { Lock, Server, Smartphone, UserCheck } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function PrivacySection() {
+  const { t } = useLanguage();
+  
   const privacyFeatures = [
     {
       icon: Server,
-      text: "No cloud storage"
+      textKey: "landing.privacy.feature1"
     },
     {
       icon: Server,
-      text: "No servers"
+      textKey: "landing.privacy.feature2"
     },
     {
       icon: Smartphone,
-      text: "Data stored locally on your device"
+      textKey: "landing.privacy.feature3"
     },
     {
       icon: UserCheck,
-      text: "You control when it's shared"
+      textKey: "landing.privacy.feature4"
     }
   ];
 
@@ -26,7 +29,7 @@ export function PrivacySection() {
         <div className="flex items-center justify-center gap-2 mb-3">
           <Lock className="w-6 h-6 text-green-400" />
           <h2 className="text-xl font-bold text-white">
-            Your data stays private.
+            {t("landing.privacy.title")}
           </h2>
         </div>
         
@@ -40,7 +43,7 @@ export function PrivacySection() {
                 <feature.icon className="w-4 h-4 text-green-400" />
               </div>
               <p className="text-sm text-slate-200 leading-relaxed">
-                {feature.text}
+                {t(feature.textKey)}
               </p>
             </div>
           ))}

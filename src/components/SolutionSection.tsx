@@ -1,22 +1,25 @@
 import { Shield, WifiOff, FileText, Languages } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function SolutionSection() {
+  const { t } = useLanguage();
+  
   const features = [
     {
       icon: Shield,
-      text: "Stores medical data safely on your phone"
+      textKey: "landing.solution.feature1"
     },
     {
       icon: WifiOff,
-      text: "Works 100% offline"
+      textKey: "landing.solution.feature2"
     },
     {
       icon: FileText,
-      text: "Displays critical information clearly for doctors"
+      textKey: "landing.solution.feature3"
     },
     {
       icon: Languages,
-      text: "Translates medical information to English, Spanish, and Portuguese"
+      textKey: "landing.solution.feature4"
     }
   ];
 
@@ -24,7 +27,7 @@ export function SolutionSection() {
     <section className="px-5 py-12 bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/20 dark:to-slate-950">
       <div className="max-w-md mx-auto">
         <h2 className="text-xl font-bold text-center mb-8 text-slate-900 dark:text-slate-50">
-          MedBridge solves this.
+          {t("landing.solution.title")}
         </h2>
         
         <div className="space-y-3">
@@ -37,7 +40,7 @@ export function SolutionSection() {
                 <feature.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <p className="text-sm text-slate-700 dark:text-slate-300 pt-2 leading-relaxed">
-                {feature.text}
+                {t(feature.textKey)}
               </p>
             </div>
           ))}
