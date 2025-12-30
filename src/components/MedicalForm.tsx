@@ -349,7 +349,7 @@ export function MedicalForm() {
 
   const handleSave = () => {
     localStorage.setItem("medicalProfile", JSON.stringify(profile));
-    router.push("/");
+    router.push("/medcard");
   };
 
   const handleSaveAndUploadId = () => {
@@ -1262,7 +1262,7 @@ export function MedicalForm() {
               className="w-full h-14 text-lg"
             >
               <IdCard className="w-5 h-5 mr-2" />
-              Subir Identificación
+              Agregar Documento de Identificación
             </Button>
           </div>
         )}
