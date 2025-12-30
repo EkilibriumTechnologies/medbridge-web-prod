@@ -8,32 +8,31 @@ interface AccessSectionProps {
 
 export function AccessSection({ onUnlockAccess, onContinueDemo }: AccessSectionProps) {
   return (
-    <section className="px-6 py-20 bg-white dark:bg-slate-950">
-      <div className="max-w-2xl mx-auto text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-6">
-          <Sparkles className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+    <section className="px-5 py-12 bg-white dark:bg-slate-950">
+      <div className="max-w-md mx-auto text-center">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-5">
+          <Sparkles className="w-7 h-7 text-blue-600 dark:text-blue-400" />
         </div>
         
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-slate-50">
+        <h2 className="text-xl font-bold mb-3 text-slate-900 dark:text-slate-50">
           Access the App
         </h2>
         
-        <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-lg mx-auto">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
           MedBridge requires a one-time access purchase to use the app.
         </p>
 
-        <div className="flex flex-col gap-4 items-center">
+        <div className="flex flex-col gap-3">
           <Button 
             onClick={onUnlockAccess}
-            size="lg"
-            className="w-full max-w-xs h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation"
           >
             Unlock Access
           </Button>
           
           <button
             onClick={onContinueDemo}
-            className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors underline underline-offset-4"
+            className="text-sm text-blue-600 dark:text-blue-400 active:text-blue-700 dark:active:text-blue-300 font-medium touch-manipulation py-2"
           >
             Continue to Demo
           </button>

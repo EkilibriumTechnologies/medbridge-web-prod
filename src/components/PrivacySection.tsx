@@ -21,25 +21,25 @@ export function PrivacySection() {
   ];
 
   return (
-    <section className="px-6 py-20 bg-gradient-to-b from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <Lock className="w-8 h-8 text-green-400" />
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
+    <section className="px-5 py-12 bg-gradient-to-b from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900">
+      <div className="max-w-md mx-auto">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Lock className="w-6 h-6 text-green-400" />
+          <h2 className="text-xl font-bold text-white">
             Your data stays private.
           </h2>
         </div>
         
-        <div className="grid gap-4 mt-12">
+        <div className="space-y-3 mt-8">
           {privacyFeatures.map((feature, index) => (
             <div 
               key={index}
-              className="flex items-center gap-4 p-5 bg-slate-800/50 dark:bg-slate-900/50 rounded-xl border border-slate-700 dark:border-slate-800"
+              className="flex items-center gap-3 p-4 bg-slate-800/50 dark:bg-slate-900/50 rounded-lg border border-slate-700 dark:border-slate-800"
             >
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-900/30 flex items-center justify-center">
-                <feature.icon className="w-5 h-5 text-green-400" />
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-green-900/30 flex items-center justify-center">
+                <feature.icon className="w-4 h-4 text-green-400" />
               </div>
-              <p className="text-lg text-slate-200">
+              <p className="text-sm text-slate-200 leading-relaxed">
                 {feature.text}
               </p>
             </div>

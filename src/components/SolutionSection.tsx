@@ -21,22 +21,22 @@ export function SolutionSection() {
   ];
 
   return (
-    <section className="px-6 py-20 bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/20 dark:to-slate-950">
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-slate-900 dark:text-slate-50">
+    <section className="px-5 py-12 bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/20 dark:to-slate-950">
+      <div className="max-w-md mx-auto">
+        <h2 className="text-xl font-bold text-center mb-8 text-slate-900 dark:text-slate-50">
           MedBridge solves this.
         </h2>
         
-        <div className="grid gap-6">
+        <div className="space-y-3">
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="flex items-start gap-4 p-6 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-blue-100 dark:border-blue-900/30"
+              className="flex items-start gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border border-blue-100 dark:border-blue-900/30"
             >
-              <div className="flex-shrink-0 w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <feature.icon className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <feature.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <p className="text-lg text-slate-700 dark:text-slate-300 pt-3">
+              <p className="text-sm text-slate-700 dark:text-slate-300 pt-2 leading-relaxed">
                 {feature.text}
               </p>
             </div>
