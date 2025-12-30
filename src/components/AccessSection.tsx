@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AccessSectionProps {
   onUnlockAccess: () => void;
@@ -8,36 +7,43 @@ interface AccessSectionProps {
 }
 
 export function AccessSection({ onUnlockAccess, onContinueDemo }: AccessSectionProps) {
-  const { t } = useLanguage();
-  
   return (
-    <section className="px-5 py-12 bg-white dark:bg-slate-950">
-      <div className="max-w-md mx-auto text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-5">
-          <Sparkles className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+    <section className="px-5 py-12 bg-gradient-to-b from-white to-blue-50 dark:from-slate-950 dark:to-blue-950/20 relative overflow-hidden">
+      <div 
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=60')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      
+      <div className="max-w-md mx-auto relative z-10">
+        <div className="text-center space-y-4 mb-8">
+          <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+            <Sparkles className="w-7 h-7 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Access the App
+          </h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">
+            MedBridge requires a one-time access purchase to use the app.
+          </p>
         </div>
-        
-        <h2 className="text-xl font-bold mb-3 text-slate-900 dark:text-slate-50">
-          {t("landing.access.title")}
-        </h2>
-        
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-          {t("landing.access.subtitle")}
-        </p>
 
-        <div className="flex flex-col gap-3">
+        <div className="space-y-3">
           <Button 
             onClick={onUnlockAccess}
-            className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation"
+            className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
-            {t("landing.access.unlock")}
+            Unlock Access
           </Button>
           
           <button
             onClick={onContinueDemo}
-            className="text-sm text-blue-600 dark:text-blue-400 active:text-blue-700 dark:active:text-blue-300 font-medium touch-manipulation py-2"
+            className="w-full text-sm text-slate-600 dark:text-slate-400 active:text-slate-900 dark:active:text-slate-200 font-medium touch-manipulation py-3"
           >
-            {t("landing.access.continueDemo")}
+            Continue to Demo
           </button>
         </div>
       </div>
