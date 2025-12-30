@@ -66,7 +66,33 @@ export function MedicalForm() {
   useEffect(() => {
     const saved = localStorage.getItem("medicalProfile");
     if (saved) {
-      setProfile(JSON.parse(saved));
+      try {
+        const savedProfile = JSON.parse(saved);
+        // Merge saved data with initialProfile to ensure all fields exist
+        setProfile({
+          ...initialProfile,
+          ...savedProfile,
+          personalInfo: { ...initialProfile.personalInfo, ...savedProfile.personalInfo },
+          allergies: {
+            medication: { ...initialProfile.allergies.medication, ...savedProfile.allergies?.medication },
+            food: { ...initialProfile.allergies.food, ...savedProfile.allergies?.food },
+          },
+          medicalHistory: {
+            ...initialProfile.medicalHistory,
+            ...savedProfile.medicalHistory,
+            surgeryComplications: { ...initialProfile.medicalHistory.surgeryComplications, ...savedProfile.medicalHistory?.surgeryComplications },
+            anesthesiaReaction: { ...initialProfile.medicalHistory.anesthesiaReaction, ...savedProfile.medicalHistory?.anesthesiaReaction },
+            transplantHistory: { ...initialProfile.medicalHistory.transplantHistory, ...savedProfile.medicalHistory?.transplantHistory },
+          },
+          emergencyContacts: {
+            primary: { ...initialProfile.emergencyContacts.primary, ...savedProfile.emergencyContacts?.primary },
+            secondary: { ...initialProfile.emergencyContacts.secondary, ...savedProfile.emergencyContacts?.secondary },
+          },
+          primaryPhysician: { ...initialProfile.primaryPhysician, ...savedProfile.primaryPhysician },
+        });
+      } catch (error) {
+        console.error("Error loading medical profile:", error);
+      }
     }
   }, []);
 
