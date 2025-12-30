@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, Phone, Edit, Share2, CheckCircle, XCircle, Stethoscope, Activity } from "lucide-react";
+import { AlertCircle, Phone, Edit, Share2, CheckCircle, XCircle, Stethoscope, Activity, IdCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
@@ -307,22 +307,36 @@ export function MedicalCard() {
 
       {/* ACTIONS - FIXED BOTTOM */}
       <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 p-4 shadow-lg">
-        <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3">
+        <div className="max-w-2xl mx-auto space-y-3">
+          {/* Primary Actions Row */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="font-bold text-base"
+              onClick={handleEdit}
+            >
+              <Edit className="w-5 h-5 mr-2" />
+              Edit
+            </Button>
+            <Button 
+              size="lg"
+              className="font-bold text-base bg-blue-600 hover:bg-blue-700"
+            >
+              <Share2 className="w-5 h-5 mr-2" />
+              Share
+            </Button>
+          </div>
+          
+          {/* Secondary Action Row */}
           <Button 
-            variant="outline" 
+            variant="outline"
             size="lg"
-            className="font-bold text-base"
-            onClick={handleEdit}
+            className="w-full font-semibold text-base"
+            onClick={() => router.push("/identification")}
           >
-            <Edit className="w-5 h-5 mr-2" />
-            Edit
-          </Button>
-          <Button 
-            size="lg"
-            className="font-bold text-base bg-blue-600 hover:bg-blue-700"
-          >
-            <Share2 className="w-5 h-5 mr-2" />
-            Share
+            <IdCard className="w-5 h-5 mr-2" />
+            View Identification
           </Button>
         </div>
       </div>
