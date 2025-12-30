@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, Phone, Edit, Share2, CheckCircle, XCircle, Stethoscope, Activity, IdCard, ArrowLeft } from "lucide-react";
+import { AlertCircle, Phone, Edit, Share2, CheckCircle, XCircle, Stethoscope, Activity, IdCard, ArrowLeft, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CardLanguageSelector } from "@/components/CardLanguageSelector";
+import { generateMedicalReportPDF } from "@/lib/generateMedicalReportPDF";
 
 export function MedicalCard() {
   const router = useRouter();
@@ -28,6 +29,12 @@ export function MedicalCard() {
 
   const handleCreateProfile = () => {
     router.push("/form");
+  };
+
+  const handleGeneratePDF = () => {
+    if (profile) {
+      generateMedicalReportPDF(profile, t, language);
+    }
   };
 
   if (!profile) {
@@ -333,15 +340,27 @@ export function MedicalCard() {
             </Button>
           </div>
           
-          <Button 
-            variant="outline"
-            size="lg"
-            className="w-full font-semibold text-base"
-            onClick={() => router.push("/identification")}
-          >
-            <IdCard className="w-5 h-5 mr-2" />
-            {t("card.viewId")}
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button 
+              variant="outline"
+              size="lg"
+              className="font-semibold text-base"
+              onClick={() => router.push("/identification")}
+            >
+              <IdCard className="w-5 h-5 mr-2" />
+              {t("card.viewId")}
+            </Button>
+            
+            <Button 
+              variant="outline"
+              size="lg"
+              className="font-semibold text-base"
+              onClick={handleGeneratePDF}
+            >
+              <FileText className="w-5 h-5 mr-2" />
+              {t("pdf.button")}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
