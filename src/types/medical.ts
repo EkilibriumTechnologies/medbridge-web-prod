@@ -63,8 +63,8 @@ export interface MedicalProfile {
     };
   };
   
-  // Step 6: Primary Doctor
-  primaryDoctor: {
+  // Step 6: Primary Physician
+  primaryPhysician: {
     fullName: string;
     phone: string;
     email: string;
