@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, Phone, Edit, Share2, CheckCircle, XCircle, Stethoscope, Activity, IdCard } from "lucide-react";
+import { AlertCircle, Phone, Edit, Share2, CheckCircle, XCircle, Stethoscope, Activity, IdCard, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
@@ -72,11 +72,22 @@ export function MedicalCard() {
       <div className={`max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-4 ${cardAccentColor} overflow-hidden`}>
         
         <div className={`${hasAllergies ? "bg-red-500" : "bg-blue-500"} text-white p-6 relative`}>
+          <div className="absolute top-4 left-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 p-0 text-white hover:bg-white/20"
+              onClick={() => router.push("/")}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </div>
+          
           <div className="absolute top-4 right-4">
             <CardLanguageSelector />
           </div>
           
-          <h1 className="text-3xl sm:text-4xl font-black mb-2 leading-tight pr-20">
+          <h1 className="text-3xl sm:text-4xl font-black mb-2 leading-tight px-14">
             {profile.personalInfo?.firstName || ""} {profile.personalInfo?.middleName || ""} {profile.personalInfo?.lastName || ""}
           </h1>
           <div className="space-y-1">

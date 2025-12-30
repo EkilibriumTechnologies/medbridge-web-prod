@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Languages, Check } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 
 export function CardLanguageSelector() {
   const { language, setLanguage } = useLanguage();
@@ -27,8 +27,8 @@ export function CardLanguageSelector() {
           size="sm"
           className="h-9 px-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 font-bold shadow-sm"
         >
-          <Languages className="w-4 h-4 mr-2" />
           {currentLang?.short}
+          <ChevronDown className="w-4 h-4 ml-2" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
