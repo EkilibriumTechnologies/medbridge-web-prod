@@ -1,60 +1,52 @@
-import { useState, useRef } from "react";
-import { Hero } from "@/components/Hero";
-import { ProblemSection } from "@/components/ProblemSection";
-import { SolutionSection } from "@/components/SolutionSection";
-import { FeaturesSection } from "@/components/FeaturesSection";
-import { PrivacySection } from "@/components/PrivacySection";
-import { AccessSection } from "@/components/AccessSection";
-import { PaywallModal } from "@/components/PaywallModal";
+import { useState, useEffect } from "react";
 import SEO from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { MedicalCard } from "@/components/MedicalCard";
+import { MedicalProfile } from "@/types/medical";
 
 export default function Home() {
-  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
-  const learnMoreRef = useRef<HTMLDivElement>(null);
+  const [showCard, setShowCard] = useState(false);
 
-  const handleGetAccess = () => {
-    setIsPaywallOpen(true);
-  };
+  useEffect(() => {
+    // Create mock medical profile for demo
+    const mockProfile: MedicalProfile = {
+      personalInfo: {
+        fullName: "John Anderson",
+        dateOfBirth: "1985-03-15"
+      },
+      bloodType: "O+",
+      acceptsTransfusion: true,
+      allergies: {
+        medication: ["Penicillin", "Aspirin"],
+        food: ["Peanuts", "Shellfish"]
+      },
+      currentMedications: ["Lisinopril 10mg daily", "Metformin 500mg twice daily"],
+      emergencyContact: {
+        name: "Sarah Anderson",
+        phone: "+1 (555) 123-4567"
+      },
+      conditions: ["Type 2 Diabetes", "Hypertension"]
+    };
 
-  const handleLearnMore = () => {
-    learnMoreRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    localStorage.setItem("medicalProfile", JSON.stringify(mockProfile));
+    setShowCard(true);
+  }, []);
 
-  const handleContinueDemo = () => {
-    alert("Demo feature coming soon!");
-  };
+  if (!showCard) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-xl text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <>
       <SEO 
-        title="MedBridge - Your medical information, always available"
-        description="Store your medical information safely on your phone. Works 100% offline. Designed for travelers and emergencies."
-        image="/og-image.png"
+        title="Medical Emergency Card - MedBridge"
+        description="Quick-access medical information for emergency situations"
       />
-      
-      <main className="min-h-screen bg-white dark:bg-slate-950">
-        <Hero 
-          onGetAccess={handleGetAccess}
-          onLearnMore={handleLearnMore}
-        />
-        
-        <div ref={learnMoreRef}>
-          <ProblemSection />
-        </div>
-        
-        <SolutionSection />
-        <FeaturesSection />
-        <PrivacySection />
-        <AccessSection 
-          onUnlockAccess={handleGetAccess}
-          onContinueDemo={handleContinueDemo}
-        />
-        
-        <PaywallModal 
-          isOpen={isPaywallOpen}
-          onClose={() => setIsPaywallOpen(false)}
-        />
-      </main>
+      <MedicalCard />
     </>
   );
 }
