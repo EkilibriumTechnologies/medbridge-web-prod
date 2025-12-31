@@ -58,15 +58,20 @@ const translations: Record<Language, Record<string, string>> = {
     // Form Steps
     "form.step": "Paso",
     "form.of": "de",
+    
+    // Form Personal Information
     "form.personal.title": "Información Personal",
     "form.personal.fullName": "Nombre Completo",
-    "form.personal.fullNamePlaceholder": "Ingresa tu nombre",
+    "form.personal.fullNamePlaceholder": "Ingresa tu nombre completo",
     "form.personal.dateOfBirth": "Fecha de Nacimiento",
     "form.personal.nationality": "Nacionalidad",
+    "form.personal.nationalityPlaceholder": "Ingresa tu nacionalidad",
     "form.personal.gender": "Estado Civil",
     "form.personal.genderPlaceholder": "Selecciona estado civil",
     "form.personal.passportNumber": "Número de Pasaporte",
+    "form.personal.passportNumberPlaceholder": "Ingresa número de pasaporte",
     "form.personal.address": "Dirección Permanente",
+    "form.personal.addressPlaceholder": "Ingresa tu dirección",
     "form.personal.bloodType": "Tipo de Sangre",
     "form.personal.bloodTypePlaceholder": "Selecciona tu tipo de sangre",
 
@@ -93,6 +98,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Form Insurance & Doctor
     "form.insurance.primaryPhysician": "Médico de Cabecera",
     "form.insurance.primaryPhysicianPlaceholder": "Nombre del médico",
+    "form.insurance.physicianPhone": "Teléfono del Médico",
     "form.insurance.physicianPhonePlaceholder": "Teléfono del médico",
 
     // Form Additional
@@ -187,15 +193,20 @@ const translations: Record<Language, Record<string, string>> = {
     // Form Steps
     "form.step": "Step",
     "form.of": "of",
+    
+    // Form Personal Information
     "form.personal.title": "Personal Information",
     "form.personal.fullName": "Full Name",
-    "form.personal.fullNamePlaceholder": "Enter your name",
+    "form.personal.fullNamePlaceholder": "Enter your full name",
     "form.personal.dateOfBirth": "Date of Birth",
     "form.personal.nationality": "Nationality",
+    "form.personal.nationalityPlaceholder": "Enter your nationality",
     "form.personal.gender": "Marital Status",
     "form.personal.genderPlaceholder": "Select marital status",
     "form.personal.passportNumber": "Passport Number",
+    "form.personal.passportNumberPlaceholder": "Enter passport number",
     "form.personal.address": "Permanent Address",
+    "form.personal.addressPlaceholder": "Enter your address",
     "form.personal.bloodType": "Blood Type",
     "form.personal.bloodTypePlaceholder": "Select your blood type",
 
@@ -222,6 +233,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Form Insurance & Doctor
     "form.insurance.primaryPhysician": "Primary Physician",
     "form.insurance.primaryPhysicianPlaceholder": "Doctor's name",
+    "form.insurance.physicianPhone": "Physician Phone",
     "form.insurance.physicianPhonePlaceholder": "Doctor's phone",
 
     // Form Additional
@@ -316,15 +328,20 @@ const translations: Record<Language, Record<string, string>> = {
     // Form Steps
     "form.step": "Passo",
     "form.of": "de",
+    
+    // Form Personal Information
     "form.personal.title": "Informação Pessoal",
     "form.personal.fullName": "Nome Completo",
-    "form.personal.fullNamePlaceholder": "Digite seu nome",
+    "form.personal.fullNamePlaceholder": "Digite seu nome completo",
     "form.personal.dateOfBirth": "Data de Nascimento",
     "form.personal.nationality": "Nacionalidade",
+    "form.personal.nationalityPlaceholder": "Digite sua nacionalidade",
     "form.personal.gender": "Estado Civil",
     "form.personal.genderPlaceholder": "Selecione estado civil",
     "form.personal.passportNumber": "Número do Passaporte",
+    "form.personal.passportNumberPlaceholder": "Digite número do passaporte",
     "form.personal.address": "Endereço Permanente",
+    "form.personal.addressPlaceholder": "Digite seu endereço",
     "form.personal.bloodType": "Tipo Sanguíneo",
     "form.personal.bloodTypePlaceholder": "Selecione seu tipo sanguíneo",
 
@@ -351,6 +368,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Form Insurance & Doctor
     "form.insurance.primaryPhysician": "Médico de Família",
     "form.insurance.primaryPhysicianPlaceholder": "Nome do médico",
+    "form.insurance.physicianPhone": "Telefone do Médico",
     "form.insurance.physicianPhonePlaceholder": "Telefone do médico",
 
     // Form Additional
@@ -403,11 +421,13 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("es");
   const [isClient, setIsClient] = useState(false);
+  const [renderKey, setRenderKey] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
     const savedLanguage = localStorage.getItem("medbridge-language") as Language;
     if (savedLanguage && ["es", "en", "pt"].includes(savedLanguage)) {
+      console.log("Loading saved language:", savedLanguage);
       setLanguageState(savedLanguage);
     }
   }, []);
@@ -415,9 +435,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLanguage = (lang: Language) => {
     console.log("Setting language to:", lang);
     setLanguageState(lang);
+    setRenderKey(prev => prev + 1);
     if (isClient) {
       localStorage.setItem("medbridge-language", lang);
+      console.log("Language saved to localStorage:", lang);
     }
+    console.log("Language changed, forcing re-render");
   };
 
   const t = (key: string): string => {
@@ -429,8 +452,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translation;
   };
 
+  useEffect(() => {
+    console.log("Current language:", language);
+  }, [language]);
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }} key={renderKey}>
       {children}
     </LanguageContext.Provider>
   );
