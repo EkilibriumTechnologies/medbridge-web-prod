@@ -1,22 +1,25 @@
 import { Lock, Server, Smartphone, UserCheck } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function PrivacySection() {
+  const { t } = useLanguage();
+
   const privacyPoints = [
     {
       icon: Server,
-      text: "Sin almacenamiento en la nube"
+      text: t("privacy.point1")
     },
     {
       icon: Lock,
-      text: "Sin servidores"
+      text: t("privacy.point2")
     },
     {
       icon: Smartphone,
-      text: "Datos guardados localmente en tu dispositivo"
+      text: t("privacy.point3")
     },
     {
       icon: UserCheck,
-      text: "Tú controlas cuándo se comparte"
+      text: t("privacy.point4")
     }
   ];
 
@@ -38,7 +41,7 @@ export function PrivacySection() {
             <Lock className="w-6 h-6 text-green-400" />
           </div>
           <h2 className="text-xl font-bold text-white">
-            Tus datos permanecen privados.
+            {t("privacy.title")}
           </h2>
         </div>
         

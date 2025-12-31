@@ -1,13 +1,16 @@
 import { Check } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function FeaturesSection() {
+  const { t } = useLanguage();
+
   const features = [
-    "Perfil médico personal",
-    "Tipo de sangre y alergias",
-    "Contactos de emergencia",
-    "Información del médico",
-    "Tarjeta médica lista para emergencias",
-    "Comparte reporte médico por email cuando lo necesites"
+    t("features.item1"),
+    t("features.item2"),
+    t("features.item3"),
+    t("features.item4"),
+    t("features.item5"),
+    t("features.item6")
   ];
 
   return (
@@ -23,7 +26,7 @@ export function FeaturesSection() {
       
       <div className="max-w-md mx-auto relative z-10">
         <h2 className="text-xl font-bold text-center mb-8 text-slate-900 dark:text-slate-50">
-          Qué incluye
+          {t("features.title")}
         </h2>
         
         <div className="space-y-3">
