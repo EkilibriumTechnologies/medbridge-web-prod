@@ -6,6 +6,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  isLoaded: boolean;
 }
 
 const translations: Record<Language, Record<string, string>> = {
@@ -420,44 +421,29 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("es");
-  const [isClient, setIsClient] = useState(false);
-  const [renderKey, setRenderKey] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
     const savedLanguage = localStorage.getItem("medbridge-language") as Language;
     if (savedLanguage && ["es", "en", "pt"].includes(savedLanguage)) {
-      console.log("Loading saved language:", savedLanguage);
       setLanguageState(savedLanguage);
     }
+    setIsLoaded(true);
   }, []);
 
   const setLanguage = (lang: Language) => {
-    console.log("Setting language to:", lang);
     setLanguageState(lang);
-    setRenderKey(prev => prev + 1);
-    if (isClient) {
+    if (typeof window !== "undefined") {
       localStorage.setItem("medbridge-language", lang);
-      console.log("Language saved to localStorage:", lang);
     }
-    console.log("Language changed, forcing re-render");
   };
 
   const t = (key: string): string => {
-    const translation = translations[language]?.[key];
-    if (!translation) {
-      console.warn(`Missing translation for key: ${key} in language: ${language}`);
-      return key;
-    }
-    return translation;
+    return translations[language]?.[key] || key;
   };
 
-  useEffect(() => {
-    console.log("Current language:", language);
-  }, [language]);
-
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }} key={renderKey}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, isLoaded }}>
       {children}
     </LanguageContext.Provider>
   );

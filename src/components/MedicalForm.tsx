@@ -84,7 +84,7 @@ const validateTextLength = (text: string, maxLength: number): boolean => {
 
 export function MedicalForm() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, isLoaded } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [profile, setProfile] = useState<MedicalProfile>(initialProfile);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -302,6 +302,17 @@ export function MedicalForm() {
   };
 
   const CurrentStepIcon = STEPS[currentStep - 1]?.icon || User;
+
+  // Prevent hydration mismatch by waiting for client-side load
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-6 px-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-6 px-4">
