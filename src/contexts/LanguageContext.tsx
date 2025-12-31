@@ -55,14 +55,81 @@ const translations: Record<Language, Record<string, string>> = {
     "privacy.point3": "Datos guardados localmente en tu dispositivo",
     "privacy.point4": "Tú controlas cuándo se comparte",
 
-    // Form
-    "form.title": "Tu Ficha Médica",
-    "form.subtitle": "Completa tus datos para generar tu tarjeta",
-    "form.personal": "Datos Personales",
-    "form.medical": "Datos Médicos",
-    "form.contacts": "Contactos de Emergencia",
-    "form.save": "Guardar Información",
-    
+    // Form Steps
+    "form.step": "Paso",
+    "form.of": "de",
+    "form.personal.title": "Información Personal",
+    "form.personal.fullName": "Nombre Completo",
+    "form.personal.fullNamePlaceholder": "Ingresa tu nombre",
+    "form.personal.dateOfBirth": "Fecha de Nacimiento",
+    "form.personal.nationality": "Nacionalidad",
+    "form.personal.gender": "Estado Civil",
+    "form.personal.genderPlaceholder": "Selecciona estado civil",
+    "form.personal.passportNumber": "Número de Pasaporte",
+    "form.personal.address": "Dirección Permanente",
+    "form.personal.bloodType": "Tipo de Sangre",
+    "form.personal.bloodTypePlaceholder": "Selecciona tu tipo de sangre",
+
+    // Form Medical History
+    "form.history.title": "Historial Médico",
+    "form.history.chronicConditions": "Diagnósticos Previos",
+    "form.history.chronicConditionsPlaceholder": "Ingresa diagnósticos previos",
+    "form.history.currentMedications": "Medicamentos Actuales",
+    "form.history.currentMedicationsPlaceholder": "Ingresa medicamentos actuales",
+    "form.history.previousSurgeries": "Cirugías Previas",
+    "form.history.previousSurgeriesPlaceholder": "Ingresa cirugías previas",
+    "form.history.allergies": "Alergias a Medicamentos",
+    "form.history.allergiesPlaceholder": "Ingresa alergias a medicamentos",
+
+    // Form Emergency Contacts
+    "form.emergency.title": "Contacto de Emergencia Principal",
+    "form.emergency.name": "Nombre Completo",
+    "form.emergency.namePlaceholder": "Ingresa nombre completo",
+    "form.emergency.phone": "Teléfono Móvil",
+    "form.emergency.phonePlaceholder": "Ingresa número de teléfono",
+    "form.emergency.email": "Correo Electrónico",
+    "form.emergency.emailPlaceholder": "Ingresa correo electrónico",
+
+    // Form Insurance & Doctor
+    "form.insurance.primaryPhysician": "Médico de Cabecera",
+    "form.insurance.primaryPhysicianPlaceholder": "Nombre del médico",
+    "form.insurance.physicianPhonePlaceholder": "Teléfono del médico",
+
+    // Form Additional
+    "form.additional.advanceDirectives": "¿Acepta Transfusiones de Sangre?",
+
+    // Form Review
+    "form.review.title": "Revisar Información",
+    "form.review.subtitle": "Revisa tus datos antes de guardar",
+    "form.review.personalInfo": "Información Personal",
+    "form.review.medicalHistory": "Historial Médico",
+    "form.review.emergencyContact": "Contacto de Emergencia",
+    "form.review.submit": "Guardar y Continuar",
+    "form.review.uploadIdOptional": "Opcional: Sube una foto de tu ID para verificación",
+    "form.review.uploadId": "Subir Identificación",
+
+    // Common
+    "common.optional": "(Opcional)",
+    "common.yes": "Sí",
+    "common.no": "No",
+    "common.next": "Siguiente",
+    "common.back": "Atrás",
+    "common.unknown": "No especificado",
+
+    // Validation
+    "validation.required": "Este campo es obligatorio",
+    "validation.invalidEmail": "Correo electrónico inválido",
+    "validation.invalidPhone": "Número de teléfono inválido",
+    "validation.invalidDate": "Fecha inválida",
+
+    // Card
+    "card.name": "Nombre",
+    "card.dob": "Fecha de Nacimiento",
+    "card.bloodType": "Tipo de Sangre",
+    "card.allergies": "Alergias",
+    "card.phone": "Teléfono",
+    "card.none": "Ninguna",
+
     // PDF/Card
     "card.title": "Medical ID",
     "card.scan": "Escanear para ver detalles completos",
@@ -117,13 +184,80 @@ const translations: Record<Language, Record<string, string>> = {
     "privacy.point3": "Data saved locally on your device",
     "privacy.point4": "You control when it's shared",
 
-    // Form
-    "form.title": "Your Medical Record",
-    "form.subtitle": "Fill in your details to generate your card",
-    "form.personal": "Personal Details",
-    "form.medical": "Medical Data",
-    "form.contacts": "Emergency Contacts",
-    "form.save": "Save Information",
+    // Form Steps
+    "form.step": "Step",
+    "form.of": "of",
+    "form.personal.title": "Personal Information",
+    "form.personal.fullName": "Full Name",
+    "form.personal.fullNamePlaceholder": "Enter your name",
+    "form.personal.dateOfBirth": "Date of Birth",
+    "form.personal.nationality": "Nationality",
+    "form.personal.gender": "Marital Status",
+    "form.personal.genderPlaceholder": "Select marital status",
+    "form.personal.passportNumber": "Passport Number",
+    "form.personal.address": "Permanent Address",
+    "form.personal.bloodType": "Blood Type",
+    "form.personal.bloodTypePlaceholder": "Select your blood type",
+
+    // Form Medical History
+    "form.history.title": "Medical History",
+    "form.history.chronicConditions": "Previous Diagnoses",
+    "form.history.chronicConditionsPlaceholder": "Enter previous diagnoses",
+    "form.history.currentMedications": "Current Medications",
+    "form.history.currentMedicationsPlaceholder": "Enter current medications",
+    "form.history.previousSurgeries": "Previous Surgeries",
+    "form.history.previousSurgeriesPlaceholder": "Enter previous surgeries",
+    "form.history.allergies": "Medication Allergies",
+    "form.history.allergiesPlaceholder": "Enter medication allergies",
+
+    // Form Emergency Contacts
+    "form.emergency.title": "Primary Emergency Contact",
+    "form.emergency.name": "Full Name",
+    "form.emergency.namePlaceholder": "Enter full name",
+    "form.emergency.phone": "Mobile Phone",
+    "form.emergency.phonePlaceholder": "Enter phone number",
+    "form.emergency.email": "Email",
+    "form.emergency.emailPlaceholder": "Enter email",
+
+    // Form Insurance & Doctor
+    "form.insurance.primaryPhysician": "Primary Physician",
+    "form.insurance.primaryPhysicianPlaceholder": "Doctor's name",
+    "form.insurance.physicianPhonePlaceholder": "Doctor's phone",
+
+    // Form Additional
+    "form.additional.advanceDirectives": "Accepts Blood Transfusions?",
+
+    // Form Review
+    "form.review.title": "Review Information",
+    "form.review.subtitle": "Review your data before saving",
+    "form.review.personalInfo": "Personal Information",
+    "form.review.medicalHistory": "Medical History",
+    "form.review.emergencyContact": "Emergency Contact",
+    "form.review.submit": "Save and Continue",
+    "form.review.uploadIdOptional": "Optional: Upload a photo of your ID for verification",
+    "form.review.uploadId": "Upload Identification",
+
+    // Common
+    "common.optional": "(Optional)",
+    "common.yes": "Yes",
+    "common.no": "No",
+    "common.next": "Next",
+    "common.back": "Back",
+    "common.unknown": "Not specified",
+
+    // Validation
+    "validation.required": "This field is required",
+    "validation.invalidEmail": "Invalid email",
+    "validation.invalidPhone": "Invalid phone number",
+    "validation.invalidDate": "Invalid date",
+
+    // Card
+    "card.name": "Name",
+    "card.dob": "Date of Birth",
+    "card.bloodType": "Blood Type",
+    "card.allergies": "Allergies",
+    "card.phone": "Phone",
+    "card.none": "None",
 
     // PDF/Card
     "card.title": "Medical ID",
@@ -179,13 +313,80 @@ const translations: Record<Language, Record<string, string>> = {
     "privacy.point3": "Dados salvos localmente no seu dispositivo",
     "privacy.point4": "Você controla quando compartilhar",
 
-    // Form
-    "form.title": "Sua Ficha Médica",
-    "form.subtitle": "Preencha seus dados para gerar seu cartão",
-    "form.personal": "Dados Pessoais",
-    "form.medical": "Dados Médicos",
-    "form.contacts": "Contatos de Emergência",
-    "form.save": "Salvar Informações",
+    // Form Steps
+    "form.step": "Passo",
+    "form.of": "de",
+    "form.personal.title": "Informação Pessoal",
+    "form.personal.fullName": "Nome Completo",
+    "form.personal.fullNamePlaceholder": "Digite seu nome",
+    "form.personal.dateOfBirth": "Data de Nascimento",
+    "form.personal.nationality": "Nacionalidade",
+    "form.personal.gender": "Estado Civil",
+    "form.personal.genderPlaceholder": "Selecione estado civil",
+    "form.personal.passportNumber": "Número do Passaporte",
+    "form.personal.address": "Endereço Permanente",
+    "form.personal.bloodType": "Tipo Sanguíneo",
+    "form.personal.bloodTypePlaceholder": "Selecione seu tipo sanguíneo",
+
+    // Form Medical History
+    "form.history.title": "Histórico Médico",
+    "form.history.chronicConditions": "Diagnósticos Anteriores",
+    "form.history.chronicConditionsPlaceholder": "Digite diagnósticos anteriores",
+    "form.history.currentMedications": "Medicamentos Atuais",
+    "form.history.currentMedicationsPlaceholder": "Digite medicamentos atuais",
+    "form.history.previousSurgeries": "Cirurgias Anteriores",
+    "form.history.previousSurgeriesPlaceholder": "Digite cirurgias anteriores",
+    "form.history.allergies": "Alergias a Medicamentos",
+    "form.history.allergiesPlaceholder": "Digite alergias a medicamentos",
+
+    // Form Emergency Contacts
+    "form.emergency.title": "Contato de Emergência Principal",
+    "form.emergency.name": "Nome Completo",
+    "form.emergency.namePlaceholder": "Digite nome completo",
+    "form.emergency.phone": "Telefone Celular",
+    "form.emergency.phonePlaceholder": "Digite número de telefone",
+    "form.emergency.email": "Email",
+    "form.emergency.emailPlaceholder": "Digite email",
+
+    // Form Insurance & Doctor
+    "form.insurance.primaryPhysician": "Médico de Família",
+    "form.insurance.primaryPhysicianPlaceholder": "Nome do médico",
+    "form.insurance.physicianPhonePlaceholder": "Telefone do médico",
+
+    // Form Additional
+    "form.additional.advanceDirectives": "Aceita Transfusões de Sangue?",
+
+    // Form Review
+    "form.review.title": "Revisar Informação",
+    "form.review.subtitle": "Revise seus dados antes de salvar",
+    "form.review.personalInfo": "Informação Pessoal",
+    "form.review.medicalHistory": "Histórico Médico",
+    "form.review.emergencyContact": "Contato de Emergência",
+    "form.review.submit": "Salvar e Continuar",
+    "form.review.uploadIdOptional": "Opcional: Carregue uma foto do seu ID para verificação",
+    "form.review.uploadId": "Carregar Identificação",
+
+    // Common
+    "common.optional": "(Opcional)",
+    "common.yes": "Sim",
+    "common.no": "Não",
+    "common.next": "Próximo",
+    "common.back": "Voltar",
+    "common.unknown": "Não especificado",
+
+    // Validation
+    "validation.required": "Este campo é obrigatório",
+    "validation.invalidEmail": "Email inválido",
+    "validation.invalidPhone": "Número de telefone inválido",
+    "validation.invalidDate": "Data inválida",
+
+    // Card
+    "card.name": "Nome",
+    "card.dob": "Data de Nascimento",
+    "card.bloodType": "Tipo Sanguíneo",
+    "card.allergies": "Alergias",
+    "card.phone": "Telefone",
+    "card.none": "Nenhuma",
 
     // PDF/Card
     "card.title": "Medical ID",
