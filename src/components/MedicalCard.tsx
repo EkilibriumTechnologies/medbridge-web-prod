@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, Phone, Edit, Share2, Activity, IdCard, ArrowLeft, FileText, User, Heart, Shield, Stethoscope } from "lucide-react";
+import { AlertCircle, Phone, Edit, Share2, Activity, IdCard, ArrowLeft, FileText, User, Heart, Shield, Stethoscope, Mail, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
@@ -100,6 +100,11 @@ export function MedicalCard() {
             <p className="text-lg sm:text-xl font-semibold opacity-90">
               {t("card.dob")}: {profile.dateOfBirth || t("card.notSpecified")}
             </p>
+            {profile.gender && (
+              <p className="text-base sm:text-lg font-medium opacity-80">
+                {profile.gender}
+              </p>
+            )}
             {profile.country && (
               <p className="text-base sm:text-lg font-medium opacity-80">
                 {profile.city ? `${profile.city}, ` : ""}{profile.country}
@@ -127,9 +132,57 @@ export function MedicalCard() {
               </h2>
             </div>
             
-            <p className="text-xl sm:text-2xl font-bold text-red-800 dark:text-red-200">
+            <p className="text-xl sm:text-2xl font-bold text-red-800 dark:text-red-200 whitespace-pre-line">
               {hasAllergies ? profile.allergies : t("card.none")}
             </p>
+          </div>
+
+          {/* Contact Information */}
+          <div className="bg-slate-50 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <User className="w-6 h-6 text-slate-700 dark:text-slate-400" />
+              <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">
+                {t("form.sections.personalInfo")}
+              </h2>
+            </div>
+            
+            <div className="space-y-3">
+              {profile.phoneNumber && (
+                <div className="flex items-start gap-2">
+                  <Phone className="w-5 h-5 text-slate-600 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t("form.fields.phoneNumber")}</p>
+                    <a href={`tel:${profile.phoneNumber}`} className="text-base font-bold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400">
+                      {profile.phoneNumber}
+                    </a>
+                  </div>
+                </div>
+              )}
+              
+              {profile.email && (
+                <div className="flex items-start gap-2">
+                  <Mail className="w-5 h-5 text-slate-600 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t("form.fields.email")}</p>
+                    <a href={`mailto:${profile.email}`} className="text-base font-bold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 break-all">
+                      {profile.email}
+                    </a>
+                  </div>
+                </div>
+              )}
+              
+              {(profile.address || profile.city || profile.state || profile.zipCode) && (
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-5 h-5 text-slate-600 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t("form.fields.address")}</p>
+                    <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                      {[profile.address, profile.city, profile.state, profile.zipCode].filter(Boolean).join(", ")}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Medications */}
@@ -181,12 +234,71 @@ export function MedicalCard() {
               </div>
             )}
             
-            {!profile.medicalConditions && !profile.chronicIllnesses && !profile.pastSurgeries && (
+            {profile.disabilities && (
+              <div>
+                <p className="text-sm font-bold text-blue-900 dark:text-blue-300 mb-1">{t("form.fields.disabilities")}:</p>
+                <p className="text-base sm:text-lg font-semibold text-blue-800 dark:text-blue-200 whitespace-pre-line">
+                  {profile.disabilities}
+                </p>
+              </div>
+            )}
+            
+            {!profile.medicalConditions && !profile.chronicIllnesses && !profile.pastSurgeries && !profile.disabilities && (
                <p className="text-base sm:text-lg font-semibold text-blue-800 dark:text-blue-200">
                  {t("card.none")}
                </p>
             )}
           </div>
+
+          {/* Medical Insurance */}
+          {(profile.insuranceProvider || profile.policyNumber || profile.groupNumber || profile.insurancePhone) && (
+            <div className="bg-emerald-50 dark:bg-emerald-950 border-2 border-emerald-300 dark:border-emerald-600 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Shield className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
+                <h2 className="text-lg font-black text-emerald-900 dark:text-emerald-100 uppercase tracking-tight">
+                  {t("form.sections.insurance")}
+                </h2>
+              </div>
+              
+              <div className="space-y-3">
+                {profile.insuranceProvider && (
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase">{t("form.fields.insuranceProvider")}</p>
+                    <p className="text-lg font-bold text-emerald-900 dark:text-emerald-100">{profile.insuranceProvider}</p>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {profile.policyNumber && (
+                    <div>
+                      <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase">{t("form.fields.policyNumber")}</p>
+                      <p className="text-base font-bold text-emerald-900 dark:text-emerald-100">{profile.policyNumber}</p>
+                    </div>
+                  )}
+                  
+                  {profile.groupNumber && (
+                    <div>
+                      <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase">{t("form.fields.groupNumber")}</p>
+                      <p className="text-base font-bold text-emerald-900 dark:text-emerald-100">{profile.groupNumber}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {profile.insurancePhone && (
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase">{t("form.fields.insurancePhone")}</p>
+                    <a 
+                      href={`tel:${profile.insurancePhone}`}
+                      className="flex items-center gap-2 text-lg font-bold text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 transition-colors"
+                    >
+                      <Phone className="w-5 h-5" />
+                      {profile.insurancePhone}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Emergency Contact */}
           <div className="bg-amber-50 dark:bg-amber-950 border-2 border-amber-400 dark:border-amber-600 rounded-xl p-6">
@@ -200,19 +312,32 @@ export function MedicalCard() {
               {profile.emergencyContactName || t("card.notSpecified")}
             </p>
             {profile.emergencyContactRelationship && (
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2 uppercase tracking-wide">
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-3 uppercase tracking-wide">
                 {profile.emergencyContactRelationship}
               </p>
             )}
-            {profile.emergencyContactPhone && (
-              <a 
-                href={`tel:${profile.emergencyContactPhone}`}
-                className="flex items-center gap-3 text-lg sm:text-xl font-bold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-                {profile.emergencyContactPhone}
-              </a>
-            )}
+            
+            <div className="space-y-2">
+              {profile.emergencyContactPhone && (
+                <a 
+                  href={`tel:${profile.emergencyContactPhone}`}
+                  className="flex items-center gap-3 text-lg sm:text-xl font-bold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors"
+                >
+                  <Phone className="w-5 h-5" />
+                  {profile.emergencyContactPhone}
+                </a>
+              )}
+              
+              {profile.emergencyContactEmail && (
+                <a 
+                  href={`mailto:${profile.emergencyContactEmail}`}
+                  className="flex items-center gap-3 text-base font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors break-all"
+                >
+                  <Mail className="w-5 h-5" />
+                  {profile.emergencyContactEmail}
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Primary Physician */}
@@ -258,13 +383,13 @@ export function MedicalCard() {
               {profile.specialInstructions && (
                  <div className="mb-3">
                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{t("card.specialInstructions")}:</p>
-                   <p className="text-base text-gray-800 dark:text-gray-200">{profile.specialInstructions}</p>
+                   <p className="text-base text-gray-800 dark:text-gray-200 whitespace-pre-line">{profile.specialInstructions}</p>
                  </div>
               )}
               {profile.additionalNotes && (
                  <div>
                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{t("card.additionalNotes")}:</p>
-                   <p className="text-base text-gray-800 dark:text-gray-200">{profile.additionalNotes}</p>
+                   <p className="text-base text-gray-800 dark:text-gray-200 whitespace-pre-line">{profile.additionalNotes}</p>
                  </div>
               )}
             </div>
