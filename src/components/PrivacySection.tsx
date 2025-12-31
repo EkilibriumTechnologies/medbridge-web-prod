@@ -4,19 +4,19 @@ export function PrivacySection() {
   const privacyPoints = [
     {
       icon: Server,
-      text: "No cloud storage"
+      text: "Sin almacenamiento en la nube"
     },
     {
       icon: Lock,
-      text: "No servers"
+      text: "Sin servidores"
     },
     {
       icon: Smartphone,
-      text: "Data stored locally on your device"
+      text: "Datos guardados localmente en tu dispositivo"
     },
     {
       icon: UserCheck,
-      text: "You control when it's shared"
+      text: "Tú controlas cuándo se comparte"
     }
   ];
 
@@ -38,7 +38,7 @@ export function PrivacySection() {
             <Lock className="w-6 h-6 text-green-400" />
           </div>
           <h2 className="text-xl font-bold text-white">
-            Your data stays private.
+            Tus datos permanecen privados.
           </h2>
         </div>
         

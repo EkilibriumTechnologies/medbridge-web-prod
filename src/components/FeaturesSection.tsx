@@ -2,12 +2,12 @@ import { Check } from "lucide-react";
 
 export function FeaturesSection() {
   const features = [
-    "Personal medical profile",
-    "Blood type & allergies",
-    "Emergency contacts",
-    "Doctor information",
-    "Emergency-ready medical card",
-    "Share medical report by email when needed"
+    "Perfil médico personal",
+    "Tipo de sangre y alergias",
+    "Contactos de emergencia",
+    "Información del médico",
+    "Tarjeta médica lista para emergencias",
+    "Comparte reporte médico por email cuando lo necesites"
   ];
 
   return (
@@ -23,7 +23,7 @@ export function FeaturesSection() {
       
       <div className="max-w-md mx-auto relative z-10">
         <h2 className="text-xl font-bold text-center mb-8 text-slate-900 dark:text-slate-50">
-          What it includes
+          Qué incluye
         </h2>
         
         <div className="space-y-3">
