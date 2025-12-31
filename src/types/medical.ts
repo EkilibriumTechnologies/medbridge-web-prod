@@ -1,73 +1,49 @@
 export interface MedicalProfile {
-  // Step 1: Personal Information
-  personalInfo: {
-    firstName: string;
-    middleName?: string;
-    lastName: string;
-    dateOfBirth: string;
-    nationality: string;
-    maritalStatus: "Single" | "Married" | "";
-    passportNumber: string;
-    permanentAddress: string;
-  };
-  
-  // Step 2: Basic Medical Information
+  // Información Personal
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
   bloodType: string;
-  acceptsTransfusion: boolean;
+  phoneNumber: string;
+  email: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  idPhoto?: string; // opcional
   
-  // Step 3: Allergies
-  allergies: {
-    medication: {
-      hasAllergies: boolean;
-      details: string;
-    };
-    food: {
-      hasAllergies: boolean;
-      details: string;
-    };
-  };
+  // Contacto de Emergencia
+  emergencyContactName: string;
+  emergencyContactRelationship: string;
+  emergencyContactPhone: string;
+  emergencyContactEmail: string;
   
-  // Step 4: Medical History
-  medicalHistory: {
-    previousDiagnoses: string;
-    currentDiagnoses: string;
-    currentMedications: string;
-    previousSurgeries: string;
-    surgeryComplications: {
-      hasComplications: boolean;
-      details: string;
-    };
-    anesthesiaReaction: {
-      hasReaction: boolean;
-      details: string;
-    };
-    transplantHistory: {
-      hasTransplant: boolean;
-      details: string;
-    };
-  };
+  // Información Médica
+  medicalConditions: string;
+  allergies: string;
+  currentMedications: string;
+  pastSurgeries: string;
+  chronicIllnesses: string;
+  disabilities: string;
   
-  // Step 5: Emergency Contacts
-  emergencyContacts: {
-    primary: {
-      fullName: string;
-      mobilePhone: string;
-      officePhone: string;
-      email: string;
-    };
-    secondary: {
-      fullName: string;
-      mobilePhone: string;
-      officePhone: string;
-      email: string;
-    };
-  };
+  // Seguro Médico
+  insuranceProvider: string;
+  policyNumber: string;
+  groupNumber: string;
+  insurancePhone: string;
   
-  // Step 6: Primary Physician
-  primaryPhysician: {
-    fullName: string;
-    phone: string;
-    email: string;
-    clinicHospital: string;
-  };
+  // Doctor Primario
+  primaryPhysicianName: string;
+  primaryPhysicianPhone: string;
+  primaryPhysicianClinic: string;
+  
+  // Notas Importantes
+  specialInstructions: string;
+  additionalNotes: string;
+  
+  // Consentimiento
+  consentToTreatment: boolean;
+  shareMedicalInfo: boolean;
 }
