@@ -201,8 +201,10 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("es");
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     const savedLanguage = localStorage.getItem("medbridge-language") as Language;
     if (savedLanguage && ["es", "en", "pt"].includes(savedLanguage)) {
       setLanguageState(savedLanguage);
@@ -210,12 +212,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setLanguage = (lang: Language) => {
+    console.log("Setting language to:", lang);
     setLanguageState(lang);
-    localStorage.setItem("medbridge-language", lang);
+    if (isClient) {
+      localStorage.setItem("medbridge-language", lang);
+    }
   };
 
   const t = (key: string): string => {
-    return translations[language]?.[key] || key;
+    const translation = translations[language]?.[key];
+    if (!translation) {
+      console.warn(`Missing translation for key: ${key} in language: ${language}`);
+      return key;
+    }
+    return translation;
   };
 
   return (
