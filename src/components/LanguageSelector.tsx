@@ -4,24 +4,28 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
 
+  const languages = [
+    { code: "es", label: "ES" },
+    { code: "en", label: "EN" },
+    { code: "pt", label: "PT" },
+    { code: "fr", label: "FR" },
+  ];
+
   return (
     <div className="flex gap-2">
-      <Button
-        variant={language === "es" ? "default" : "outline"}
-        size="sm"
-        onClick={() => setLanguage("es")}
-        className={language === "es" ? "" : "text-white border-white/30 hover:bg-white/10 hover:text-white"}
-      >
-        ES
-      </Button>
-      <Button
-        variant={language === "en" ? "default" : "outline"}
-        size="sm"
-        onClick={() => setLanguage("en")}
-        className={language === "en" ? "" : "text-white border-white/30 hover:bg-white/10 hover:text-white"}
-      >
-        EN
-      </Button>
+      {languages.map((lang) => (
+        <Button
+          key={lang.code}
+          variant="outline"
+          size="sm"
+          onClick={() => setLanguage(lang.code as "es" | "en" | "pt" | "fr")}
+          className={`text-white border-white/30 hover:bg-white/20 hover:text-white transition-all ${
+            language === lang.code ? "bg-white/20 border-white/60" : "bg-transparent"
+          }`}
+        >
+          {lang.label}
+        </Button>
+      ))}
     </div>
   );
 }

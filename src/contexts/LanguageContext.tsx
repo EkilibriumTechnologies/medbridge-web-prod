@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-type Language = "es" | "en" | "pt";
+type Language = "es" | "en" | "pt" | "fr";
 
 interface LanguageContextType {
   language: Language;
@@ -797,7 +797,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("medbridge-language") as Language;
-    if (savedLanguage && ["es", "en", "pt"].includes(savedLanguage)) {
+    if (savedLanguage && ["es", "en", "pt", "fr"].includes(savedLanguage)) {
       setLanguageState(savedLanguage);
     }
   }, []);
