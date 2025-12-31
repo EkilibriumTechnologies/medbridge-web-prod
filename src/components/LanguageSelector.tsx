@@ -1,47 +1,27 @@
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
 
-  const languages = [
-    { code: "es" as const, label: "ES", name: "Español" },
-    { code: "en" as const, label: "EN", name: "English" },
-    { code: "pt" as const, label: "PT", name: "Português" },
-  ];
-
-  const currentLanguage = languages.find((lang) => lang.code === language);
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="min-w-[70px] font-semibold"
-        >
-          {currentLanguage?.label}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[140px]">
-        {languages.map((lang) => (
-          <DropdownMenuItem
-            key={lang.code}
-            onClick={() => setLanguage(lang.code)}
-            className="cursor-pointer justify-between"
-          >
-            <span className="font-medium">{lang.label}</span>
-            <span className="text-sm text-muted-foreground">{lang.name}</span>
-            {language === lang.code && <span className="ml-2">✓</span>}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex gap-2">
+      <Button
+        variant={language === "es" ? "default" : "outline"}
+        size="sm"
+        onClick={() => setLanguage("es")}
+        className={language === "es" ? "" : "text-white border-white/30 hover:bg-white/10 hover:text-white"}
+      >
+        ES
+      </Button>
+      <Button
+        variant={language === "en" ? "default" : "outline"}
+        size="sm"
+        onClick={() => setLanguage("en")}
+        className={language === "en" ? "" : "text-white border-white/30 hover:bg-white/10 hover:text-white"}
+      >
+        EN
+      </Button>
+    </div>
   );
 }
