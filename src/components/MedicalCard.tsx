@@ -16,7 +16,18 @@ export function MedicalCard() {
     const stored = localStorage.getItem("medicalProfile");
     if (stored) {
       try {
-        setProfile(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        
+        // Handle backward compatibility for allergies
+        if (parsed.allergies && typeof parsed.allergies === "object") {
+          // Convert old format {medication: "...", food: "..."} to new string format
+          const allergyParts = [];
+          if (parsed.allergies.medication) allergyParts.push(`Medicamentos: ${parsed.allergies.medication}`);
+          if (parsed.allergies.food) allergyParts.push(`Alimentos: ${parsed.allergies.food}`);
+          parsed.allergies = allergyParts.join("\n") || "";
+        }
+        
+        setProfile(parsed);
       } catch (error) {
         console.error("Failed to parse medical profile:", error);
       }
