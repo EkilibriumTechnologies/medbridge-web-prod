@@ -75,10 +75,10 @@ export function generateMedicalReportPDF(
   // === SECTION 1: PATIENT INFORMATION ===
   yPosition = addSectionHeader(t("pdf.sectionPatient"), yPosition);
   
-  const fullName = `${profile.personalInfo?.firstName || ""} ${profile.personalInfo?.middleName || ""} ${profile.personalInfo?.lastName || ""}`.trim();
+  const fullName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
   yPosition = addField(t("pdf.fullName"), fullName, yPosition);
-  yPosition = addField(t("pdf.dateOfBirth"), profile.personalInfo?.dateOfBirth || "", yPosition + 2);
-  yPosition = addField(t("pdf.nationality"), profile.personalInfo?.nationality || "", yPosition + 2);
+  yPosition = addField(t("pdf.dateOfBirth"), profile.dateOfBirth || "", yPosition + 2);
+  yPosition = addField(t("pdf.nationality"), profile.country || "", yPosition + 2);
   
   yPosition += 8;
 
@@ -86,8 +86,6 @@ export function generateMedicalReportPDF(
   yPosition = addSectionHeader(t("pdf.sectionMedicalBasics"), yPosition);
   
   yPosition = addField(t("pdf.bloodType"), profile.bloodType || t("card.notSpecified"), yPosition);
-  const transfusionText = profile.acceptsTransfusion ? t("common.yes") : t("common.no");
-  yPosition = addField(t("pdf.acceptsTransfusion"), transfusionText, yPosition + 2);
   
   yPosition += 8;
 
@@ -102,15 +100,10 @@ export function generateMedicalReportPDF(
   doc.setFont("helvetica", "normal");
   yPosition += 12;
   
-  const medicationAllergies = (profile.allergies?.medication?.hasAllergies && profile.allergies.medication.details)
-    ? profile.allergies.medication.details
+  const allergies = profile.allergies && profile.allergies.trim().length > 0
+    ? profile.allergies
     : t("pdf.noneReported");
-  yPosition = addField(t("pdf.medicationAllergies"), medicationAllergies, yPosition);
-  
-  const foodAllergies = (profile.allergies?.food?.hasAllergies && profile.allergies.food.details)
-    ? profile.allergies.food.details
-    : t("pdf.noneReported");
-  yPosition = addField(t("pdf.foodAllergies"), foodAllergies, yPosition + 2);
+  yPosition = addField(t("pdf.medicationAllergies"), allergies, yPosition);
   
   yPosition += 8;
 
@@ -125,40 +118,24 @@ export function generateMedicalReportPDF(
   
   yPosition = addField(
     t("pdf.currentDiagnoses"),
-    profile.medicalHistory?.currentDiagnoses || t("pdf.noneReported"),
+    profile.medicalConditions || t("pdf.noneReported"),
     yPosition
   );
   yPosition = addField(
     t("pdf.previousDiagnoses"),
-    profile.medicalHistory?.previousDiagnoses || t("pdf.noneReported"),
+    profile.chronicIllnesses || t("pdf.noneReported"),
     yPosition + 2
   );
   yPosition = addField(
     t("pdf.currentMedications"),
-    profile.medicalHistory?.currentMedications || t("pdf.noneReported"),
+    profile.currentMedications || t("pdf.noneReported"),
     yPosition + 2
   );
   yPosition = addField(
     t("pdf.surgicalHistory"),
-    profile.medicalHistory?.previousSurgeries || t("pdf.noneReported"),
+    profile.pastSurgeries || t("pdf.noneReported"),
     yPosition + 2
   );
-  
-  if (profile.medicalHistory?.anesthesiaReaction?.hasReaction) {
-    yPosition = addField(
-      t("pdf.anesthesiaReactions"),
-      profile.medicalHistory.anesthesiaReaction.details || t("common.yes"),
-      yPosition + 2
-    );
-  }
-  
-  if (profile.medicalHistory?.transplantHistory?.hasTransplant) {
-    yPosition = addField(
-      t("pdf.transplantHistory"),
-      profile.medicalHistory.transplantHistory.details || t("common.yes"),
-      yPosition + 2
-    );
-  }
   
   yPosition += 8;
 
@@ -173,35 +150,43 @@ export function generateMedicalReportPDF(
   
   yPosition = addField(
     t("pdf.contactName"),
-    profile.emergencyContacts?.primary?.fullName || t("card.notSpecified"),
+    profile.emergencyContactName || t("card.notSpecified"),
     yPosition
   );
   yPosition = addField(
     t("pdf.mobilePhone"),
-    profile.emergencyContacts?.primary?.mobilePhone || t("card.notSpecified"),
+    profile.emergencyContactPhone || t("card.notSpecified"),
     yPosition + 2
   );
+  
+  if (profile.emergencyContactRelationship) {
+    yPosition = addField(
+        t("common.relationship"), // Assuming this key exists or defaulting to label
+        profile.emergencyContactRelationship,
+        yPosition + 2
+    );
+  }
   
   yPosition += 8;
 
   // === SECTION 6: PRIMARY PHYSICIAN ===
-  if (profile.primaryPhysician?.fullName || profile.primaryPhysician?.phone) {
+  if (profile.primaryPhysicianName || profile.primaryPhysicianPhone) {
     yPosition = addSectionHeader(t("pdf.sectionPrimaryPhysician"), yPosition);
     
     yPosition = addField(
       t("pdf.physicianName"),
-      profile.primaryPhysician?.fullName || t("card.notSpecified"),
+      profile.primaryPhysicianName || t("card.notSpecified"),
       yPosition
     );
     yPosition = addField(
       t("pdf.physicianPhone"),
-      profile.primaryPhysician?.phone || t("card.notSpecified"),
+      profile.primaryPhysicianPhone || t("card.notSpecified"),
       yPosition + 2
     );
-    if (profile.primaryPhysician?.clinicHospital) {
+    if (profile.primaryPhysicianClinic) {
       yPosition = addField(
         t("pdf.clinicHospital"),
-        profile.primaryPhysician.clinicHospital,
+        profile.primaryPhysicianClinic,
         yPosition + 2
       );
     }
