@@ -1,12 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useRouter } from "next/router";
 
 interface HeroProps {
-  onGetAccess: () => void;
   onLearnMore: () => void;
 }
 
-export function Hero({ onGetAccess, onLearnMore }: HeroProps) {
+export function Hero({ onLearnMore }: HeroProps) {
+  const { t } = useLanguage();
+  const router = useRouter();
+
   return (
     <section className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-between relative overflow-hidden">
       <div 
@@ -27,27 +31,35 @@ export function Hero({ onGetAccess, onLearnMore }: HeroProps) {
           </h1>
           
           <p className="text-base font-medium text-white/95 leading-snug">
-            Tu tarjeta médica de emergencia digital
+            {t("hero.titleHighlight")}
           </p>
           
           <p className="text-sm text-white/80 leading-relaxed">
-            Acceso seguro e instantáneo a información médica crítica cuando cada segundo cuenta
+            {t("hero.subtitle")}
           </p>
         </div>
 
         <div className="flex flex-col gap-3 pt-6">
           <Button 
-            onClick={onGetAccess}
+            onClick={() => router.push("/form")}
             className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
-            Obtener Acceso
+            {t("hero.cta")}
+          </Button>
+          
+          <Button
+            onClick={() => router.push("/medcard")}
+            variant="outline"
+            className="w-full h-12 text-base font-semibold bg-white/10 hover:bg-white/20 text-white border-white/30 touch-manipulation"
+          >
+            {t("hero.viewCard")}
           </Button>
           
           <button
             onClick={onLearnMore}
             className="text-sm text-white/90 active:text-white font-medium touch-manipulation py-2"
           >
-            Conoce cómo funciona
+            {t("hero.learnMore")}
           </button>
         </div>
       </div>

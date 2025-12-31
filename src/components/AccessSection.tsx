@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useRouter } from "next/router";
 
-interface AccessSectionProps {
-  onUnlockAccess: () => void;
-  onContinueDemo: () => void;
-}
+export function AccessSection() {
+  const { t } = useLanguage();
+  const router = useRouter();
 
-export function AccessSection({ onUnlockAccess, onContinueDemo }: AccessSectionProps) {
   return (
     <section className="px-5 py-12 bg-gradient-to-b from-white to-blue-50 dark:from-slate-950 dark:to-blue-950/20 relative overflow-hidden">
       <div 
@@ -24,27 +24,28 @@ export function AccessSection({ onUnlockAccess, onContinueDemo }: AccessSectionP
             <Sparkles className="w-7 h-7 text-white" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-            Accede a la Aplicación
+            {t("access.title")}
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">
-            MedBridge requiere una compra única para acceder a todas las funcionalidades de la aplicación.
+            {t("access.subtitle")}
           </p>
         </div>
 
         <div className="space-y-3">
           <Button 
-            onClick={onUnlockAccess}
+            onClick={() => router.push("/form")}
             className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
-            Desbloquear Acceso
+            {t("access.cta")}
           </Button>
           
-          <button
-            onClick={onContinueDemo}
-            className="w-full text-sm text-slate-600 dark:text-slate-400 active:text-slate-900 dark:active:text-slate-200 font-medium touch-manipulation py-3"
+          <Button
+            onClick={() => router.push("/medcard")}
+            variant="outline"
+            className="w-full h-12 text-base font-semibold border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950/20 touch-manipulation"
           >
-            Continuar con Demo
-          </button>
+            {t("access.viewCard")}
+          </Button>
         </div>
       </div>
     </section>
