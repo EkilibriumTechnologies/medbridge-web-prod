@@ -7,19 +7,19 @@ export function SolutionSection() {
   const features = [
     {
       icon: Shield,
-      text: "Tarjeta médica digital segura con toda tu información"
+      text: t("solution.item1")
     },
     {
       icon: WifiOff,
-      text: "Funciona sin internet - acceso offline garantizado"
+      text: t("solution.item2")
     },
     {
       icon: FileText,
-      text: "Genera reportes médicos en PDF instantáneamente"
+      text: t("solution.item3")
     },
     {
       icon: Languages,
-      text: "Traducción automática a múltiples idiomas"
+      text: t("solution.item4")
     }
   ];
 
@@ -45,7 +45,7 @@ export function SolutionSection() {
             }}
           />
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-            MedBridge es tu solución
+            {t("solution.title")}
           </h2>
         </div>
         

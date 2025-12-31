@@ -18,6 +18,19 @@ const translations: Record<Language, Record<string, string>> = {
     "hero.viewCard": "Ver tu Medical Card",
     "hero.learnMore": "Conocer Más",
 
+    // Problem Section
+    "problem.title": "¿Te ha pasado esto?",
+    "problem.item1": "Emergencias médicas en países extranjeros donde no hablas el idioma",
+    "problem.item2": "Sin acceso a internet cuando más lo necesitas",
+    "problem.item3": "Pérdida de tiempo crítico tratando de comunicar tu historial médico",
+
+    // Solution Section
+    "solution.title": "MedBridge es tu solución",
+    "solution.item1": "Tarjeta médica digital segura con toda tu información",
+    "solution.item2": "Funciona sin internet - acceso offline garantizado",
+    "solution.item3": "Genera reportes médicos en PDF instantáneamente",
+    "solution.item4": "Traducción automática a múltiples idiomas",
+
     // Access Section
     "access.title": "Acceso en Emergencias",
     "access.subtitle": "Diseñado para primeros auxilios. Escanea el QR y obtén información vital al instante, incluso sin conexión a internet.",
@@ -67,6 +80,19 @@ const translations: Record<Language, Record<string, string>> = {
     "hero.viewCard": "View Your Medical Card",
     "hero.learnMore": "Learn More",
 
+    // Problem Section
+    "problem.title": "Has this happened to you?",
+    "problem.item1": "Medical emergencies in foreign countries where you don't speak the language",
+    "problem.item2": "No internet access when you need it most",
+    "problem.item3": "Wasting critical time trying to communicate your medical history",
+
+    // Solution Section
+    "solution.title": "MedBridge is your solution",
+    "solution.item1": "Secure digital medical card with all your information",
+    "solution.item2": "Works without internet - guaranteed offline access",
+    "solution.item3": "Generate medical reports in PDF instantly",
+    "solution.item4": "Automatic translation to multiple languages",
+
     // Access Section
     "access.title": "Emergency Access",
     "access.subtitle": "Designed for first responders. Scan the QR and get vital information instantly, even offline.",
@@ -115,6 +141,19 @@ const translations: Record<Language, Record<string, string>> = {
     "hero.cta": "Criar Seu Medical ID",
     "hero.viewCard": "Ver Seu Medical Card",
     "hero.learnMore": "Saiba Mais",
+
+    // Problem Section
+    "problem.title": "Isso já aconteceu com você?",
+    "problem.item1": "Emergências médicas em países estrangeiros onde você não fala o idioma",
+    "problem.item2": "Sem acesso à internet quando mais precisa",
+    "problem.item3": "Perda de tempo crítico tentando comunicar seu histórico médico",
+
+    // Solution Section
+    "solution.title": "MedBridge é sua solução",
+    "solution.item1": "Cartão médico digital seguro com todas as suas informações",
+    "solution.item2": "Funciona sem internet - acesso offline garantido",
+    "solution.item3": "Gera relatórios médicos em PDF instantaneamente",
+    "solution.item4": "Tradução automática para vários idiomas",
 
     // Access Section
     "access.title": "Acesso em Emergências",

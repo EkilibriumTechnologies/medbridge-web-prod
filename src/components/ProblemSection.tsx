@@ -7,15 +7,15 @@ export function ProblemSection() {
   const problems = [
     {
       icon: AlertCircle,
-      text: "Emergencias médicas en países extranjeros donde no hablas el idioma"
+      text: t("problem.item1")
     },
     {
       icon: WifiOff,
-      text: "Sin acceso a internet cuando más lo necesitas"
+      text: t("problem.item2")
     },
     {
       icon: Clock,
-      text: "Pérdida de tiempo crítico tratando de comunicar tu historial médico"
+      text: t("problem.item3")
     }
   ];
 
@@ -32,7 +32,7 @@ export function ProblemSection() {
       
       <div className="max-w-md mx-auto relative z-10">
         <h2 className="text-xl font-bold text-center mb-8 text-slate-900 dark:text-slate-50 leading-snug">
-          ¿Te ha pasado esto?
+          {t("problem.title")}
         </h2>
         
         <div className="space-y-3">
