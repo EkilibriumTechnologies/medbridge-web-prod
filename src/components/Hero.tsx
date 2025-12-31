@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HeroProps {
   onGetAccess: () => void;
@@ -8,8 +7,6 @@ interface HeroProps {
 }
 
 export function Hero({ onGetAccess, onLearnMore }: HeroProps) {
-  const { t } = useLanguage();
-  
   return (
     <section className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-between relative overflow-hidden">
       <div 
@@ -30,11 +27,11 @@ export function Hero({ onGetAccess, onLearnMore }: HeroProps) {
           </h1>
           
           <p className="text-base font-medium text-white/95 leading-snug">
-            {t("landing.hero.tagline")}
+            Tu tarjeta médica de emergencia digital
           </p>
           
           <p className="text-sm text-white/80 leading-relaxed">
-            {t("landing.hero.subtitle")}
+            Acceso seguro e instantáneo a información médica crítica cuando cada segundo cuenta
           </p>
         </div>
 
@@ -43,14 +40,14 @@ export function Hero({ onGetAccess, onLearnMore }: HeroProps) {
             onClick={onGetAccess}
             className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
-            {t("landing.hero.getAccess")}
+            Obtener Acceso
           </Button>
           
           <button
             onClick={onLearnMore}
             className="text-sm text-white/90 active:text-white font-medium touch-manipulation py-2"
           >
-            {t("landing.hero.learnHow")}
+            Conoce cómo funciona
           </button>
         </div>
       </div>

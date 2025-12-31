@@ -24,10 +24,10 @@ export function AccessSection({ onUnlockAccess, onContinueDemo }: AccessSectionP
             <Sparkles className="w-7 h-7 text-white" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-            Access the App
+            Accede a la Aplicación
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">
-            MedBridge requires a one-time access purchase to use the app.
+            MedBridge requiere una compra única para acceder a todas las funcionalidades de la aplicación.
           </p>
         </div>
 
@@ -36,14 +36,14 @@ export function AccessSection({ onUnlockAccess, onContinueDemo }: AccessSectionP
             onClick={onUnlockAccess}
             className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
-            Unlock Access
+            Desbloquear Acceso
           </Button>
           
           <button
             onClick={onContinueDemo}
             className="w-full text-sm text-slate-600 dark:text-slate-400 active:text-slate-900 dark:active:text-slate-200 font-medium touch-manipulation py-3"
           >
-            Continue to Demo
+            Continuar con Demo
           </button>
         </div>
       </div>

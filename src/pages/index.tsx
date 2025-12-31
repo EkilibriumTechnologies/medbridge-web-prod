@@ -30,7 +30,7 @@ export default function Home() {
   };
 
   const handleContinueDemo = () => {
-    router.push("/medcard");
+    router.push("/form");
   };
 
   return (
