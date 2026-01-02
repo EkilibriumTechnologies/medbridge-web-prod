@@ -78,13 +78,13 @@ export function MedicalForm() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const STEPS = [
-    { id: 1, title: "Información Personal", icon: User },
-    { id: 2, title: "Contacto de Emergencia", icon: Phone },
-    { id: 3, title: "Información Médica", icon: Heart },
-    { id: 4, title: "Seguro Médico", icon: Shield },
-    { id: 5, title: "Doctor Primario", icon: Stethoscope },
-    { id: 6, title: "Notas y Consentimiento", icon: ClipboardList },
-    { id: 7, title: "Revisión Final", icon: FileText },
+    { id: 1, title: t("form.steps.personalInfo"), icon: User },
+    { id: 2, title: t("form.steps.emergencyContact"), icon: Phone },
+    { id: 3, title: t("form.steps.medicalInfo"), icon: Heart },
+    { id: 4, title: t("form.steps.insurance"), icon: Shield },
+    { id: 5, title: t("form.steps.primaryPhysician"), icon: Stethoscope },
+    { id: 6, title: t("form.steps.notesConsent"), icon: ClipboardList },
+    { id: 7, title: t("form.steps.finalReview"), icon: FileText },
   ];
 
   useEffect(() => {
@@ -101,27 +101,27 @@ export function MedicalForm() {
 
   const validateField = (fieldName: string, value: string): string => {
     if (fieldName === "firstName" || fieldName === "lastName") {
-      if (!value.trim()) return "Este campo es requerido";
-      if (value.trim().length < 2) return "Debe tener al menos 2 caracteres";
-      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return "Solo letras permitidas";
+      if (!value.trim()) return t("form.validation.required");
+      if (value.trim().length < 2) return t("form.validation.minLength").replace("{min}", "2");
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return t("form.validation.lettersOnly");
     }
 
     if (fieldName === "email" || fieldName === "emergencyContactEmail") {
-      if (fieldName === "email" && !value.trim()) return "Este campo es requerido";
-      if (value && !validateEmail(value)) return "Email inválido";
+      if (fieldName === "email" && !value.trim()) return t("form.validation.required");
+      if (value && !validateEmail(value)) return t("form.validation.invalidEmail");
     }
 
     if (fieldName === "phoneNumber" || fieldName === "emergencyContactPhone" || fieldName === "insurancePhone" || fieldName === "primaryPhysicianPhone") {
-      if ((fieldName === "phoneNumber" || fieldName === "emergencyContactPhone") && !value.trim()) return "Este campo es requerido";
-      if (value && !validatePhone(value)) return "Teléfono inválido (mínimo 10 dígitos)";
+      if ((fieldName === "phoneNumber" || fieldName === "emergencyContactPhone") && !value.trim()) return t("form.validation.required");
+      if (value && !validatePhone(value)) return t("form.validation.invalidPhone");
     }
 
     if (fieldName === "dateOfBirth") {
-      if (value && !validateDate(value)) return "Fecha inválida";
+      if (value && !validateDate(value)) return t("form.validation.invalidDate");
     }
 
     if (fieldName === "emergencyContactName") {
-      if (!value.trim()) return "Este campo es requerido";
+      if (!value.trim()) return t("form.validation.required");
     }
 
     return "";
@@ -212,7 +212,7 @@ export function MedicalForm() {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {currentStep <= 7 ? `Paso ${currentStep} de 7` : "Revisión Final"}
+              {currentStep <= 7 ? `${t("form.step")} ${currentStep} ${t("form.of")} 7` : t("form.steps.finalReview")}
             </h2>
             <span className="text-sm text-gray-600 dark:text-gray-400">
               {Math.round((currentStep / 7) * 100)}%
@@ -240,12 +240,12 @@ export function MedicalForm() {
 
         {/* Form Card */}
         <Card className="p-6 mb-6 shadow-lg">
-          {/* Step 1: Información Personal */}
+          {/* Step 1: Personal Information */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
                 <Label htmlFor="firstName" className="text-lg font-medium">
-                  Nombre *
+                  {t("form.fields.firstName")} *
                 </Label>
                 <Input
                   id="firstName"
@@ -253,7 +253,7 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange("firstName", e.target.value)}
                   onBlur={() => handleBlur("firstName")}
                   className={`mt-2 h-12 text-lg ${errors.firstName ? "border-red-500" : ""}`}
-                  placeholder="Ej: Juan"
+                  placeholder={t("form.placeholders.firstName")}
                 />
                 {errors.firstName && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -265,7 +265,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="lastName" className="text-lg font-medium">
-                  Apellido *
+                  {t("form.fields.lastName")} *
                 </Label>
                 <Input
                   id="lastName"
@@ -273,7 +273,7 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange("lastName", e.target.value)}
                   onBlur={() => handleBlur("lastName")}
                   className={`mt-2 h-12 text-lg ${errors.lastName ? "border-red-500" : ""}`}
-                  placeholder="Ej: Pérez García"
+                  placeholder={t("form.placeholders.lastName")}
                 />
                 {errors.lastName && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -285,7 +285,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="dateOfBirth" className="text-lg font-medium">
-                  Fecha de Nacimiento
+                  {t("form.fields.dateOfBirth")}
                 </Label>
                 <Input
                   id="dateOfBirth"
@@ -305,34 +305,34 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="gender" className="text-lg font-medium">
-                  Género
+                  {t("form.fields.gender")}
                 </Label>
                 <Select
                   value={profile.gender}
                   onValueChange={(value) => updateProfile("gender", value)}
                 >
                   <SelectTrigger className="mt-2 h-12 text-lg">
-                    <SelectValue placeholder="Seleccione su género" />
+                    <SelectValue placeholder={t("form.placeholders.selectGender")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Masculino">Masculino</SelectItem>
-                    <SelectItem value="Femenino">Femenino</SelectItem>
-                    <SelectItem value="Otro">Otro</SelectItem>
-                    <SelectItem value="Prefiero no decir">Prefiero no decir</SelectItem>
+                    <SelectItem value={t("form.genders.male")}>{t("form.genders.male")}</SelectItem>
+                    <SelectItem value={t("form.genders.female")}>{t("form.genders.female")}</SelectItem>
+                    <SelectItem value={t("form.genders.other")}>{t("form.genders.other")}</SelectItem>
+                    <SelectItem value={t("form.genders.preferNotToSay")}>{t("form.genders.preferNotToSay")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
                 <Label htmlFor="bloodType" className="text-lg font-medium">
-                  Tipo de Sangre
+                  {t("form.fields.bloodType")}
                 </Label>
                 <Select
                   value={profile.bloodType}
                   onValueChange={(value) => updateProfile("bloodType", value)}
                 >
                   <SelectTrigger className="mt-2 h-12 text-lg">
-                    <SelectValue placeholder="Seleccione tipo de sangre" />
+                    <SelectValue placeholder={t("form.placeholders.selectBloodType")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="O+">O+</SelectItem>
@@ -349,7 +349,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="phoneNumber" className="text-lg font-medium">
-                  Teléfono *
+                  {t("form.fields.phoneNumber")} *
                 </Label>
                 <Input
                   id="phoneNumber"
@@ -358,7 +358,7 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange("phoneNumber", e.target.value)}
                   onBlur={() => handleBlur("phoneNumber")}
                   className={`mt-2 h-12 text-lg ${errors.phoneNumber ? "border-red-500" : ""}`}
-                  placeholder="+1 234 567 8900"
+                  placeholder={t("form.placeholders.phone")}
                 />
                 {errors.phoneNumber && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -370,7 +370,7 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="email" className="text-lg font-medium">
-                  Email *
+                  {t("form.fields.email")} *
                 </Label>
                 <Input
                   id="email"
@@ -379,7 +379,7 @@ export function MedicalForm() {
                   onChange={(e) => handleFieldChange("email", e.target.value)}
                   onBlur={() => handleBlur("email")}
                   className={`mt-2 h-12 text-lg ${errors.email ? "border-red-500" : ""}`}
-                  placeholder="ejemplo@correo.com"
+                  placeholder={t("form.placeholders.email")}
                 />
                 {errors.email && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -391,41 +391,41 @@ export function MedicalForm() {
 
               <div>
                 <Label htmlFor="address" className="text-lg font-medium">
-                  Dirección
+                  {t("form.fields.address")}
                 </Label>
                 <Input
                   id="address"
                   value={profile.address}
                   onChange={(e) => updateProfile("address", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="Calle Principal #123"
+                  placeholder={t("form.placeholders.address")}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="city" className="text-lg font-medium">
-                    Ciudad
+                    {t("form.fields.city")}
                   </Label>
                   <Input
                     id="city"
                     value={profile.city}
                     onChange={(e) => updateProfile("city", e.target.value)}
                     className="mt-2 h-12 text-lg"
-                    placeholder="Ciudad"
+                    placeholder={t("form.placeholders.city")}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="state" className="text-lg font-medium">
-                    Estado/Provincia
+                    {t("form.fields.state")}
                   </Label>
                   <Input
                     id="state"
                     value={profile.state}
                     onChange={(e) => updateProfile("state", e.target.value)}
                     className="mt-2 h-12 text-lg"
-                    placeholder="Estado"
+                    placeholder={t("form.placeholders.state")}
                   />
                 </div>
               </div>
@@ -433,40 +433,40 @@ export function MedicalForm() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="zipCode" className="text-lg font-medium">
-                    Código Postal
+                    {t("form.fields.zipCode")}
                   </Label>
                   <Input
                     id="zipCode"
                     value={profile.zipCode}
                     onChange={(e) => updateProfile("zipCode", e.target.value)}
                     className="mt-2 h-12 text-lg"
-                    placeholder="12345"
+                    placeholder={t("form.placeholders.zipCode")}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="country" className="text-lg font-medium">
-                    País
+                    {t("form.fields.country")}
                   </Label>
                   <Input
                     id="country"
                     value={profile.country}
                     onChange={(e) => updateProfile("country", e.target.value)}
                     className="mt-2 h-12 text-lg"
-                    placeholder="País"
+                    placeholder={t("form.placeholders.country")}
                   />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 2: Contacto de Emergencia */}
+          {/* Step 2: Emergency Contact */}
           {currentStep === 2 && (
             <div className="space-y-6">
               <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 p-6 rounded-lg space-y-6">
                 <div>
                   <Label htmlFor="emergencyContactName" className="text-lg font-medium">
-                    Nombre del Contacto de Emergencia *
+                    {t("form.fields.emergencyContactName")} *
                   </Label>
                   <Input
                     id="emergencyContactName"
@@ -474,7 +474,7 @@ export function MedicalForm() {
                     onChange={(e) => handleFieldChange("emergencyContactName", e.target.value)}
                     onBlur={() => handleBlur("emergencyContactName")}
                     className={`mt-2 h-12 text-lg ${errors.emergencyContactName ? "border-red-500" : ""}`}
-                    placeholder="Nombre completo"
+                    placeholder={t("form.placeholders.fullName")}
                   />
                   {errors.emergencyContactName && (
                     <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -486,29 +486,29 @@ export function MedicalForm() {
 
                 <div>
                   <Label htmlFor="emergencyContactRelationship" className="text-lg font-medium">
-                    Relación
+                    {t("form.fields.emergencyContactRelationship")}
                   </Label>
                   <Select
                     value={profile.emergencyContactRelationship}
                     onValueChange={(value) => updateProfile("emergencyContactRelationship", value)}
                   >
                     <SelectTrigger className="mt-2 h-12 text-lg">
-                      <SelectValue placeholder="Seleccione relación" />
+                      <SelectValue placeholder={t("form.placeholders.selectRelationship")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Esposo/a">Esposo/a</SelectItem>
-                      <SelectItem value="Padre/Madre">Padre/Madre</SelectItem>
-                      <SelectItem value="Hijo/a">Hijo/a</SelectItem>
-                      <SelectItem value="Hermano/a">Hermano/a</SelectItem>
-                      <SelectItem value="Amigo/a">Amigo/a</SelectItem>
-                      <SelectItem value="Otro">Otro</SelectItem>
+                      <SelectItem value={t("form.relationships.spouse")}>{t("form.relationships.spouse")}</SelectItem>
+                      <SelectItem value={t("form.relationships.parent")}>{t("form.relationships.parent")}</SelectItem>
+                      <SelectItem value={t("form.relationships.child")}>{t("form.relationships.child")}</SelectItem>
+                      <SelectItem value={t("form.relationships.sibling")}>{t("form.relationships.sibling")}</SelectItem>
+                      <SelectItem value={t("form.relationships.friend")}>{t("form.relationships.friend")}</SelectItem>
+                      <SelectItem value={t("form.relationships.other")}>{t("form.relationships.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="emergencyContactPhone" className="text-lg font-medium">
-                    Teléfono *
+                    {t("form.fields.emergencyContactPhone")} *
                   </Label>
                   <Input
                     id="emergencyContactPhone"
@@ -517,7 +517,7 @@ export function MedicalForm() {
                     onChange={(e) => handleFieldChange("emergencyContactPhone", e.target.value)}
                     onBlur={() => handleBlur("emergencyContactPhone")}
                     className={`mt-2 h-12 text-lg ${errors.emergencyContactPhone ? "border-red-500" : ""}`}
-                    placeholder="+1 234 567 8900"
+                    placeholder={t("form.placeholders.phone")}
                   />
                   {errors.emergencyContactPhone && (
                     <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
@@ -529,7 +529,7 @@ export function MedicalForm() {
 
                 <div>
                   <Label htmlFor="emergencyContactEmail" className="text-lg font-medium">
-                    Email
+                    {t("form.fields.emergencyContactEmail")}
                   </Label>
                   <Input
                     id="emergencyContactEmail"
@@ -537,141 +537,141 @@ export function MedicalForm() {
                     value={profile.emergencyContactEmail}
                     onChange={(e) => handleFieldChange("emergencyContactEmail", e.target.value)}
                     className="mt-2 h-12 text-lg"
-                    placeholder="ejemplo@correo.com"
+                    placeholder={t("form.placeholders.email")}
                   />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 3: Información Médica */}
+          {/* Step 3: Medical Information */}
           {currentStep === 3 && (
             <div className="space-y-6">
               <div>
                 <Label htmlFor="medicalConditions" className="text-lg font-medium">
-                  Condiciones Médicas
+                  {t("form.fields.medicalConditions")}
                 </Label>
                 <Textarea
                   id="medicalConditions"
                   value={profile.medicalConditions}
                   onChange={(e) => updateProfile("medicalConditions", e.target.value)}
                   className="mt-2 text-lg min-h-24"
-                  placeholder="Describa cualquier condición médica actual"
+                  placeholder={t("form.placeholders.medicalConditions")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="allergies" className="text-lg font-medium">
-                  Alergias
+                  {t("form.fields.allergies")}
                 </Label>
                 <Textarea
                   id="allergies"
                   value={profile.allergies}
                   onChange={(e) => updateProfile("allergies", e.target.value)}
                   className="mt-2 text-lg min-h-24"
-                  placeholder="Liste todas sus alergias (medicamentos, alimentos, etc.)"
+                  placeholder={t("form.placeholders.allergies")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="currentMedications" className="text-lg font-medium">
-                  Medicamentos Actuales
+                  {t("form.fields.currentMedications")}
                 </Label>
                 <Textarea
                   id="currentMedications"
                   value={profile.currentMedications}
                   onChange={(e) => updateProfile("currentMedications", e.target.value)}
                   className="mt-2 text-lg min-h-24"
-                  placeholder="Liste todos los medicamentos que toma actualmente"
+                  placeholder={t("form.placeholders.currentMedications")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="pastSurgeries" className="text-lg font-medium">
-                  Cirugías Previas
+                  {t("form.fields.pastSurgeries")}
                 </Label>
                 <Textarea
                   id="pastSurgeries"
                   value={profile.pastSurgeries}
                   onChange={(e) => updateProfile("pastSurgeries", e.target.value)}
                   className="mt-2 text-lg min-h-24"
-                  placeholder="Describa cualquier cirugía previa"
+                  placeholder={t("form.placeholders.pastSurgeries")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="chronicIllnesses" className="text-lg font-medium">
-                  Enfermedades Crónicas
+                  {t("form.fields.chronicIllnesses")}
                 </Label>
                 <Textarea
                   id="chronicIllnesses"
                   value={profile.chronicIllnesses}
                   onChange={(e) => updateProfile("chronicIllnesses", e.target.value)}
                   className="mt-2 text-lg min-h-24"
-                  placeholder="Liste cualquier enfermedad crónica"
+                  placeholder={t("form.placeholders.chronicIllnesses")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="disabilities" className="text-lg font-medium">
-                  Discapacidades
+                  {t("form.fields.disabilities")}
                 </Label>
                 <Textarea
                   id="disabilities"
                   value={profile.disabilities}
                   onChange={(e) => updateProfile("disabilities", e.target.value)}
                   className="mt-2 text-lg min-h-24"
-                  placeholder="Describa cualquier discapacidad"
+                  placeholder={t("form.placeholders.disabilities")}
                 />
               </div>
             </div>
           )}
 
-          {/* Step 4: Seguro Médico */}
+          {/* Step 4: Medical Insurance */}
           {currentStep === 4 && (
             <div className="space-y-6">
               <div>
                 <Label htmlFor="insuranceProvider" className="text-lg font-medium">
-                  Proveedor de Seguro
+                  {t("form.fields.insuranceProvider")}
                 </Label>
                 <Input
                   id="insuranceProvider"
                   value={profile.insuranceProvider}
                   onChange={(e) => updateProfile("insuranceProvider", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="Nombre de la aseguradora"
+                  placeholder={t("form.placeholders.insuranceProvider")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="policyNumber" className="text-lg font-medium">
-                  Número de Póliza
+                  {t("form.fields.policyNumber")}
                 </Label>
                 <Input
                   id="policyNumber"
                   value={profile.policyNumber}
                   onChange={(e) => updateProfile("policyNumber", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="Número de póliza"
+                  placeholder={t("form.placeholders.policyNumber")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="groupNumber" className="text-lg font-medium">
-                  Número de Grupo
+                  {t("form.fields.groupNumber")}
                 </Label>
                 <Input
                   id="groupNumber"
                   value={profile.groupNumber}
                   onChange={(e) => updateProfile("groupNumber", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="Número de grupo"
+                  placeholder={t("form.placeholders.groupNumber")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="insurancePhone" className="text-lg font-medium">
-                  Teléfono del Seguro
+                  {t("form.fields.insurancePhone")}
                 </Label>
                 <Input
                   id="insurancePhone"
@@ -679,31 +679,31 @@ export function MedicalForm() {
                   value={profile.insurancePhone}
                   onChange={(e) => updateProfile("insurancePhone", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="+1 234 567 8900"
+                  placeholder={t("form.placeholders.phone")}
                 />
               </div>
             </div>
           )}
 
-          {/* Step 5: Doctor Primario */}
+          {/* Step 5: Primary Physician */}
           {currentStep === 5 && (
             <div className="space-y-6">
               <div>
                 <Label htmlFor="primaryPhysicianName" className="text-lg font-medium">
-                  Nombre del Doctor
+                  {t("form.fields.primaryPhysicianName")}
                 </Label>
                 <Input
                   id="primaryPhysicianName"
                   value={profile.primaryPhysicianName}
                   onChange={(e) => updateProfile("primaryPhysicianName", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="Dr. Juan Pérez"
+                  placeholder={t("form.placeholders.doctorName")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="primaryPhysicianPhone" className="text-lg font-medium">
-                  Teléfono del Doctor
+                  {t("form.fields.primaryPhysicianPhone")}
                 </Label>
                 <Input
                   id="primaryPhysicianPhone"
@@ -711,64 +711,64 @@ export function MedicalForm() {
                   value={profile.primaryPhysicianPhone}
                   onChange={(e) => updateProfile("primaryPhysicianPhone", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="+1 234 567 8900"
+                  placeholder={t("form.placeholders.phone")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="primaryPhysicianClinic" className="text-lg font-medium">
-                  Clínica/Hospital
+                  {t("form.fields.primaryPhysicianClinic")}
                 </Label>
                 <Input
                   id="primaryPhysicianClinic"
                   value={profile.primaryPhysicianClinic}
                   onChange={(e) => updateProfile("primaryPhysicianClinic", e.target.value)}
                   className="mt-2 h-12 text-lg"
-                  placeholder="Nombre de la clínica o hospital"
+                  placeholder={t("form.placeholders.clinicName")}
                 />
               </div>
             </div>
           )}
 
-          {/* Step 6: Notas y Consentimiento */}
+          {/* Step 6: Notes and Consent */}
           {currentStep === 6 && (
             <div className="space-y-6">
               <div>
                 <Label htmlFor="specialInstructions" className="text-lg font-medium">
-                  Instrucciones Especiales
+                  {t("form.fields.specialInstructions")}
                 </Label>
                 <Textarea
                   id="specialInstructions"
                   value={profile.specialInstructions}
                   onChange={(e) => updateProfile("specialInstructions", e.target.value)}
                   className="mt-2 text-lg min-h-32"
-                  placeholder="Cualquier instrucción especial para personal médico"
+                  placeholder={t("form.placeholders.specialInstructions")}
                 />
               </div>
 
               <div>
                 <Label htmlFor="additionalNotes" className="text-lg font-medium">
-                  Notas Adicionales
+                  {t("form.fields.additionalNotes")}
                 </Label>
                 <Textarea
                   id="additionalNotes"
                   value={profile.additionalNotes}
                   onChange={(e) => updateProfile("additionalNotes", e.target.value)}
                   className="mt-2 text-lg min-h-32"
-                  placeholder="Cualquier información adicional relevante"
+                  placeholder={t("form.placeholders.additionalNotes")}
                 />
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg space-y-6">
-                <h3 className="text-xl font-bold mb-4">Consentimientos</h3>
+                <h3 className="text-xl font-bold mb-4">{t("form.consent.title")}</h3>
 
                 <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg">
                   <div>
                     <Label className="text-base font-medium">
-                      Consentimiento para Tratamiento
+                      {t("form.consent.treatment")}
                     </Label>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Autorizo el tratamiento médico de emergencia
+                      {t("form.consent.treatmentDesc")}
                     </p>
                   </div>
                   <Switch
@@ -781,10 +781,10 @@ export function MedicalForm() {
                 <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg">
                   <div>
                     <Label className="text-base font-medium">
-                      Compartir Información Médica
+                      {t("form.consent.shareInfo")}
                     </Label>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Autorizo compartir mi información con personal médico
+                      {t("form.consent.shareInfoDesc")}
                     </p>
                   </div>
                   <Switch
@@ -797,52 +797,52 @@ export function MedicalForm() {
             </div>
           )}
 
-          {/* Step 7: Revisión Final */}
+          {/* Step 7: Final Review */}
           {currentStep === 7 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-center mb-6">Revisión Final</h2>
+              <h2 className="text-2xl font-bold text-center mb-6">{t("form.review.title")}</h2>
 
               <div className="border-l-4 border-blue-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Información Personal</h3>
+                <h3 className="font-bold text-lg mb-2">{t("form.review.personalInfoSection")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Nombre:</span> {profile.firstName} {profile.lastName}</p>
-                  <p><span className="font-medium">Fecha de Nacimiento:</span> {profile.dateOfBirth || "No especificada"}</p>
-                  <p><span className="font-medium">Género:</span> {profile.gender || "No especificado"}</p>
-                  <p><span className="font-medium">Tipo de Sangre:</span> {profile.bloodType || "No especificado"}</p>
-                  <p><span className="font-medium">Teléfono:</span> {profile.phoneNumber}</p>
-                  <p><span className="font-medium">Email:</span> {profile.email}</p>
+                  <p><span className="font-medium">{t("form.fields.firstName")}:</span> {profile.firstName} {profile.lastName}</p>
+                  <p><span className="font-medium">{t("form.fields.dateOfBirth")}:</span> {profile.dateOfBirth || t("card.notSpecified")}</p>
+                  <p><span className="font-medium">{t("form.fields.gender")}:</span> {profile.gender || t("card.notSpecified")}</p>
+                  <p><span className="font-medium">{t("form.fields.bloodType")}:</span> {profile.bloodType || t("card.notSpecified")}</p>
+                  <p><span className="font-medium">{t("form.fields.phoneNumber")}:</span> {profile.phoneNumber}</p>
+                  <p><span className="font-medium">{t("form.fields.email")}:</span> {profile.email}</p>
                 </div>
               </div>
 
               <div className="border-l-4 border-red-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Contacto de Emergencia</h3>
+                <h3 className="font-bold text-lg mb-2">{t("form.review.emergencyContactSection")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Nombre:</span> {profile.emergencyContactName}</p>
-                  <p><span className="font-medium">Relación:</span> {profile.emergencyContactRelationship || "No especificada"}</p>
-                  <p><span className="font-medium">Teléfono:</span> {profile.emergencyContactPhone}</p>
+                  <p><span className="font-medium">{t("form.fields.emergencyContactName")}:</span> {profile.emergencyContactName}</p>
+                  <p><span className="font-medium">{t("form.fields.emergencyContactRelationship")}:</span> {profile.emergencyContactRelationship || t("card.notSpecified")}</p>
+                  <p><span className="font-medium">{t("form.fields.emergencyContactPhone")}:</span> {profile.emergencyContactPhone}</p>
                 </div>
               </div>
 
               <div className="border-l-4 border-yellow-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Información Médica</h3>
+                <h3 className="font-bold text-lg mb-2">{t("form.review.medicalInfoSection")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Alergias:</span> {profile.allergies || "Ninguna"}</p>
-                  <p><span className="font-medium">Medicamentos Actuales:</span> {profile.currentMedications || "Ninguno"}</p>
-                  <p><span className="font-medium">Condiciones Médicas:</span> {profile.medicalConditions || "Ninguna"}</p>
+                  <p><span className="font-medium">{t("form.fields.allergies")}:</span> {profile.allergies || t("card.none")}</p>
+                  <p><span className="font-medium">{t("form.fields.currentMedications")}:</span> {profile.currentMedications || t("card.none")}</p>
+                  <p><span className="font-medium">{t("form.fields.medicalConditions")}:</span> {profile.medicalConditions || t("card.none")}</p>
                 </div>
               </div>
 
               <div className="border-l-4 border-green-500 pl-4 py-2">
-                <h3 className="font-bold text-lg mb-2">Seguro y Doctor</h3>
+                <h3 className="font-bold text-lg mb-2">{t("form.review.insuranceSection")}</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">Aseguradora:</span> {profile.insuranceProvider || "No especificada"}</p>
-                  <p><span className="font-medium">Doctor Primario:</span> {profile.primaryPhysicianName || "No especificado"}</p>
+                  <p><span className="font-medium">{t("form.fields.insuranceProvider")}:</span> {profile.insuranceProvider || t("card.notSpecified")}</p>
+                  <p><span className="font-medium">{t("form.fields.primaryPhysicianName")}:</span> {profile.primaryPhysicianName || t("card.notSpecified")}</p>
                 </div>
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Revise toda la información antes de guardar
+                  {t("form.review.note")}
                 </p>
               </div>
             </div>
@@ -859,7 +859,7 @@ export function MedicalForm() {
               className="flex-1 h-14 text-lg"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Atrás
+              {t("form.buttons.back")}
             </Button>
           )}
 
@@ -869,7 +869,7 @@ export function MedicalForm() {
               size="lg"
               className="flex-1 h-14 text-lg bg-blue-600 hover:bg-blue-700"
             >
-              Siguiente
+              {t("form.buttons.next")}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           )}
@@ -881,7 +881,7 @@ export function MedicalForm() {
               className="flex-1 h-14 text-lg bg-green-600 hover:bg-green-700"
             >
               <Check className="w-5 h-5 mr-2" />
-              Guardar Perfil Médico
+              {t("form.buttons.save")}
             </Button>
           )}
         </div>
@@ -890,7 +890,7 @@ export function MedicalForm() {
         {currentStep === 7 && (
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Opcional: Puede agregar una foto de su identificación
+              {t("form.buttons.addIdNote")}
             </p>
             <Button
               onClick={handleSaveAndUploadId}
@@ -899,7 +899,7 @@ export function MedicalForm() {
               className="w-full h-14 text-lg"
             >
               <FileText className="w-5 h-5 mr-2" />
-              Agregar Documento de Identificación
+              {t("form.buttons.addId")}
             </Button>
           </div>
         )}
