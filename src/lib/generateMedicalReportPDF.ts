@@ -159,14 +159,6 @@ export function generateMedicalReportPDF(
     yPosition + 2
   );
   
-  if (profile.emergencyContactRelationship) {
-    yPosition = addField(
-        t("common.relationship"), // Assuming this key exists or defaulting to label
-        profile.emergencyContactRelationship,
-        yPosition + 2
-    );
-  }
-  
   yPosition += 8;
 
   // === SECTION 6: PRIMARY PHYSICIAN ===
