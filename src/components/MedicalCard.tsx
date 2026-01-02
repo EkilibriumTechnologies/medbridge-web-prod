@@ -485,16 +485,7 @@ export function MedicalCard() {
               <Edit className="w-5 h-5 mr-2" />
               {t("card.edit")}
             </Button>
-            <Button 
-              size="lg"
-              className="font-bold text-base bg-blue-600 hover:bg-blue-700"
-            >
-              <Share2 className="w-5 h-5 mr-2" />
-              {t("card.share")}
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
+            
             <Button 
               variant="outline"
               size="lg"
@@ -504,17 +495,26 @@ export function MedicalCard() {
               <IdCard className="w-5 h-5 mr-2" />
               {t("card.viewId")}
             </Button>
-            
-            <Button 
-              variant="outline"
-              size="lg"
-              className="font-semibold text-base"
-              onClick={handleGeneratePDF}
-            >
-              <FileText className="w-5 h-5 mr-2" />
-              {t("pdf.button")}
-            </Button>
           </div>
+          
+          <Button 
+            size="lg"
+            className="w-full font-bold text-lg bg-blue-600 hover:bg-blue-700 h-14"
+            onClick={handleShareMedicalProfile}
+            disabled={isSharing}
+          >
+            {isSharing ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                {t("card.generating")}...
+              </>
+            ) : (
+              <>
+                <Share2 className="w-5 h-5 mr-2" />
+                {t("card.share")}
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>
