@@ -145,16 +145,6 @@ const translations: Record<Language, Record<string, string>> = {
     // Form Additional
     "form.additional.advanceDirectives": "¿Acepta Transfusiones de Sangre?",
 
-    // Form Review
-    "form.review.title": "Revisar Información",
-    "form.review.subtitle": "Revisa tus datos antes de guardar",
-    "form.review.personalInfo": "Información Personal",
-    "form.review.medicalHistory": "Historial Médico",
-    "form.review.emergencyContact": "Contacto de Emergencia",
-    "form.review.submit": "Guardar y Continuar",
-    "form.review.uploadIdOptional": "Opcional: Sube una foto de tu ID para verificación",
-    "form.review.uploadId": "Subir Identificación",
-
     // Common
     "common.optional": "(Opcional)",
     "common.yes": "Sí",
@@ -164,7 +154,7 @@ const translations: Record<Language, Record<string, string>> = {
     "common.unknown": "No especificado",
     "common.notes": "Notas",
 
-    // Validation
+    // Validation (Old keys kept for compatibility)
     "validation.required": "Este campo es obligatorio",
     "validation.invalidEmail": "Correo electrónico inválido",
     "validation.invalidPhone": "Número de teléfono inválido",
@@ -439,16 +429,6 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Form Additional
     "form.additional.advanceDirectives": "Accepts Blood Transfusions?",
-
-    // Form Review
-    "form.review.title": "Review Information",
-    "form.review.subtitle": "Review your data before saving",
-    "form.review.personalInfo": "Personal Information",
-    "form.review.medicalHistory": "Medical History",
-    "form.review.emergencyContact": "Emergency Contact",
-    "form.review.submit": "Save and Continue",
-    "form.review.uploadIdOptional": "Optional: Upload a photo of your ID for verification",
-    "form.review.uploadId": "Upload Identification",
 
     // Common
     "common.optional": "(Optional)",
@@ -734,16 +714,6 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Form Additional
     "form.additional.advanceDirectives": "Aceita Transfusões de Sangue?",
-
-    // Form Review
-    "form.review.title": "Revisar Informação",
-    "form.review.subtitle": "Revise seus dados antes de salvar",
-    "form.review.personalInfo": "Informação Pessoal",
-    "form.review.medicalHistory": "Histórico Médico",
-    "form.review.emergencyContact": "Contato de Emergência",
-    "form.review.submit": "Salvar e Continuar",
-    "form.review.uploadIdOptional": "Opcional: Carregue uma foto do seu ID para verificação",
-    "form.review.uploadId": "Carregar Identificação",
 
     // Common
     "common.optional": "(Opcional)",
