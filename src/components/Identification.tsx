@@ -391,7 +391,7 @@ export function Identification({ onBack }: IdentificationProps) {
                     {isUploading ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Uploading to Cloud...
+                        Uploading...
                       </>
                     ) : (
                       <>
@@ -400,15 +400,6 @@ export function Identification({ onBack }: IdentificationProps) {
                       </>
                     )}
                   </Button>
-                )}
-
-                {idPhotoUrl && (
-                  <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <AlertDescription className="text-green-900 dark:text-green-100 text-sm">
-                      Photo uploaded successfully to cloud storage
-                    </AlertDescription>
-                  </Alert>
                 )}
 
                 <Button
