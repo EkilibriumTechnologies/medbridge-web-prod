@@ -21,12 +21,32 @@ export function MedicalCard() {
         const parsed = JSON.parse(stored);
         
         // Handle backward compatibility for allergies
-        if (parsed.allergies && typeof parsed.allergies === "object") {
-          // Convert old format {medication: "...", food: "..."} to new string format
-          const allergyParts = [];
-          if (parsed.allergies.medication) allergyParts.push(`Medicamentos: ${parsed.allergies.medication}`);
-          if (parsed.allergies.food) allergyParts.push(`Alimentos: ${parsed.allergies.food}`);
-          parsed.allergies = allergyParts.join("\n") || "";
+        if (parsed.allergies) {
+          // Si allergies es un objeto con propiedades
+          if (typeof parsed.allergies === "object" && !Array.isArray(parsed.allergies)) {
+            const allergyParts = [];
+            if (parsed.allergies.medication) allergyParts.push(`Medicamentos: ${parsed.allergies.medication}`);
+            if (parsed.allergies.food) allergyParts.push(`Alimentos: ${parsed.allergies.food}`);
+            parsed.allergies = allergyParts.join("\n") || "";
+          }
+          // Si allergies es un array de objetos
+          else if (Array.isArray(parsed.allergies)) {
+            const allergyParts = parsed.allergies.map((allergy: any) => {
+              if (typeof allergy === "object" && allergy.type && allergy.details) {
+                const typeLabel = allergy.type === "medication" ? "Medicamentos" : 
+                                 allergy.type === "food" ? "Alimentos" : allergy.type;
+                return `${typeLabel}: ${allergy.details}`;
+              }
+              return String(allergy);
+            });
+            parsed.allergies = allergyParts.join("\n") || "";
+          }
+          // Si allergies no es string, convertir a string
+          else if (typeof parsed.allergies !== "string") {
+            parsed.allergies = String(parsed.allergies);
+          }
+        } else {
+          parsed.allergies = "";
         }
         
         setProfile(parsed);
