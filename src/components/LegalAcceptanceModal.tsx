@@ -34,7 +34,7 @@ export function LegalAcceptanceModal({ open, onAccept }: LegalAcceptanceModalPro
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-[600px]" hideClose>
+      <DialogContent className="sm:max-w-[600px] [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Terms & Privacy Notice</DialogTitle>
           <DialogDescription className="sr-only">
