@@ -181,18 +181,6 @@ export function Identification({ onBack }: IdentificationProps) {
           </p>
         </div>
 
-        <Alert className="mb-8 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
-          <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          <AlertDescription className="text-blue-900 dark:text-blue-100">
-            <p className="mb-2">
-              <strong>{t("id.secureStorage")}</strong>
-            </p>
-            <p className="text-sm">
-              {t("id.dataStaysLocal")}
-            </p>
-          </AlertDescription>
-        </Alert>
-
         {success && (
           <Alert className="mb-6 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900">
             <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
