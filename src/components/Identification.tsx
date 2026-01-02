@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, X, Camera, Image as ImageIcon, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Upload, X, Camera, Image as ImageIcon, AlertCircle, CheckCircle2, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { uploadIdPhoto, isFirebaseStorageAvailable } from "@/lib/firebaseStorage";
 
 interface IdentificationProps {
   onBack?: () => void;
@@ -13,21 +14,30 @@ interface IdentificationProps {
 export function Identification({ onBack }: IdentificationProps) {
   const router = useRouter();
   const { t } = useLanguage();
-  const [idPhoto, setIdPhoto] = useState<string | null>(null);
+  const [idPhoto, setIdPhoto] = useState<string | null>(null); // Local preview (base64)
+  const [idPhotoUrl, setIdPhotoUrl] = useState<string | null>(null); // Firebase URL
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // File to upload
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_FILE_SIZE = 3 * 1024 * 1024;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB as specified
 
   useEffect(() => {
     const stored = localStorage.getItem("medicalProfile");
     if (stored) {
       try {
         const profile = JSON.parse(stored);
-        if (profile.personalInfo?.idPhoto) {
-          setIdPhoto(profile.personalInfo.idPhoto);
+        // Prefer Firebase URL, fallback to local base64
+        // Support both flat structure (upstream) and nested structure (backward compatibility)
+        if (profile.idPhotoUrl || profile.personalInfo?.idPhotoUrl) {
+          setIdPhotoUrl(profile.idPhotoUrl || profile.personalInfo.idPhotoUrl);
+          setIdPhoto(null); // Clear local photo if Firebase URL exists
+        } else if (profile.idPhoto || profile.personalInfo?.idPhoto) {
+          setIdPhoto(profile.idPhoto || profile.personalInfo.idPhoto);
+          setIdPhotoUrl(null);
         }
       } catch (err) {
         console.error("Error loading stored photo:", err);
@@ -80,23 +90,69 @@ export function Identification({ onBack }: IdentificationProps) {
   const handleFileSelect = async (file: File) => {
     setError("");
     setSuccess(false);
+    setIsUploading(false);
 
+    // Validate file type
     if (!file.type.startsWith("image/")) {
-      setError(t("id.invalidFileType"));
+      setError("File must be an image");
       return;
     }
 
+    // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      setError(t("id.fileTooLarge"));
+      setError(`File size exceeds 5MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
       return;
     }
 
     try {
+      // Compress image for local preview
       const compressedImage = await compressImage(file);
+      
+      // Store file for upload and show preview
+      setSelectedFile(file);
       setIdPhoto(compressedImage);
+      setIdPhotoUrl(null); // Clear previous Firebase URL
     } catch (err) {
       console.error("Error processing image:", err);
-      setError(t("id.processingError"));
+      setError("Error processing image. Please try again.");
+    }
+  };
+
+  /**
+   * Handles manual upload to Firebase Storage.
+   * User must explicitly click "Upload ID Photo" button.
+   */
+  const handleUploadToFirebase = async () => {
+    if (!selectedFile) {
+      setError("No file selected");
+      return;
+    }
+
+    if (!isFirebaseStorageAvailable()) {
+      setError("Firebase Storage is not available. Please check your configuration.");
+      return;
+    }
+
+    setError("");
+    setIsUploading(true);
+
+    try {
+      // Upload file directly to Firebase
+      const downloadURL = await uploadIdPhoto(selectedFile);
+      
+      // Successfully uploaded
+      setIdPhotoUrl(downloadURL);
+      setSuccess(true);
+      
+      // Clear selected file after successful upload
+      setSelectedFile(null);
+    } catch (err: any) {
+      // Display user-friendly error message
+      const errorMessage = err?.message || "Failed to upload photo. Please try again.";
+      setError(errorMessage);
+      console.error("Upload error:", err);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -128,8 +184,11 @@ export function Identification({ onBack }: IdentificationProps) {
 
   const handleRemove = () => {
     setIdPhoto(null);
+    setIdPhotoUrl(null);
+    setSelectedFile(null);
     setError("");
     setSuccess(false);
+    setIsUploading(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -138,13 +197,41 @@ export function Identification({ onBack }: IdentificationProps) {
   const handleSave = () => {
     try {
       const stored = localStorage.getItem("medicalProfile");
-      const profile = stored ? JSON.parse(stored) : { personalInfo: {} };
+      const profile = stored ? JSON.parse(stored) : {};
 
-      if (!profile.personalInfo) {
-        profile.personalInfo = {};
+      // Save Firebase URL if available (preferred), otherwise save local base64
+      // Use flat structure (upstream) but maintain backward compatibility
+      if (idPhotoUrl) {
+        profile.idPhotoUrl = idPhotoUrl;
+        // Keep local photo as fallback
+        if (idPhoto) {
+          profile.idPhoto = idPhoto;
+        }
+        // Clear nested structure if it exists (migration)
+        if (profile.personalInfo) {
+          delete profile.personalInfo.idPhotoUrl;
+          delete profile.personalInfo.idPhoto;
+        }
+      } else if (idPhoto) {
+        // Only local photo available
+        profile.idPhoto = idPhoto;
+        // Clear Firebase URL if it was previously set
+        delete profile.idPhotoUrl;
+        // Clear nested structure if it exists (migration)
+        if (profile.personalInfo) {
+          delete profile.personalInfo.idPhoto;
+          delete profile.personalInfo.idPhotoUrl;
+        }
+      } else {
+        // No photo - clear both
+        delete profile.idPhoto;
+        delete profile.idPhotoUrl;
+        if (profile.personalInfo) {
+          delete profile.personalInfo.idPhoto;
+          delete profile.personalInfo.idPhotoUrl;
+        }
       }
 
-      profile.personalInfo.idPhoto = idPhoto;
       localStorage.setItem("medicalProfile", JSON.stringify(profile));
 
       setSuccess(true);
@@ -199,7 +286,7 @@ export function Identification({ onBack }: IdentificationProps) {
           </Alert>
         )}
 
-        {!idPhoto ? (
+        {!idPhoto && !idPhotoUrl ? (
           <Card
             className={`p-8 md:p-12 border-2 border-dashed transition-all cursor-pointer ${
               isDragging
@@ -272,22 +359,69 @@ export function Identification({ onBack }: IdentificationProps) {
               </div>
 
               <div className="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                    <div className="flex flex-col items-center gap-2 text-white">
+                      <Loader2 className="w-8 h-8 animate-spin" />
+                      <span className="text-sm">Uploading...</span>
+                    </div>
+                  </div>
+                )}
                 <img
-                  src={idPhoto}
+                  src={idPhotoUrl || idPhoto || ""}
                   alt="ID Preview"
                   className="w-full h-auto max-h-96 object-contain"
+                  onError={(e) => {
+                    // If Firebase URL fails, try local photo
+                    if (idPhotoUrl && idPhoto) {
+                      (e.target as HTMLImageElement).src = idPhoto;
+                    }
+                  }}
                 />
               </div>
 
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full"
-              >
-                <Upload className="w-5 h-5 mr-2" />
-                {t("id.replacePhoto")}
-              </Button>
+              <div className="space-y-3">
+                {!idPhotoUrl && selectedFile && isFirebaseStorageAvailable() && (
+                  <Button
+                    size="lg"
+                    onClick={handleUploadToFirebase}
+                    disabled={isUploading}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Uploading to Cloud...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mr-2" />
+                        Upload ID Photo
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {idPhotoUrl && (
+                  <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <AlertDescription className="text-green-900 dark:text-green-100 text-sm">
+                      Photo uploaded successfully to cloud storage
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full"
+                  disabled={isUploading}
+                >
+                  <Upload className="w-5 h-5 mr-2" />
+                  {idPhotoUrl ? t("id.replacePhoto") : "Select Different Photo"}
+                </Button>
+              </div>
 
               <input
                 ref={fileInputRef}
@@ -315,7 +449,7 @@ export function Identification({ onBack }: IdentificationProps) {
           <Button
             size="lg"
             onClick={handleSave}
-            disabled={!idPhoto || success}
+            disabled={(!idPhoto && !idPhotoUrl) || success || isUploading}
             className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700"
           >
             <CheckCircle2 className="w-5 h-5 mr-2" />

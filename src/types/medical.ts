@@ -12,7 +12,8 @@ export interface MedicalProfile {
   state: string;
   zipCode: string;
   country: string;
-  idPhoto?: string; // opcional
+  idPhoto?: string; // Base64 data URL (fallback for offline/local storage)
+  idPhotoUrl?: string; // Firebase Storage download URL (preferred)
   
   // Contacto de Emergencia
   emergencyContactName: string;
