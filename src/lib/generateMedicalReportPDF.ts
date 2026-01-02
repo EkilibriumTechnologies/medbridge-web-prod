@@ -9,7 +9,7 @@ export function generateMedicalReportPDF(
   profile: MedicalProfile,
   t: TranslationFunction,
   language: string
-): void {
+): Blob {
   const doc = new jsPDF();
   
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -71,6 +71,34 @@ export function generateMedicalReportPDF(
   
   doc.setTextColor(0, 0, 0);
   yPosition = 50;
+
+  // === QR CODE (Top Right Corner) ===
+  // Generate emergency data for QR (basic info only, not full medical data)
+  const emergencyData = {
+    name: `${profile.firstName} ${profile.lastName}`,
+    blood: profile.bloodType || "Unknown",
+    allergies: profile.allergies ? "YES - See document" : "None reported",
+    emergency: profile.emergencyContactPhone || "Not specified"
+  };
+  
+  const qrText = `MEDBRIDGE EMERGENCY
+Name: ${emergencyData.name}
+Blood Type: ${emergencyData.blood}
+Allergies: ${emergencyData.allergies}
+Emergency: ${emergencyData.emergency}`;
+
+  // Add QR code text label in top right
+  doc.setFontSize(7);
+  doc.setTextColor(100, 100, 100);
+  doc.text("Emergency QR", pageWidth - margin - 35, 45);
+  
+  // Simple QR code representation (text-based for now)
+  // In production, you'd use a QR library like qrcode or similar
+  doc.setFillColor(240, 240, 240);
+  doc.rect(pageWidth - margin - 35, 48, 30, 30, "F");
+  doc.setFontSize(6);
+  doc.text("QR CODE", pageWidth - margin - 25, 63, { align: "center" });
+  doc.setTextColor(0, 0, 0);
 
   // === SECTION 1: PATIENT INFORMATION ===
   yPosition = addSectionHeader(t("pdf.sectionPatient"), yPosition);
@@ -191,7 +219,12 @@ export function generateMedicalReportPDF(
   doc.text(t("pdf.footerLine1"), pageWidth / 2, footerY, { align: "center" });
   doc.text(t("pdf.footerLine2"), pageWidth / 2, footerY + 4, { align: "center" });
 
-  // Save the PDF
-  const fileName = `MedBridge_Medical_Report_${fullName.replace(/\s+/g, "_")}_${currentDate.replace(/\//g, "-")}.pdf`;
-  doc.save(fileName);
+  // Return PDF as Blob instead of saving
+  return doc.output("blob");
+}
+
+export function generateMedicalReportFileName(profile: MedicalProfile): string {
+  const fullName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
+  const currentDate = new Date().toLocaleDateString("en-US").replace(/\//g, "-");
+  return `MedBridge_Medical_Report_${fullName.replace(/\s+/g, "_")}_${currentDate}.pdf`;
 }

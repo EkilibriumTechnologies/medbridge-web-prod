@@ -5,13 +5,14 @@ import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CardLanguageSelector } from "@/components/CardLanguageSelector";
-import { generateMedicalReportPDF } from "@/lib/generateMedicalReportPDF";
+import { generateMedicalReportPDF, generateMedicalReportFileName } from "@/lib/generateMedicalReportPDF";
 
 export function MedicalCard() {
   const router = useRouter();
   const { t, language } = useLanguage();
   const [profile, setProfile] = useState<MedicalProfile | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -64,9 +65,46 @@ export function MedicalCard() {
     router.push("/form");
   };
 
-  const handleGeneratePDF = () => {
-    if (profile) {
-      generateMedicalReportPDF(profile, t, language);
+  const handleShareMedicalProfile = async () => {
+    if (!profile) return;
+    
+    setIsSharing(true);
+    
+    try {
+      // Generate PDF as Blob (client-side only)
+      const pdfBlob = generateMedicalReportPDF(profile, t, language);
+      const fileName = generateMedicalReportFileName(profile);
+      
+      // Create File object from Blob for Web Share API
+      const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
+      
+      // Check if Web Share API is supported and can share files
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        // Use Web Share API - works on mobile for WhatsApp, SMS, Email, AirDrop
+        await navigator.share({
+          title: t("card.shareTitle"),
+          text: t("card.shareText"),
+          files: [pdfFile]
+        });
+      } else {
+        // Fallback: Download PDF directly to device
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      // User cancelled share or error occurred
+      if (error instanceof Error && error.name !== "AbortError") {
+        console.error("Error sharing medical profile:", error);
+        alert(t("card.shareError") || "Error sharing medical profile. Please try again.");
+      }
+    } finally {
+      setIsSharing(false);
     }
   };
 
