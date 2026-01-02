@@ -473,45 +473,67 @@ export function MedicalCard() {
       </div>
 
       {/* Floating Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 p-4 shadow-lg z-50">
-        <div className="max-w-2xl mx-auto space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="font-bold text-base"
-              onClick={handleEdit}
-            >
-              <Edit className="w-5 h-5 mr-2" />
-              {t("card.edit")}
-            </Button>
-            
-            <Button 
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+        <div className="max-w-2xl mx-auto p-4 space-y-2">
+          {/* Row 1: Edit and View ID */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
               variant="outline"
-              size="lg"
-              className="font-semibold text-base"
-              onClick={() => router.push("/identification")}
+              onClick={() => router.push("/form")}
+              className="w-full"
             >
-              <IdCard className="w-5 h-5 mr-2" />
+              <Edit className="w-4 h-4 mr-2" />
+              {t("card.editInfo")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/identification")}
+              className="w-full"
+            >
+              <User className="w-4 h-4 mr-2" />
               {t("card.viewId")}
             </Button>
           </div>
-          
-          <Button 
-            size="lg"
-            className="w-full font-bold text-lg bg-blue-600 hover:bg-blue-700 h-14"
+
+          {/* Row 2: Download PDF (TEMPORARY - FOR REVIEW) */}
+          <Button
+            variant="secondary"
+            onClick={async () => {
+              try {
+                const { generateMedicalReportPDF, generateMedicalReportFileName } = await import("@/lib/generateMedicalReportPDF");
+                const pdfBlob = generateMedicalReportPDF(profile, t, language);
+                const fileName = generateMedicalReportFileName(profile);
+                const url = URL.createObjectURL(pdfBlob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = fileName;
+                link.click();
+                URL.revokeObjectURL(url);
+              } catch (error) {
+                console.error("Error generating PDF:", error);
+                alert("Error generating PDF. Please try again.");
+              }
+            }}
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            📄 Download PDF (Review)
+          </Button>
+
+          {/* Row 3: Share Medical Profile (PRIMARY) */}
+          <Button
             onClick={handleShareMedicalProfile}
             disabled={isSharing}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6"
           >
             {isSharing ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                {t("card.generating")}...
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                {t("card.generating")}
               </>
             ) : (
               <>
                 <Share2 className="w-5 h-5 mr-2" />
-                {t("card.share")}
+                {t("card.shareProfile")}
               </>
             )}
           </Button>
