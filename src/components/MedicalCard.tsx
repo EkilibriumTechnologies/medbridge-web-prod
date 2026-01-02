@@ -11,8 +11,10 @@ export function MedicalCard() {
   const router = useRouter();
   const { t, language } = useLanguage();
   const [profile, setProfile] = useState<MedicalProfile | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const stored = localStorage.getItem("medicalProfile");
     if (stored) {
       try {
@@ -47,6 +49,20 @@ export function MedicalCard() {
       generateMedicalReportPDF(profile, t, language);
     }
   };
+
+  // Prevent hydration mismatch by waiting for client-side mount
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 animate-pulse" />
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-6 animate-pulse" />
+          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   if (!profile) {
     return (
