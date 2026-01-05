@@ -317,7 +317,20 @@ const translations: Record<Language, Record<string, string>> = {
     "form.validation.lettersOnly": "Solo letras permitidas",
     "form.validation.invalidEmail": "Email inválido",
     "form.validation.invalidPhone": "Teléfono inválido (mínimo 10 dígitos)",
-    "form.validation.invalidDate": "Fecha inválida"
+    "form.validation.invalidDate": "Fecha inválida",
+
+    // Legal Acceptance Modal
+    "legal.modal.title": "Aviso de Términos y Privacidad",
+    "legal.modal.description": "Se requiere aceptación legal para usar la aplicación",
+    "legal.modal.summary1": "Esta aplicación te permite almacenar y compartir información médica solo para uso personal.",
+    "legal.modal.summary2": "Tus datos médicos se almacenan localmente en tu dispositivo. Solo una foto de identificación puede subirse a almacenamiento seguro en la nube.",
+    "legal.modal.summary3": "Esta aplicación no proporciona asesoramiento médico y no reemplaza la atención médica profesional.",
+    "legal.modal.readTerms": "Leer Términos y Condiciones",
+    "legal.modal.readPrivacy": "Leer Política de Privacidad",
+    "legal.modal.checkbox": "He leído y acepto los Términos y Condiciones y la Política de Privacidad",
+    "legal.modal.acceptButton": "Aceptar y Continuar",
+    "legal.modal.accept": "Aceptar y Continuar",
+    "legal.modal.back": "Volver"
   },
   en: {
     // Hero Section
