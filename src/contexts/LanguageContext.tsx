@@ -630,9 +630,11 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Legal - Terms & Conditions
     "legal.terms.title": "Terms & Conditions",
-    "legal.terms.version": "Version",
+    "legal.terms.version": "Version 1.0",
+    "legal.terms.lastUpdated": "Last Updated: January 2024",
     "legal.terms.effectiveDate": "Effective Date",
     "legal.terms.backButton": "Back",
+    "legal.terms.footer": "By using MedBridge, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions.",
     "legal.terms.section1.title": "1. Acceptance of Terms",
     "legal.terms.section1.content": "By accessing and using MedBridge, you accept and agree to be bound by these Terms & Conditions. If you do not agree to these terms, please do not use this application.",
     "legal.terms.section2.title": "2. Description of Service",
@@ -703,7 +705,9 @@ const translations: Record<Language, Record<string, string>> = {
     "legal.modal.readTerms": "Read Terms & Conditions",
     "legal.modal.readPrivacy": "Read Privacy Policy",
     "legal.modal.checkbox": "I have read and agree to the Terms & Conditions and Privacy Policy",
-    "legal.modal.acceptButton": "Accept & Continue"
+    "legal.modal.acceptButton": "Accept & Continue",
+    "legal.modal.accept": "Accept & Continue",
+    "legal.modal.back": "Back"
   },
   pt: {
     // Hero Section
@@ -1016,9 +1020,11 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Legal - Terms & Conditions
     "legal.terms.title": "Termos & Condições",
-    "legal.terms.version": "Versão",
+    "legal.terms.version": "Versão 1.0",
+    "legal.terms.lastUpdated": "Última Atualização: Janeiro 2024",
     "legal.terms.effectiveDate": "Data Efetiva",
     "legal.terms.backButton": "Voltar",
+    "legal.terms.footer": "Ao usar o MedBridge, você reconhece que leu, entendeu e concorda em estar vinculado a estes Termos & Condições.",
     "legal.terms.section1.title": "1. Aceitação dos Termos",
     "legal.terms.section1.content": "Ao acessar e usar o MedBridge, você aceita e concorda em estar vinculado a estes Termos & Condições. Se você não concorda com estes termos, por favor não use esta aplicação.",
     "legal.terms.section2.title": "2. Descrição do Serviço",
@@ -1089,7 +1095,9 @@ const translations: Record<Language, Record<string, string>> = {
     "legal.modal.readTerms": "Ler Termos & Condições",
     "legal.modal.readPrivacy": "Ler Política de Privacidade",
     "legal.modal.checkbox": "Li e concordo com os Termos & Condições e Política de Privacidade",
-    "legal.modal.acceptButton": "Aceitar & Continuar"
+    "legal.modal.acceptButton": "Aceitar & Continuar",
+    "legal.modal.accept": "Aceitar & Continuar",
+    "legal.modal.back": "Voltar"
   }
 };
 

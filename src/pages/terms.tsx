@@ -40,7 +40,7 @@ export default function TermsPage() {
     <>
       <SEO
         title={`${t("legal.terms.title")} - MedBridge`}
-        description={t("legal.terms.sections.acceptance.content")}
+        description={t("legal.terms.section1.content")}
       />
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -77,91 +77,93 @@ export default function TermsPage() {
 
             <section className="space-y-4">
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.acceptance.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section1.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.terms.sections.acceptance.content")}
+                  {t("legal.terms.section1.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.informational.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section2.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.terms.sections.informational.content")}
+                  {t("legal.terms.section2.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.noAdvice.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  <strong>{t("legal.terms.sections.noAdvice.disclaimer")}</strong> {t("legal.terms.sections.noAdvice.content")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.terms.sections.noAdvice.point1")}</li>
-                  <li>{t("legal.terms.sections.noAdvice.point2")}</li>
-                  <li>{t("legal.terms.sections.noAdvice.point3")}</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.responsibility.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  {t("legal.terms.sections.responsibility.intro")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.terms.sections.responsibility.point1")}</li>
-                  <li>{t("legal.terms.sections.responsibility.point2")}</li>
-                  <li>{t("legal.terms.sections.responsibility.point3")}</li>
-                  <li>{t("legal.terms.sections.responsibility.point4")}</li>
-                  <li>{t("legal.terms.sections.responsibility.point5")}</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.dataStorage.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section3.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.terms.sections.dataStorage.content")}
+                  {t("legal.terms.section3.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.liability.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  {t("legal.terms.sections.liability.intro")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.terms.sections.liability.point1")}</li>
-                  <li>{t("legal.terms.sections.liability.point2")}</li>
-                  <li>{t("legal.terms.sections.liability.point3")}</li>
-                  <li>{t("legal.terms.sections.liability.point4")}</li>
-                  <li>{t("legal.terms.sections.liability.point5")}</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.asIs.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section4.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.terms.sections.asIs.content")}
+                  {t("legal.terms.section4.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.modifications.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section5.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.terms.sections.modifications.content")}
+                  {t("legal.terms.section5.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.law.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section6.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.terms.sections.law.content")}
+                  {t("legal.terms.section6.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.contact.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section7.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.terms.sections.contact.content")}
+                  {t("legal.terms.section7.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section8.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.terms.section8.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section9.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.terms.section9.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section10.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.terms.section10.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section11.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.terms.section11.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section12.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.terms.section12.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.section13.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.terms.section13.content")}
                 </p>
               </div>
             </section>
