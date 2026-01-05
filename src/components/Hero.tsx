@@ -11,6 +11,32 @@ export function Hero({ onLearnMore }: HeroProps) {
   const { t } = useLanguage();
   const router = useRouter();
 
+  const handleCreateMedicalId = () => {
+    // Verificar si ya aceptó los términos
+    const STORAGE_KEY = "medbridge_legal_acceptance";
+    const CURRENT_LEGAL_VERSION = "v1.0";
+    
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      
+      if (stored) {
+        const acceptance = JSON.parse(stored);
+        if (acceptance.accepted && acceptance.legalVersion === CURRENT_LEGAL_VERSION) {
+          // Ya aceptó, ir directo al formulario
+          router.push("/form");
+          return;
+        }
+      }
+      
+      // No ha aceptado o versión desactualizada, ir a terms
+      router.push("/terms");
+    } catch (error) {
+      console.error("Error checking acceptance:", error);
+      // En caso de error, ir a terms por seguridad
+      router.push("/terms");
+    }
+  };
+
   return (
     <section className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-between relative overflow-hidden">
       <div 
@@ -41,7 +67,7 @@ export function Hero({ onLearnMore }: HeroProps) {
 
         <div className="flex flex-col gap-3 pt-6">
           <Button 
-            onClick={() => router.push("/form")}
+            onClick={handleCreateMedicalId}
             className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
             {t("hero.cta")}
