@@ -59,7 +59,9 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
   const requestAcceptance = (onAccepted?: () => void) => {
     console.log("requestAcceptance called, showing modal");
     if (onAccepted) {
-      setPendingAction(() => onAccepted);
+      setPendingAction(() => {
+        onAccepted();
+      });
     }
     setShowModal(true);
   };

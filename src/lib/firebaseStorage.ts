@@ -2,7 +2,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirebaseStorage } from "./firebase";
 import { getDeviceId } from "./deviceId";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB as specified
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB limit
 
 /**
  * Validates that a file is an image and within size limits.
@@ -17,7 +17,7 @@ function validateImageFile(file: File): { valid: boolean; error?: string } {
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: `File size exceeds 5MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
+      error: `File size exceeds 15MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
     };
   }
 

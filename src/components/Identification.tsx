@@ -23,7 +23,7 @@ export function Identification({ onBack }: IdentificationProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB as specified
+  const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB limit
 
   useEffect(() => {
     const stored = localStorage.getItem("medicalProfile");
@@ -100,7 +100,7 @@ export function Identification({ onBack }: IdentificationProps) {
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      setError(`File size exceeds 5MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      setError(`File size exceeds 15MB limit. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
       return;
     }
 

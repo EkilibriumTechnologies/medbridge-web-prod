@@ -17,7 +17,7 @@ service firebase.storage {
     // No authentication required - Storage rules handle access
     match /id-photos/{deviceId}/{fileName} {
       allow read: if true;  // Public read access
-      allow write: if request.resource.size < 5 * 1024 * 1024  // 5MB limit
+      allow write: if request.resource.size < 15 * 1024 * 1024  // 15MB limit
                    && request.resource.contentType.matches('image/.*');
     }
     
@@ -44,10 +44,10 @@ service firebase.storage {
       
       // Allow write if:
       // 1. Authenticated
-      // 2. File size < 5MB
+      // 2. File size < 15MB
       // 3. Content type is an image
       allow write: if request.auth != null
-                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.size < 15 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
     
@@ -64,13 +64,13 @@ service firebase.storage {
 After publishing the rules, test them:
 
 1. Try uploading an image - should succeed
-2. Try uploading a file > 3MB - should fail
+2. Try uploading a file > 15MB - should fail
 3. Try uploading a non-image file - should fail
 4. Try accessing other paths - should fail
 
 ## Notes
 
-- **File Size Limit**: 5MB (5 * 1024 * 1024 bytes)
+- **File Size Limit**: 15MB (15 * 1024 * 1024 bytes)
 - **Allowed Content Types**: Any image type (image/*)
 - **Folder Structure**: `id-photos/{deviceId}/{timestamp}-{originalFileName}`
 - **Authentication**: No authentication required (Storage rules handle access)
