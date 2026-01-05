@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { SEO } from "@/components/SEO";
+import SEO from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function TermsPage() {
