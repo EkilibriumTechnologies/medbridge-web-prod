@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "next/router";
+import { useLegalAcceptance } from "@/contexts/LegalAcceptanceContext";
 
 interface HeroProps {
   onLearnMore: () => void;
@@ -10,30 +11,19 @@ interface HeroProps {
 export function Hero({ onLearnMore }: HeroProps) {
   const { t } = useLanguage();
   const router = useRouter();
+  const { hasAccepted, requestAcceptance } = useLegalAcceptance();
 
   const handleCreateMedicalId = () => {
-    // Verificar si ya aceptó los términos
-    const STORAGE_KEY = "medbridge_legal_acceptance";
-    const CURRENT_LEGAL_VERSION = "v1.0";
-    
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      
-      if (stored) {
-        const acceptance = JSON.parse(stored);
-        if (acceptance.accepted && acceptance.legalVersion === CURRENT_LEGAL_VERSION) {
-          // Ya aceptó, ir directo al formulario
-          router.push("/form");
-          return;
-        }
-      }
-      
-      // No ha aceptado o versión desactualizada, ir a terms
-      router.push("/terms");
-    } catch (error) {
-      console.error("Error checking acceptance:", error);
-      // En caso de error, ir a terms por seguridad
-      router.push("/terms");
+    const navigateToForm = () => {
+      router.push("/form");
+    };
+
+    if (hasAccepted) {
+      // Already accepted, navigate directly
+      navigateToForm();
+    } else {
+      // Not accepted, show modal with deferred navigation
+      requestAcceptance(navigateToForm);
     }
   };
 

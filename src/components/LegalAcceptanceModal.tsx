@@ -24,10 +24,17 @@ export function LegalAcceptanceModal({ open, onAccept }: LegalAcceptanceModalPro
   const router = useRouter();
   const { t } = useLanguage();
 
+  // Reset checkbox when modal closes
+  React.useEffect(() => {
+    if (!open) {
+      setChecked(false);
+    }
+  }, [open]);
+
   const handleAccept = () => {
     if (checked) {
       onAccept();
-      router.push("/form");
+      // Navigation is handled by the context's pendingAction
     }
   };
 

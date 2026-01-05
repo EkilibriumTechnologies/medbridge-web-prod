@@ -2,10 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "next/router";
+import { useLegalAcceptance } from "@/contexts/LegalAcceptanceContext";
 
 export function AccessSection() {
   const { t } = useLanguage();
   const router = useRouter();
+  const { hasAccepted, requestAcceptance } = useLegalAcceptance();
+
+  const handleCreateForm = () => {
+    const navigateToForm = () => {
+      router.push("/form");
+    };
+
+    if (hasAccepted) {
+      // Already accepted, navigate directly
+      navigateToForm();
+    } else {
+      // Not accepted, show modal with deferred navigation
+      requestAcceptance(navigateToForm);
+    }
+  };
 
   return (
     <section className="px-5 py-12 bg-gradient-to-b from-white to-blue-50 dark:from-slate-950 dark:to-blue-950/20 relative overflow-hidden">
@@ -33,7 +49,7 @@ export function AccessSection() {
 
         <div className="space-y-3">
           <Button 
-            onClick={() => router.push("/form")}
+            onClick={handleCreateForm}
             className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
             {t("access.cta")}

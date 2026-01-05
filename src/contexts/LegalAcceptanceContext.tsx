@@ -11,8 +11,9 @@ interface LegalAcceptanceContextType {
   showModal: boolean;
   acceptTerms: () => void;
   checkAcceptance: () => void;
-  requestAcceptance: () => void;
+  requestAcceptance: (onAccepted?: () => void) => void;
   hideModal: () => void;
+  pendingAction: (() => void) | null;
 }
 
 const LegalAcceptanceContext = createContext<LegalAcceptanceContextType | undefined>(undefined);
@@ -24,6 +25,7 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
   const [hasAccepted, setHasAccepted] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   const checkAcceptance = () => {
     try {
@@ -54,8 +56,11 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const requestAcceptance = () => {
+  const requestAcceptance = (onAccepted?: () => void) => {
     console.log("requestAcceptance called, showing modal");
+    if (onAccepted) {
+      setPendingAction(() => onAccepted);
+    }
     setShowModal(true);
   };
 
@@ -75,6 +80,12 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
       console.log("Acceptance saved to localStorage:", acceptance);
       setHasAccepted(true);
       setShowModal(false);
+      
+      // Execute pending action if exists
+      if (pendingAction) {
+        pendingAction();
+        setPendingAction(null);
+      }
     } catch (error) {
       console.error("Error saving legal acceptance:", error);
     }
@@ -94,7 +105,7 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
   }, [hasAccepted, isInitialized]);
 
   return (
-    <LegalAcceptanceContext.Provider value={{ hasAccepted, showModal, acceptTerms, checkAcceptance, requestAcceptance, hideModal }}>
+    <LegalAcceptanceContext.Provider value={{ hasAccepted, showModal, acceptTerms, checkAcceptance, requestAcceptance, hideModal, pendingAction }}>
       {children}
     </LegalAcceptanceContext.Provider>
   );
