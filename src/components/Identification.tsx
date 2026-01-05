@@ -105,7 +105,6 @@ export function Identification({ onBack }: IdentificationProps) {
     }
 
     try {
-<<<<<<< Updated upstream
       // Compress image for local preview
       const compressedImage = await compressImage(file);
       
