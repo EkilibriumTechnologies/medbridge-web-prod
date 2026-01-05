@@ -1,17 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function TermsPage() {
   const router = useRouter();
   const { t } = useLanguage();
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleResetAcceptance = () => {
     localStorage.removeItem('medbridge_legal_acceptance');
     alert('Legal acceptance has been reset. Reload the page to test the flow again.');
+  };
+
+  const handleAcceptTerms = () => {
+    const STORAGE_KEY = "medbridge_legal_acceptance";
+    const CURRENT_LEGAL_VERSION = "v1.0";
+    
+    const acceptance = {
+      accepted: true,
+      acceptedAt: new Date().toISOString(),
+      legalVersion: CURRENT_LEGAL_VERSION
+    };
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(acceptance));
+      // Navegar al formulario
+      router.push("/form");
+    } catch (error) {
+      console.error("Error saving legal acceptance:", error);
+      alert("Error al guardar la aceptación. Por favor intenta de nuevo.");
+    }
   };
 
   return (
@@ -144,8 +166,33 @@ export default function TermsPage() {
               </div>
             </section>
 
-            <div className="pt-6 border-t">
-              <p className="text-sm text-muted-foreground">
+            <div className="pt-6 border-t space-y-4">
+              <div className="flex items-start space-x-3 p-4 bg-muted/50 rounded-lg">
+                <Checkbox 
+                  id="accept-terms" 
+                  checked={isChecked}
+                  onCheckedChange={(checked) => setIsChecked(checked === true)}
+                  className="mt-1"
+                />
+                <label 
+                  htmlFor="accept-terms" 
+                  className="text-sm leading-relaxed cursor-pointer select-none"
+                >
+                  {t("legal.modal.checkbox")}
+                </label>
+              </div>
+
+              <Button 
+                onClick={handleAcceptTerms}
+                disabled={!isChecked}
+                className="w-full h-12 text-base font-semibold"
+                size="lg"
+              >
+                <Check className="w-5 h-5 mr-2" />
+                {t("legal.modal.accept")}
+              </Button>
+
+              <p className="text-sm text-muted-foreground text-center">
                 {t("legal.terms.footer")}
               </p>
             </div>
