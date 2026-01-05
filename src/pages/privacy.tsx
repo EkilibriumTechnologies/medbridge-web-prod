@@ -18,7 +18,7 @@ export default function PrivacyPage() {
     <>
       <SEO
         title={`${t("legal.privacy.title")} - MedBridge`}
-        description={t("legal.privacy.sections.overview.content")}
+        description={t("legal.privacy.section1.content")}
       />
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -55,128 +55,106 @@ export default function PrivacyPage() {
 
             <section className="space-y-4">
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.overview.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section1.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.privacy.sections.overview.content")}
+                  {t("legal.privacy.section1.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.localStorage.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  <strong>{t("legal.privacy.sections.localStorage.highlight")}</strong> {t("legal.privacy.sections.localStorage.intro")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.privacy.sections.localStorage.point1")}</li>
-                  <li>{t("legal.privacy.sections.localStorage.point2")}</li>
-                  <li>{t("legal.privacy.sections.localStorage.point3")}</li>
-                  <li>{t("legal.privacy.sections.localStorage.point4")}</li>
-                  <li>{t("legal.privacy.sections.localStorage.point5")}</li>
-                  <li>{t("legal.privacy.sections.localStorage.point6")}</li>
-                </ul>
-                <p className="text-muted-foreground leading-relaxed mt-2">
-                  {t("legal.privacy.sections.localStorage.footer")}
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.cloudStorage.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  {t("legal.privacy.sections.cloudStorage.intro")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.privacy.sections.cloudStorage.point1")}</li>
-                </ul>
-                <p className="text-muted-foreground leading-relaxed mt-2">
-                  {t("legal.privacy.sections.cloudStorage.footer")}
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.noMedicalCloud.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section2.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  <strong>{t("legal.privacy.sections.noMedicalCloud.highlight")}</strong> {t("legal.privacy.sections.noMedicalCloud.content")}
+                  {t("legal.privacy.section2.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.noTracking.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  {t("legal.privacy.sections.noTracking.intro")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.privacy.sections.noTracking.point1")}</li>
-                  <li>{t("legal.privacy.sections.noTracking.point2")}</li>
-                  <li>{t("legal.privacy.sections.noTracking.point3")}</li>
-                  <li>{t("legal.privacy.sections.noTracking.point4")}</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.noSelling.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section3.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.privacy.sections.noSelling.content")}
+                  {t("legal.privacy.section3.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.userControl.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  {t("legal.privacy.sections.userControl.intro")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.privacy.sections.userControl.point1")}</li>
-                  <li>{t("legal.privacy.sections.userControl.point2")}</li>
-                  <li>{t("legal.privacy.sections.userControl.point3")}</li>
-                  <li>{t("legal.privacy.sections.userControl.point4")}</li>
-                  <li>{t("legal.privacy.sections.userControl.point5")}</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.sharing.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section4.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.privacy.sections.sharing.content")}
+                  {t("legal.privacy.section4.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.security.title")}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-2">
-                  {t("legal.privacy.sections.security.intro")}
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>{t("legal.privacy.sections.security.point1")}</li>
-                  <li>{t("legal.privacy.sections.security.point2")}</li>
-                  <li>{t("legal.privacy.sections.security.point3")}</li>
-                  <li>{t("legal.privacy.sections.security.point4")}</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.legalRecords.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section5.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.privacy.sections.legalRecords.content")}
+                  {t("legal.privacy.section5.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.changes.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section6.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.privacy.sections.changes.content")}
+                  {t("legal.privacy.section6.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.sections.contact.title")}</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section7.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {t("legal.privacy.sections.contact.content")}
+                  {t("legal.privacy.section7.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section8.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.privacy.section8.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section9.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.privacy.section9.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section10.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.privacy.section10.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section11.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.privacy.section11.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section12.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.privacy.section12.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section13.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.privacy.section13.content")}
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.privacy.section14.title")}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {t("legal.privacy.section14.content")}
                 </p>
               </div>
             </section>
 
             <div className="pt-6 border-t">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-center">
                 {t("legal.privacy.footer")}
               </p>
             </div>
