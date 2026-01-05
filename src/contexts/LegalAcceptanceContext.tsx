@@ -23,21 +23,27 @@ const STORAGE_KEY = "medbridge_legal_acceptance";
 export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
   const [hasAccepted, setHasAccepted] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const checkAcceptance = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+      
       if (!stored) {
+        console.log("No acceptance found in localStorage");
         setHasAccepted(false);
         return false;
       }
 
       const acceptance: LegalAcceptance = JSON.parse(stored);
+      console.log("Found acceptance:", acceptance);
       
       if (acceptance.accepted && acceptance.legalVersion === CURRENT_LEGAL_VERSION) {
+        console.log("Valid acceptance found, setting hasAccepted to true");
         setHasAccepted(true);
         return true;
       } else {
+        console.log("Invalid or outdated acceptance");
         setHasAccepted(false);
         return false;
       }
@@ -49,6 +55,7 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
   };
 
   const requestAcceptance = () => {
+    console.log("requestAcceptance called, showing modal");
     setShowModal(true);
   };
 
@@ -65,6 +72,7 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
 
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(acceptance));
+      console.log("Acceptance saved to localStorage:", acceptance);
       setHasAccepted(true);
       setShowModal(false);
     } catch (error) {
@@ -73,8 +81,17 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Check acceptance on mount
     checkAcceptance();
+    setIsInitialized(true);
   }, []);
+
+  // Log state changes for debugging
+  useEffect(() => {
+    if (isInitialized) {
+      console.log("hasAccepted state changed to:", hasAccepted);
+    }
+  }, [hasAccepted, isInitialized]);
 
   return (
     <LegalAcceptanceContext.Provider value={{ hasAccepted, showModal, acceptTerms, checkAcceptance, requestAcceptance, hideModal }}>
