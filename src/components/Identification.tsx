@@ -105,6 +105,7 @@ export function Identification({ onBack }: IdentificationProps) {
     }
 
     try {
+<<<<<<< Updated upstream
       // Compress image for local preview
       const compressedImage = await compressImage(file);
       
@@ -443,8 +444,17 @@ export function Identification({ onBack }: IdentificationProps) {
             disabled={(!idPhoto && !idPhotoUrl) || success || isUploading}
             className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700"
           >
-            <CheckCircle2 className="w-5 h-5 mr-2" />
-            {t("id.save")}
+            {isUploading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5 mr-2" />
+                {t("id.save")}
+              </>
+            )}
           </Button>
         </div>
 
