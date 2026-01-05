@@ -2,133 +2,151 @@ import React from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import SEO from "@/components/SEO";
+import { SEO } from "@/components/SEO";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function TermsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
+
+  const handleResetAcceptance = () => {
+    localStorage.removeItem('medbridge_legal_acceptance');
+    alert('Legal acceptance has been reset. Reload the page to test the flow again.');
+  };
 
   return (
     <>
       <SEO
-        title="Terms & Conditions - MedBridge"
-        description="Terms and conditions for using the MedBridge medical information management application"
+        title={`${t("legal.terms.title")} - MedBridge`}
+        description={t("legal.terms.sections.acceptance.content")}
       />
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
+          <div className="flex items-center justify-between mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t("legal.modal.back")}
+            </Button>
+            
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleResetAcceptance}
+              >
+                Reset Acceptance (Dev)
+              </Button>
+            )}
+          </div>
 
           <div className="bg-card rounded-lg shadow-sm border p-6 sm:p-8 space-y-6">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Terms & Conditions</h1>
+              <h1 className="text-3xl font-bold mb-2">{t("legal.terms.title")}</h1>
               <p className="text-sm text-muted-foreground">
-                Last Updated: January 2, 2026
+                {t("legal.terms.lastUpdated")}
               </p>
               <p className="text-sm text-muted-foreground">
-                Version: v1.0
+                {t("legal.terms.version")}
               </p>
             </div>
 
             <section className="space-y-4">
               <div>
-                <h2 className="text-xl font-semibold mb-2">1. Acceptance of Terms</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.acceptance.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  By accessing and using MedBridge ("the App"), you accept and agree to be bound by these Terms & Conditions. If you do not agree to these terms, you must not use the App.
+                  {t("legal.terms.sections.acceptance.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">2. Informational and Personal Use Only</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.informational.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  MedBridge is designed for personal informational purposes only. It is intended to help you organize and share your medical information at your own discretion. The App is not a medical device, diagnostic tool, or treatment platform.
+                  {t("legal.terms.sections.informational.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">3. No Medical Advice</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.noAdvice.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed mb-2">
-                  <strong>IMPORTANT DISCLAIMER:</strong> MedBridge does not provide medical advice, diagnosis, or treatment recommendations. The information you store in the App should not be used as a substitute for professional medical care.
+                  <strong>{t("legal.terms.sections.noAdvice.disclaimer")}</strong> {t("legal.terms.sections.noAdvice.content")}
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>Always consult a qualified healthcare provider for medical concerns</li>
-                  <li>Never disregard professional medical advice based on information stored in this App</li>
-                  <li>In case of medical emergency, contact emergency services immediately</li>
+                  <li>{t("legal.terms.sections.noAdvice.point1")}</li>
+                  <li>{t("legal.terms.sections.noAdvice.point2")}</li>
+                  <li>{t("legal.terms.sections.noAdvice.point3")}</li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">4. User Responsibility</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.responsibility.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed mb-2">
-                  You are solely responsible for:
+                  {t("legal.terms.sections.responsibility.intro")}
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>The accuracy and completeness of information you enter</li>
-                  <li>Maintaining the security of your device and data</li>
-                  <li>Deciding when and with whom to share your medical information</li>
-                  <li>Ensuring shared information is appropriate and authorized</li>
-                  <li>Backing up your data if desired</li>
+                  <li>{t("legal.terms.sections.responsibility.point1")}</li>
+                  <li>{t("legal.terms.sections.responsibility.point2")}</li>
+                  <li>{t("legal.terms.sections.responsibility.point3")}</li>
+                  <li>{t("legal.terms.sections.responsibility.point4")}</li>
+                  <li>{t("legal.terms.sections.responsibility.point5")}</li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">5. Data Storage</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.dataStorage.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your medical information is stored locally on your device. Only identification photos may be uploaded to secure cloud storage for sharing purposes. You maintain full control over your data and can delete it at any time by clearing your browser data or removing the App.
+                  {t("legal.terms.sections.dataStorage.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">6. Limitation of Liability</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.liability.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed mb-2">
-                  To the fullest extent permitted by law, MedBridge and its creators shall not be liable for:
+                  {t("legal.terms.sections.liability.intro")}
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>Any direct, indirect, incidental, or consequential damages arising from your use of the App</li>
-                  <li>Loss of data, medical information, or identification photos</li>
-                  <li>Unauthorized access to your information due to device compromise</li>
-                  <li>Consequences of sharing information with third parties</li>
-                  <li>Technical failures, errors, or interruptions in service</li>
+                  <li>{t("legal.terms.sections.liability.point1")}</li>
+                  <li>{t("legal.terms.sections.liability.point2")}</li>
+                  <li>{t("legal.terms.sections.liability.point3")}</li>
+                  <li>{t("legal.terms.sections.liability.point4")}</li>
+                  <li>{t("legal.terms.sections.liability.point5")}</li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">7. "As-Is" Provision</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.asIs.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  The App is provided "as-is" without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not guarantee that the App will be error-free or uninterrupted.
+                  {t("legal.terms.sections.asIs.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">8. Modifications to Terms</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.modifications.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  We reserve the right to modify these Terms & Conditions at any time. When we make material changes, we will update the version number and require you to accept the new terms before continuing to use the App.
+                  {t("legal.terms.sections.modifications.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">9. Governing Law</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.law.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  These Terms & Conditions shall be governed by and construed in accordance with the laws applicable in your jurisdiction, without regard to its conflict of law provisions.
+                  {t("legal.terms.sections.law.content")}
                 </p>
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold mb-2">10. Contact</h2>
+                <h2 className="text-xl font-semibold mb-2">{t("legal.terms.sections.contact.title")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  If you have questions about these Terms & Conditions, please contact us through the appropriate channels provided in the App.
+                  {t("legal.terms.sections.contact.content")}
                 </p>
               </div>
             </section>
 
             <div className="pt-6 border-t">
               <p className="text-sm text-muted-foreground">
-                By using MedBridge, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions.
+                {t("legal.terms.footer")}
               </p>
             </div>
           </div>

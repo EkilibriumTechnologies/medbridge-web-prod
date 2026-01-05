@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ExternalLink } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LegalAcceptanceModalProps {
   open: boolean;
@@ -21,10 +22,12 @@ interface LegalAcceptanceModalProps {
 export function LegalAcceptanceModal({ open, onAccept }: LegalAcceptanceModalProps) {
   const [checked, setChecked] = useState(false);
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleAccept = () => {
     if (checked) {
       onAccept();
+      router.push("/form");
     }
   };
 
@@ -36,22 +39,22 @@ export function LegalAcceptanceModal({ open, onAccept }: LegalAcceptanceModalPro
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-[600px] [&>button]:hidden">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Terms & Privacy Notice</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">{t("legal.modal.title")}</DialogTitle>
           <DialogDescription className="sr-only">
-            Legal acceptance required to use the application
+            {t("legal.modal.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-3 text-sm leading-relaxed">
             <p className="text-foreground">
-              This app allows you to store and share medical information for personal use only.
+              {t("legal.modal.summary1")}
             </p>
             <p className="text-foreground">
-              Your medical data is stored locally on your device. Only an identification photo may be uploaded to secure cloud storage.
+              {t("legal.modal.summary2")}
             </p>
             <p className="text-foreground font-medium">
-              This app does not provide medical advice and does not replace professional medical care.
+              {t("legal.modal.summary3")}
             </p>
           </div>
 
@@ -61,14 +64,14 @@ export function LegalAcceptanceModal({ open, onAccept }: LegalAcceptanceModalPro
               className="flex items-center gap-2 text-sm text-primary hover:underline w-fit"
             >
               <ExternalLink className="w-4 h-4" />
-              Read Terms & Conditions
+              {t("legal.modal.readTerms")}
             </button>
             <button
               onClick={() => handleLinkClick("/privacy")}
               className="flex items-center gap-2 text-sm text-primary hover:underline w-fit"
             >
               <ExternalLink className="w-4 h-4" />
-              Read Privacy Policy
+              {t("legal.modal.readPrivacy")}
             </button>
           </div>
 
@@ -82,7 +85,7 @@ export function LegalAcceptanceModal({ open, onAccept }: LegalAcceptanceModalPro
               htmlFor="accept-terms"
               className="text-sm font-medium leading-relaxed cursor-pointer"
             >
-              I have read and agree to the Terms & Conditions and Privacy Policy
+              {t("legal.modal.checkbox")}
             </Label>
           </div>
         </div>
@@ -94,7 +97,7 @@ export function LegalAcceptanceModal({ open, onAccept }: LegalAcceptanceModalPro
             size="lg"
             className="w-full sm:w-auto"
           >
-            Accept & Continue
+            {t("legal.modal.acceptButton")}
           </Button>
         </DialogFooter>
       </DialogContent>

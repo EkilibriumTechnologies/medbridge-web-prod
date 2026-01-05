@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "next/router";
+import { useLegalAcceptance } from "@/contexts/LegalAcceptanceContext";
 
 interface HeroProps {
   onLearnMore: () => void;
@@ -10,6 +11,15 @@ interface HeroProps {
 export function Hero({ onLearnMore }: HeroProps) {
   const { t } = useLanguage();
   const router = useRouter();
+  const { hasAccepted, requestAcceptance } = useLegalAcceptance();
+
+  const handleCreateMedicalId = () => {
+    if (hasAccepted) {
+      router.push("/form");
+    } else {
+      requestAcceptance();
+    }
+  };
 
   return (
     <section className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-between relative overflow-hidden">
@@ -41,7 +51,7 @@ export function Hero({ onLearnMore }: HeroProps) {
 
         <div className="flex flex-col gap-3 pt-6">
           <Button 
-            onClick={() => router.push("/form")}
+            onClick={handleCreateMedicalId}
             className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white touch-manipulation shadow-lg"
           >
             {t("hero.cta")}

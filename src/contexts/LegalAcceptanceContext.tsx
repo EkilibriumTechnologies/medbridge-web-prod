@@ -11,6 +11,8 @@ interface LegalAcceptanceContextType {
   showModal: boolean;
   acceptTerms: () => void;
   checkAcceptance: () => void;
+  requestAcceptance: () => void;
+  hideModal: () => void;
 }
 
 const LegalAcceptanceContext = createContext<LegalAcceptanceContextType | undefined>(undefined);
@@ -21,34 +23,37 @@ const STORAGE_KEY = "medbridge_legal_acceptance";
 export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
   const [hasAccepted, setHasAccepted] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
 
   const checkAcceptance = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) {
         setHasAccepted(false);
-        setShowModal(true);
-        setIsChecking(false);
-        return;
+        return false;
       }
 
       const acceptance: LegalAcceptance = JSON.parse(stored);
       
       if (acceptance.accepted && acceptance.legalVersion === CURRENT_LEGAL_VERSION) {
         setHasAccepted(true);
-        setShowModal(false);
+        return true;
       } else {
         setHasAccepted(false);
-        setShowModal(true);
+        return false;
       }
     } catch (error) {
       console.error("Error checking legal acceptance:", error);
       setHasAccepted(false);
-      setShowModal(true);
-    } finally {
-      setIsChecking(false);
+      return false;
     }
+  };
+
+  const requestAcceptance = () => {
+    setShowModal(true);
+  };
+
+  const hideModal = () => {
+    setShowModal(false);
   };
 
   const acceptTerms = () => {
@@ -71,12 +76,8 @@ export function LegalAcceptanceProvider({ children }: { children: ReactNode }) {
     checkAcceptance();
   }, []);
 
-  if (isChecking) {
-    return null;
-  }
-
   return (
-    <LegalAcceptanceContext.Provider value={{ hasAccepted, showModal, acceptTerms, checkAcceptance }}>
+    <LegalAcceptanceContext.Provider value={{ hasAccepted, showModal, acceptTerms, checkAcceptance, requestAcceptance, hideModal }}>
       {children}
     </LegalAcceptanceContext.Provider>
   );
