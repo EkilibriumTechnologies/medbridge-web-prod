@@ -14,11 +14,24 @@ export function Hero({ onLearnMore }: HeroProps) {
   const { hasAccepted, requestAcceptance } = useLegalAcceptance();
 
   const handleCreateMedicalId = () => {
-    if (hasAccepted) {
-      router.push("/form");
-    } else {
-      requestAcceptance();
+    // Verificar si ya aceptó los términos
+    const acceptanceData = localStorage.getItem("medbridge_legal_acceptance");
+    
+    if (acceptanceData) {
+      try {
+        const parsed = JSON.parse(acceptanceData);
+        if (parsed.accepted && parsed.legalVersion === "v1.0") {
+          // Ya aceptó, navegar al formulario
+          router.push("/form");
+          return;
+        }
+      } catch (error) {
+        console.error("Error parsing acceptance data:", error);
+      }
     }
+    
+    // No ha aceptado, mostrar modal
+    requestAcceptance();
   };
 
   return (
