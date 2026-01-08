@@ -14,7 +14,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Hero Section
     "hero.title": "Tu Información Médica,",
     "hero.titleHighlight": "Siempre Contigo",
-    "hero.subtitle": "Accede a tu historial médico, alergias y contatos de emergencia en cualquier momento. Un código QR que puede salvar tu vida.",
+    "hero.subtitle": "Accede a tu historial médico, alergias y contactos de emergencia al instante, incluso sin internet. Tu información crítica cuando cada segundo cuenta.",
     "hero.cta": "Crea tu Medical ID",
     "hero.viewCard": "Ver tu Medical Card",
     "hero.learnMore": "Conocer Más",
@@ -406,7 +406,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Hero Section
     "hero.title": "Your Medical Information,",
     "hero.titleHighlight": "Always With You",
-    "hero.subtitle": "Access your medical history, allergies, and emergency contacts anytime. A QR code that can save your life.",
+    "hero.subtitle": "Access your medical history, allergies, and emergency contacts instantly, even offline. Your critical information when seconds count.",
     "hero.cta": "Create Your Medical ID",
     "hero.viewCard": "View Your Medical Card",
     "hero.learnMore": "Learn More",
@@ -798,7 +798,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Hero Section
     "hero.title": "Sua Informação Médica,",
     "hero.titleHighlight": "Sempre Com Você",
-    "hero.subtitle": "Acesse seu histórico médico, alergias e contatos de emergência a qualquer momento. Um código QR que pode salvar sua vida.",
+    "hero.subtitle": "Acesse seu histórico médico, alergias e contatos de emergência instantaneamente, mesmo offline. Sua informação crítica quando cada segundo conta.",
     "hero.cta": "Criar Seu Medical ID",
     "hero.viewCard": "Ver Seu Medical Card",
     "hero.learnMore": "Saiba Mais",
