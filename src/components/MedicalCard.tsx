@@ -147,7 +147,7 @@ export function MedicalCard() {
     : "bg-gradient-to-b from-blue-50 to-white dark:from-blue-950 dark:to-gray-900";
 
   return (
-    <div className={`min-h-screen ${cardBgGradient} p-4 pb-24`}>
+    <div className={`min-h-screen ${cardBgGradient} p-4 pb-32`}>
       <div className={`max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-4 ${cardAccentColor} overflow-hidden`}>
         
         {/* Header Section */}
@@ -474,13 +474,13 @@ export function MedicalCard() {
 
       {/* Floating Action Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
-        <div className="max-w-2xl mx-auto p-4 space-y-2">
+        <div className="max-w-2xl mx-auto p-3 space-y-2">
           {/* Row 1: Edit and View ID */}
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="outline"
               onClick={() => router.push("/form")}
-              className="w-full"
+              className="w-full text-sm py-2.5"
             >
               <Edit className="w-4 h-4 mr-2" />
               {t("card.editInfo")}
@@ -488,14 +488,14 @@ export function MedicalCard() {
             <Button
               variant="outline"
               onClick={() => router.push("/identification")}
-              className="w-full"
+              className="w-full text-sm py-2.5"
             >
               <User className="w-4 h-4 mr-2" />
               {t("card.viewId")}
             </Button>
           </div>
 
-          {/* Row 2: Download PDF (TEMPORARY - FOR REVIEW) */}
+          {/* Row 2: Download PDF */}
           <Button
             variant="secondary"
             onClick={async () => {
@@ -514,16 +514,17 @@ export function MedicalCard() {
                 alert("Error generating PDF. Please try again.");
               }
             }}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2.5"
           >
-            📄 Download PDF (Review)
+            <FileText className="w-4 h-4 mr-2" />
+            Download PDF
           </Button>
 
-          {/* Row 3: Share Medical Profile (PRIMARY) */}
+          {/* Row 3: Share Medical Profile */}
           <Button
             onClick={handleShareMedicalProfile}
             disabled={isSharing}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-6"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5"
           >
             {isSharing ? (
               <>
@@ -532,7 +533,7 @@ export function MedicalCard() {
               </>
             ) : (
               <>
-                <Share2 className="w-5 h-5 mr-2" />
+                <Share2 className="w-4 h-4 mr-2" />
                 {t("card.shareProfile")}
               </>
             )}
