@@ -37,3 +37,13 @@ next-env.d.ts
 
 # firebase
 firebase-service-account.json
+
+# Capacitor / Android
+/android/
+/ios/
+/.capacitor/
+
+# Android keystore (even if android/ is ignored, explicitly ignore keystore)
+*.jks
+*.keystore
+**/key.properties

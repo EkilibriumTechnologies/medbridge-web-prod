@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, Phone, Edit, Share2, Activity, IdCard, ArrowLeft, FileText, User, Heart, Shield, Stethoscope, Mail, MapPin, Users } from "lucide-react";
+import { AlertCircle, Phone, Edit, Share2, Activity, ArrowLeft, FileText, User, Heart, Shield, Stethoscope, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CardLanguageSelector } from "@/components/CardLanguageSelector";
 import { generateMedicalReportPDF, generateMedicalReportFileName } from "@/lib/generateMedicalReportPDF";
+import { PDF_EXPORT_ENABLED, SHARE_ENABLED } from "@/lib/features";
+// License functions are imported dynamically when needed
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { hasPremiumPurchase, initBilling, isBillingAvailable, clearStalePurchaseState } from "@/lib/billing";
+import { Capacitor } from "@capacitor/core";
 
 export function MedicalCard() {
   const router = useRouter();
@@ -13,6 +18,9 @@ export function MedicalCard() {
   const [profile, setProfile] = useState<MedicalProfile | null>(null);
   const [mounted, setMounted] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false);
+  const [hasPremiumAccess, setHasPremiumAccess] = useState<boolean>(false);
+  const [isCheckingPremium, setIsCheckingPremium] = useState<boolean>(true);
 
   useEffect(() => {
     setMounted(true);
@@ -55,10 +63,96 @@ export function MedicalCard() {
         console.error("Failed to parse medical profile:", error);
       }
     }
+
+    // Check license status (Android only - premium features)
+    console.log("[MedicalCard] useEffect: PDF_EXPORT_ENABLED =", PDF_EXPORT_ENABLED);
+    console.log("[MedicalCard] useEffect: SHARE_ENABLED =", SHARE_ENABLED);
+    
+    if (PDF_EXPORT_ENABLED || SHARE_ENABLED) {
+      console.log("[MedicalCard] useEffect: Premium features enabled, initializing...");
+      
+      // Clear stale purchase state first (from testing mode or old data)
+      clearStalePurchaseState();
+      
+      // Initialize billing on app start (if available)
+      if (isBillingAvailable()) {
+        console.log("[MedicalCard] useEffect: Billing available, initializing...");
+        initBilling().catch((error) => {
+          console.error("[MedicalCard] Failed to initialize billing:", error);
+        });
+      } else {
+        console.log("[MedicalCard] useEffect: Billing NOT available (may be web or testing mode)");
+      }
+      
+      // Check purchase and license status
+      const checkPremium = async () => {
+        try {
+          setIsCheckingPremium(true);
+          const hasPurchase = await hasPremiumPurchase();
+          console.log("[MedicalCard] useEffect: Checking premium access - hasPurchase =", hasPurchase);
+          setHasPremiumAccess(hasPurchase);
+          
+          // Only check license cycle if purchase exists, but don't create it yet
+          if (hasPurchase) {
+            const { getLicenseCycle } = await import("@/lib/license");
+            const existingCycle = getLicenseCycle();
+            if (existingCycle) {
+              const now = Date.now();
+              const isActive = now < existingCycle.cycleExpiresAt;
+              console.log("[MedicalCard] useEffect: License cycle exists, active =", isActive);
+              if (!isActive) {
+                // Cycle expired - access should be revoked
+                setHasPremiumAccess(false);
+              }
+            } else {
+              console.log("[MedicalCard] useEffect: Purchase exists but no cycle yet (will be created on first use)");
+            }
+          }
+        } catch (error) {
+          console.error("[MedicalCard] Error checking premium access:", error);
+          setHasPremiumAccess(false);
+        } finally {
+          setIsCheckingPremium(false);
+        }
+      };
+      
+      checkPremiumStatus().then(() => {
+        checkPremium();
+      });
+    } else {
+      console.log("[MedicalCard] useEffect: Premium features DISABLED (web mode or flags off)");
+    }
   }, []);
 
-  const handleEdit = () => {
-    router.push("/form");
+  const checkPremiumStatus = async () => {
+    if (!PDF_EXPORT_ENABLED && !SHARE_ENABLED) {
+      return;
+    }
+
+    try {
+      // Check if user has purchased premium
+      console.log("[MedicalCard] checkPremiumStatus: Checking premium purchase...");
+      const hasPurchase = await hasPremiumPurchase();
+      console.log("[MedicalCard] checkPremiumStatus: hasPurchase =", hasPurchase);
+      
+      // Only verify purchase status - do NOT create cycle here
+      // Cycle will be created on first use (PDF or Share)
+      if (hasPurchase) {
+        const { getLicenseCycle } = await import("@/lib/license");
+        const existingCycle = getLicenseCycle();
+        if (existingCycle) {
+          const now = Date.now();
+          const isActive = now < existingCycle.cycleExpiresAt;
+          console.log("[MedicalCard] checkPremiumStatus: Cycle exists, active =", isActive);
+        } else {
+          console.log("[MedicalCard] checkPremiumStatus: Purchase exists but no cycle yet (will be created on first use)");
+        }
+      } else {
+        console.log("[MedicalCard] checkPremiumStatus: No premium purchase found");
+      }
+    } catch (error) {
+      console.error("[MedicalCard] Error checking premium status:", error);
+    }
   };
 
   const handleCreateProfile = () => {
@@ -68,42 +162,210 @@ export function MedicalCard() {
   const handleShareMedicalProfile = async () => {
     if (!profile) return;
     
+    let licenseCycle;
+    
+    // Check purchase status first
+    if (SHARE_ENABLED) {
+      console.log("[Share] Checking premium purchase...");
+      const hasPurchase = await hasPremiumPurchase();
+      console.log("[Share] hasPremiumPurchase:", hasPurchase);
+      
+      // If no purchase, show upgrade modal and update state
+      if (!hasPurchase) {
+        console.log("[Share] No purchase found, showing upgrade modal");
+        setHasPremiumAccess(false);
+        setShowUpgradeModal(true);
+        return;
+      }
+      
+      // Update state if purchase exists (might have changed)
+      if (!hasPremiumAccess) {
+        setHasPremiumAccess(true);
+      }
+      
+      // If has purchase, check/verify license cycle
+      console.log("[Share] Purchase verified, checking license cycle...");
+      const { getLicenseCycle, getOrCreateLicenseCycle } = await import("@/lib/license");
+      licenseCycle = getLicenseCycle();
+      
+      // If no cycle exists, create one now (first use after purchase)
+      // This is one of the three moments: compra, primer PDF, o primer share
+      if (!licenseCycle) {
+        console.log("[Share] Purchase exists but no cycle - creating cycle for first share");
+        licenseCycle = getOrCreateLicenseCycle();
+        console.log("[Share] License cycle created:", licenseCycle);
+      } else {
+        // Check if cycle is expired
+        const now = Date.now();
+        if (now >= licenseCycle.cycleExpiresAt) {
+          // Cycle expired - needs renewal (new purchase)
+          console.log("[Share] License expired, showing upgrade modal");
+          setShowUpgradeModal(true);
+          return;
+        }
+        console.log("[Share] License cycle active, using existing cycle");
+      }
+      
+      console.log("[Share] Premium check passed, proceeding with share...");
+    } else {
+      // Web platform: no license cycle needed
+      licenseCycle = undefined;
+    }
+
+    console.log("[Share] Setting isSharing to true...");
     setIsSharing(true);
     
     try {
-      // Generate PDF as Blob (client-side only)
-      const pdfBlob = generateMedicalReportPDF(profile, t, language);
+      console.log("[Share] License cycle:", licenseCycle);
+      
+      console.log("[Share] Generating PDF blob...");
+      // Generate PDF as Blob with license cycle timestamps
+      const pdfBlob = generateMedicalReportPDF(profile, t, language, licenseCycle);
+      console.log("[Share] PDF blob generated, size:", pdfBlob.size, "bytes");
       const fileName = generateMedicalReportFileName(profile);
+      console.log("[Share] File name:", fileName);
+
+      // Detect native platform using Capacitor
+      // Use isNativePlatform if available, otherwise check if platform is not web
+      const platform = Capacitor.getPlatform();
+      const isNativePlatform = platform !== "web";
+      console.log("[Share] Platform:", platform, "isNativePlatform:", isNativePlatform);
       
-      // Create File object from Blob for Web Share API
-      const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
-      
-      // Check if Web Share API is supported and can share files
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        // Use Web Share API - works on mobile for WhatsApp, SMS, Email, AirDrop
-        await navigator.share({
-          title: t("card.shareTitle"),
-          text: t("card.shareText"),
-          files: [pdfFile]
-        });
+      if (isNativePlatform) {
+        // Native platform (Android/iOS): Use Capacitor Share plugin
+        console.log("[Share] Using Capacitor Share plugin for native platform...");
+        try {
+          const { Share } = await import("@capacitor/share");
+          const { Filesystem, Directory } = await import("@capacitor/filesystem");
+          
+          // Convert blob to base64
+          console.log("[Share] Converting PDF blob to base64...");
+          const reader = new FileReader();
+          const base64Data = await new Promise<string>((resolve, reject) => {
+            reader.onloadend = () => {
+              const base64 = reader.result as string;
+              // Remove data:application/pdf;base64, prefix
+              const base64Only = base64.split(",")[1];
+              resolve(base64Only);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(pdfBlob);
+          });
+          console.log("[Share] Base64 conversion complete, length:", base64Data.length);
+          
+          // Save file to device (use Cache directory which is properly configured for FileProvider)
+          console.log("[Share] Saving PDF to device filesystem...");
+          const savedFile = await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache,
+            recursive: true
+          });
+          console.log("[Share] File saved to:", savedFile.uri);
+          
+          // Get the proper URI for sharing (getUri provides the correct content:// URI for FileProvider)
+          console.log("[Share] Getting file URI for sharing...");
+          const fileUri = await Filesystem.getUri({
+            path: fileName,
+            directory: Directory.Cache
+          });
+          console.log("[Share] File URI for sharing:", fileUri.uri);
+          
+          // Share using Capacitor Share plugin with file URI
+          console.log("[Share] Opening native share sheet...");
+          await Share.share({
+            title: t("card.shareTitle"),
+            text: t("card.shareText"),
+            url: fileUri.uri, // file:// URI for native file sharing
+            dialogTitle: t("card.shareProfile")
+          });
+          console.log("[Share] Native share completed successfully");
+          
+          // Clean up: Delete the temporary file after sharing (with delay to allow share to complete)
+          setTimeout(async () => {
+            try {
+              await Filesystem.deleteFile({
+                path: fileName,
+                directory: Directory.Cache
+              });
+              console.log("[Share] Temporary file deleted");
+            } catch (cleanupError) {
+              console.warn("[Share] Failed to delete temporary file:", cleanupError);
+            }
+          }, 2000); // Wait 2 seconds before cleanup
+        } catch (shareError) {
+          console.error("[Share] Capacitor Share error:", shareError);
+          // On native platform, do not fallback to Web Share API or download
+          // Only handle user cancellation gracefully
+          if (shareError instanceof Error) {
+            if (shareError.message.includes("User cancelled") || shareError.message.includes("cancel")) {
+              console.log("[Share] User cancelled share");
+              return; // User cancelled, just return
+            }
+          }
+          // For other errors on native platform, show error to user
+          console.error("[Share] Share failed on native platform:", shareError);
+          alert(t("card.shareError") || "Error sharing medical profile. Please try again.");
+        }
       } else {
-        // Fallback: Download PDF directly to device
-        const url = URL.createObjectURL(pdfBlob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        // Web platform: Use Web Share API or download
+        console.log("[Share] Using Web Share API for web platform...");
+        const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
+        
+        if (navigator.share && navigator.canShare) {
+          try {
+            if (navigator.canShare({ files: [pdfFile] })) {
+              console.log("[Share] Using Web Share API...");
+              await navigator.share({
+                title: t("card.shareTitle"),
+                text: t("card.shareText"),
+                files: [pdfFile]
+              });
+              console.log("[Share] Web Share API completed successfully");
+            } else {
+              throw new Error("Cannot share files via Web Share API");
+            }
+          } catch (shareError) {
+            console.log("[Share] Web Share API error:", shareError);
+            if (shareError instanceof Error && shareError.name === "AbortError") {
+              console.log("[Share] User cancelled share");
+              return;
+            }
+            // Fall through to download
+            const url = URL.createObjectURL(pdfBlob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            console.log("[Share] Fallback download completed");
+          }
+        } else {
+          // Download as fallback
+          const url = URL.createObjectURL(pdfBlob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          console.log("[Share] Download completed");
+        }
       }
     } catch (error) {
       // User cancelled share or error occurred
+      console.error("[Share] Error in share process:", error);
       if (error instanceof Error && error.name !== "AbortError") {
-        console.error("Error sharing medical profile:", error);
+        console.error("[Share] Full error details:", error);
         alert(t("card.shareError") || "Error sharing medical profile. Please try again.");
+      } else {
+        console.log("[Share] User cancelled or AbortError (this is OK)");
       }
     } finally {
+      console.log("[Share] Setting isSharing to false...");
       setIsSharing(false);
     }
   };
@@ -495,51 +757,210 @@ export function MedicalCard() {
             </Button>
           </div>
 
-          {/* Row 2: Download PDF */}
-          <Button
-            variant="secondary"
-            onClick={async () => {
-              try {
-                const { generateMedicalReportPDF, generateMedicalReportFileName } = await import("@/lib/generateMedicalReportPDF");
-                const pdfBlob = generateMedicalReportPDF(profile, t, language);
-                const fileName = generateMedicalReportFileName(profile);
-                const url = URL.createObjectURL(pdfBlob);
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = fileName;
-                link.click();
-                URL.revokeObjectURL(url);
-              } catch (error) {
-                console.error("Error generating PDF:", error);
-                alert("Error generating PDF. Please try again.");
-              }
-            }}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2.5"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Download PDF
-          </Button>
+          {/* Row 2: Download PDF - Premium Feature (Android only) */}
+          {PDF_EXPORT_ENABLED && (
+            <>
+              <Button
+                variant="secondary"
+                disabled={isCheckingPremium}
+                onClick={async () => {
+                  try {
+                    // Always check purchase status first (even if hasPremiumAccess is true, verify again)
+                    console.log("[PDF Download] Checking premium purchase...");
+                    const hasPurchase = await hasPremiumPurchase();
+                    console.log("[PDF Download] hasPremiumPurchase:", hasPurchase);
+                    
+                    // If no purchase, show upgrade modal and update state
+                    if (!hasPurchase) {
+                      console.log("[PDF Download] No purchase found, showing upgrade modal");
+                      setHasPremiumAccess(false);
+                      setShowUpgradeModal(true);
+                      return;
+                    }
+                    
+                    // Update state if purchase exists (might have changed)
+                    if (!hasPremiumAccess) {
+                      setHasPremiumAccess(true);
+                    }
+                    
+                    // If has purchase, check/verify license cycle
+                    console.log("[PDF Download] Purchase verified, checking license cycle...");
+                    const { getLicenseCycle, getOrCreateLicenseCycle } = await import("@/lib/license");
+                    let licenseCycle = getLicenseCycle();
+                    
+                    // If no cycle exists, create one now (first use after purchase)
+                    // This is one of the three moments: compra, primer PDF, o primer share
+                    if (!licenseCycle) {
+                      console.log("[PDF Download] Purchase exists but no cycle - creating cycle for first PDF");
+                      licenseCycle = getOrCreateLicenseCycle();
+                      console.log("[PDF Download] License cycle created:", licenseCycle);
+                    } else {
+                      // Check if cycle is expired
+                      const now = Date.now();
+                      if (now >= licenseCycle.cycleExpiresAt) {
+                        // Cycle expired - needs renewal (new purchase)
+                        console.log("[PDF Download] License expired, showing upgrade modal");
+                        setShowUpgradeModal(true);
+                        return;
+                      }
+                      console.log("[PDF Download] License cycle active, using existing cycle");
+                    }
 
-          {/* Row 3: Share Medical Profile */}
-          <Button
-            onClick={handleShareMedicalProfile}
-            disabled={isSharing}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5"
-          >
-            {isSharing ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                {t("card.generating")}
-              </>
-            ) : (
-              <>
-                <Share2 className="w-4 h-4 mr-2" />
-                {t("card.shareProfile")}
-              </>
-            )}
-          </Button>
+                    console.log("[PDF Download] Premium check passed, generating PDF...");
+                    console.log("[PDF Download] Importing PDF generation functions...");
+                    const { generateMedicalReportPDF, generateMedicalReportFileName } = await import("@/lib/generateMedicalReportPDF");
+                    
+                    console.log("[PDF Download] License cycle:", licenseCycle);
+                    
+                    console.log("[PDF Download] Generating PDF blob...");
+                    // Generate PDF with license cycle timestamps
+                    const pdfBlob = generateMedicalReportPDF(profile, t, language, licenseCycle);
+                    console.log("[PDF Download] PDF blob generated, size:", pdfBlob.size, "bytes");
+                    const fileName = generateMedicalReportFileName(profile);
+                    console.log("[PDF Download] File name:", fileName);
+
+                    // Check if we're on Android (Capacitor)
+                    const isAndroid = Capacitor.getPlatform() === "android";
+                    console.log("[PDF Download] Platform:", Capacitor.getPlatform());
+                    
+                    if (isAndroid) {
+                      // Use Capacitor Filesystem to save PDF on Android
+                      console.log("[PDF Download] Using Capacitor Filesystem for Android...");
+                      const { Filesystem, Directory } = await import("@capacitor/filesystem");
+                      
+                      // Convert blob to base64
+                      console.log("[PDF Download] Converting PDF blob to base64...");
+                      const reader = new FileReader();
+                      const base64Data = await new Promise<string>((resolve, reject) => {
+                        reader.onloadend = () => {
+                          const base64 = reader.result as string;
+                          const base64Only = base64.split(",")[1];
+                          resolve(base64Only);
+                        };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(pdfBlob);
+                      });
+                      console.log("[PDF Download] Base64 conversion complete");
+                      
+                      // Save file to Documents directory (accessible via file manager)
+                      console.log("[PDF Download] Saving PDF to Documents folder...");
+                      try {
+                        const savedFile = await Filesystem.writeFile({
+                          path: fileName,
+                          data: base64Data,
+                          directory: Directory.Documents,
+                          recursive: true
+                        });
+                        console.log("[PDF Download] File saved to:", savedFile.uri);
+                        
+                        // Show success message with file location
+                        alert(`PDF saved successfully!\n\nFile: ${fileName}\n\nLocation: Documents folder\n\nYou can find it in your file manager.`);
+                        console.log("[PDF Download] PDF saved successfully");
+                      } catch (fsError) {
+                        console.error("[PDF Download] Documents directory error:", fsError);
+                        // Fallback: Try ExternalStorage (Downloads)
+                        console.log("[PDF Download] Trying ExternalStorage as fallback...");
+                        try {
+                          const savedFile = await Filesystem.writeFile({
+                            path: fileName,
+                            data: base64Data,
+                            directory: Directory.ExternalStorage,
+                            recursive: true
+                          });
+                          console.log("[PDF Download] File saved to ExternalStorage:", savedFile.uri);
+                          alert(`PDF saved successfully!\n\nFile: ${fileName}\n\nCheck your Downloads folder.`);
+                        } catch (externalError) {
+                          console.error("[PDF Download] ExternalStorage error:", externalError);
+                          throw externalError;
+                        }
+                      }
+                    } else {
+                      // Web platform: Use traditional download
+                      console.log("[PDF Download] Using web download method...");
+                      const url = URL.createObjectURL(pdfBlob);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = fileName;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      URL.revokeObjectURL(url);
+                      console.log("[PDF Download] Download triggered successfully");
+                    }
+
+                    console.log("[PDF Download] PDF generated and saved successfully");
+                    // Update license status after successful generation
+                    await checkPremiumStatus();
+                  } catch (error) {
+                    console.error("[PDF Download] Error generating PDF:", error);
+                    console.error("[PDF Download] Error stack:", error instanceof Error ? error.stack : "No stack trace");
+                    alert("Error generating PDF. Please try again.");
+                  }
+                }}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white text-sm py-2.5"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Download PDF
+              </Button>
+            </>
+          )}
+
+          {/* Row 3: Share Medical Profile - Premium Feature (Android only) */}
+          {SHARE_ENABLED && (
+            <>
+              <Button
+                onClick={handleShareMedicalProfile}
+                disabled={isSharing || isCheckingPremium}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSharing ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    {t("card.generating")}
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    {t("card.shareProfile")}
+                  </>
+                )}
+              </Button>
+            </>
+          )}
         </div>
       </div>
+
+      {/* Upgrade/Renewal Modal */}
+      {(PDF_EXPORT_ENABLED || SHARE_ENABLED) && (
+        <UpgradeModal
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
+          onUpgradeConfirmed={async () => {
+            // This callback is called after successful purchase/restore
+            // Only verify purchase and update status - do NOT create cycle or generate PDF here
+            // The cycle will be created when user first uses PDF/Share feature
+            try {
+              console.log("[UpgradeModal] Purchase/restore confirmed, updating premium status...");
+              
+              // Update premium status after successful upgrade (checks purchase + license)
+              // This will verify purchase exists but won't create cycle yet
+              await checkPremiumStatus();
+              
+              // Update hasPremiumAccess state to enable buttons
+              const hasPurchase = await hasPremiumPurchase();
+              setHasPremiumAccess(hasPurchase);
+              
+              console.log("[UpgradeModal] Premium status updated successfully, hasPremiumAccess =", hasPurchase);
+              
+              // Modal will close automatically via onOpenChange(false) in UpgradeModal
+              // User will use PDF/Share button to activate cycle on first use
+            } catch (error) {
+              console.error("[UpgradeModal] Error updating premium status:", error);
+              alert(t("billing.error.unknown") || "Error activating license. Please try again.");
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

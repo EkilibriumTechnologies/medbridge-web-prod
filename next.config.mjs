@@ -29,12 +29,21 @@ function getTurboRules() {
 
 const nextConfig = {
   reactStrictMode: true,
+  // Enable static export only when building for Capacitor
+  ...(process.env.CAPACITOR_BUILD === "true" && {
+    output: "export",
+    basePath: "",
+    assetPrefix: "",
+    trailingSlash: false,
+  }),
   experimental: {
     turbo: {
       rules: getTurboRules(),
     },
   },
   images: {
+    // Unoptimized images required for static export (Capacitor)
+    ...(process.env.CAPACITOR_BUILD === "true" && { unoptimized: true }),
     remotePatterns: [
       {
         protocol: "https",

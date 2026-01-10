@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import { MedicalProfile } from "@/types/medical";
+import { LicenseCycle, formatLicenseDate } from "./license";
 
 interface TranslationFunction {
   (key: string): string;
@@ -10,7 +11,8 @@ type Language = "es" | "en" | "pt";
 export function generateMedicalReportPDF(
   profile: MedicalProfile,
   t: TranslationFunction,
-  language: Language
+  language: Language,
+  licenseCycle?: LicenseCycle
 ): Blob {
   const doc = new jsPDF();
   
@@ -44,32 +46,30 @@ export function generateMedicalReportPDF(
   
   // Date and language in top right
   doc.setFontSize(9);
-  const currentDate = new Date().toLocaleDateString(language === "es" ? "es-ES" : language === "pt" ? "pt-BR" : "en-US");
-  doc.text(`${t("pdf.generatedOn")}: ${currentDate}`, pageWidth - margin, 20, { align: "right" });
-  doc.text(`${t("pdf.language")}: ${language.toUpperCase()}`, pageWidth - margin, 26, { align: "right" });
+  
+  // Use license cycle timestamps if available, otherwise use current date (web/fallback)
+  const locale = language === "es" ? "es-ES" : language === "pt" ? "pt-BR" : "en-US";
+  
+  if (licenseCycle) {
+    // Premium PDF: Use cycle anchor timestamp for "Generated on" (all PDFs in cycle share same timestamp)
+    const generatedDate = formatLicenseDate(licenseCycle.cycleStartedAt, locale);
+    const validUntilDate = formatLicenseDate(licenseCycle.cycleExpiresAt, locale);
+    doc.text(`${t("pdf.generatedOn")}: ${generatedDate}`, pageWidth - margin, 20, { align: "right" });
+    doc.text(`${t("pdf.validUntil")}: ${validUntilDate}`, pageWidth - margin, 26, { align: "right" });
+    doc.text(`${t("pdf.language")}: ${language.toUpperCase()}`, pageWidth - margin, 32, { align: "right" });
+  } else {
+    // Web/Free: Use current date
+    const currentDate = new Date().toLocaleDateString(locale);
+    doc.text(`${t("pdf.generatedOn")}: ${currentDate}`, pageWidth - margin, 20, { align: "right" });
+    doc.text(`${t("pdf.language")}: ${language.toUpperCase()}`, pageWidth - margin, 26, { align: "right" });
+  }
 
   yPos = 50;
   doc.setTextColor(0, 0, 0);
 
-  // QR Code placeholder (top right corner)
-  const qrSize = 35;
-  const qrX = pageWidth - margin - qrSize;
-  const qrY = yPos;
-  
-  // Generate QR code data (emergency info only - no sensitive data)
-  const qrData = `MEDBRIDGE EMERGENCY\nName: ${profile.firstName} ${profile.lastName}\nBlood: ${profile.bloodType || "N/A"}\nAllergies: ${profile.allergies ? "YES - See document" : "None"}\nContact: ${profile.emergencyContactPhone || "N/A"}`;
-  
-  // Draw QR placeholder box
-  doc.setDrawColor(200);
-  doc.setFillColor(245, 245, 245);
-  doc.rect(qrX, qrY, qrSize, qrSize, "FD");
-  doc.setFontSize(6);
-  doc.text("Emergency QR", qrX + qrSize/2, qrY + qrSize/2, { align: "center" });
-  doc.text("Scan for basic info", qrX + qrSize/2, qrY + qrSize/2 + 4, { align: "center" });
-
   // SECTION: PATIENT INFORMATION
   doc.setFillColor(240, 240, 240);
-  doc.rect(margin, yPos, contentWidth - qrSize - 5, 12, "F");
+  doc.rect(margin, yPos, contentWidth, 12, "F");
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text(t("pdf.sectionPatient"), margin + 3, yPos + 8);
@@ -249,12 +249,18 @@ export function generateMedicalReportPDF(
     }
   }
 
-  // Footer
-  const footerY = doc.internal.pageSize.getHeight() - 20;
+  // Footer with legal disclaimer
+  const footerY = doc.internal.pageSize.getHeight() - 25;
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);
   doc.text(t("pdf.footerLine1"), pageWidth / 2, footerY, { align: "center" });
   doc.text(t("pdf.footerLine2"), pageWidth / 2, footerY + 5, { align: "center" });
+  
+  // Legal disclaimer (required for premium PDFs)
+  if (licenseCycle) {
+    doc.setFont("helvetica", "italic");
+    doc.text(t("pdf.disclaimer"), pageWidth / 2, footerY + 12, { align: "center", maxWidth: pageWidth - (margin * 2) });
+  }
 
   // Return as Blob for sharing
   return doc.output("blob");

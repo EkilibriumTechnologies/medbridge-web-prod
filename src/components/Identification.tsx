@@ -2,10 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import { Upload, X, Camera, Image as ImageIcon, AlertCircle, CheckCircle2, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { uploadIdPhoto, isFirebaseStorageAvailable } from "@/lib/firebaseStorage";
+import { uploadIdPhoto, isFirebaseStorageAvailable, deleteIdPhoto } from "@/lib/firebaseStorage";
+import { useToast } from "@/hooks/use-toast";
 
 interface IdentificationProps {
   onBack?: () => void;
@@ -14,6 +16,7 @@ interface IdentificationProps {
 export function Identification({ onBack }: IdentificationProps) {
   const router = useRouter();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [idPhoto, setIdPhoto] = useState<string | null>(null); // Local preview (base64)
   const [idPhotoUrl, setIdPhotoUrl] = useState<string | null>(null); // Firebase URL
   const [selectedFile, setSelectedFile] = useState<File | null>(null); // File to upload
@@ -21,7 +24,9 @@ export function Identification({ onBack }: IdentificationProps) {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadProgress, setUploadProgress] = useState(0); // Upload progress (0-100)
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB limit
 
@@ -124,33 +129,68 @@ export function Identification({ onBack }: IdentificationProps) {
    */
   const handleUploadToFirebase = async () => {
     if (!selectedFile) {
-      setError("No file selected");
+      const errorMsg = t("id.error.noFile") || "No file selected";
+      setError(errorMsg);
+      toast({
+        variant: "destructive",
+        title: t("id.error.title") || "Error",
+        description: errorMsg,
+      });
       return;
     }
 
     if (!isFirebaseStorageAvailable()) {
-      setError("Firebase Storage is not available. Please check your configuration.");
+      const errorMsg = t("id.error.storageUnavailable") || "Firebase Storage is not available. Please check your configuration.";
+      setError(errorMsg);
+      toast({
+        variant: "destructive",
+        title: t("id.error.title") || "Error",
+        description: errorMsg,
+      });
       return;
     }
 
     setError("");
     setIsUploading(true);
+    setUploadProgress(0);
 
     try {
-      // Upload file directly to Firebase
-      const downloadURL = await uploadIdPhoto(selectedFile);
+      // Upload file directly to Firebase with progress tracking
+      const downloadURL = await uploadIdPhoto(selectedFile, (progress) => {
+        setUploadProgress(progress);
+      });
       
       // Successfully uploaded
       setIdPhotoUrl(downloadURL);
       setSuccess(true);
+      setUploadProgress(100);
+      
+      // Show success toast
+      toast({
+        title: t("id.uploadSuccess") || "Photo uploaded successfully",
+        description: t("id.uploadSuccessDesc") || "Your ID photo has been uploaded to Firebase Storage.",
+      });
       
       // Clear selected file after successful upload
       setSelectedFile(null);
+      
+      // Reset progress after a brief delay
+      setTimeout(() => {
+        setUploadProgress(0);
+      }, 2000);
     } catch (err: any) {
       // Display user-friendly error message
-      const errorMessage = err?.message || "Failed to upload photo. Please try again.";
+      const errorMessage = err?.message || t("id.error.uploadFailed") || "Failed to upload photo. Please try again.";
       setError(errorMessage);
+      setUploadProgress(0);
       console.error("Upload error:", err);
+      
+      // Show error toast
+      toast({
+        variant: "destructive",
+        title: t("id.error.title") || "Upload failed",
+        description: errorMessage,
+      });
     } finally {
       setIsUploading(false);
     }
@@ -180,17 +220,53 @@ export function Identification({ onBack }: IdentificationProps) {
     if (file) {
       handleFileSelect(file);
     }
+    // Reset input value to allow selecting the same file again
+    e.target.value = "";
   };
 
-  const handleRemove = () => {
+  const handleCameraClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    cameraInputRef.current?.click();
+  };
+
+  const handleGalleryClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    galleryInputRef.current?.click();
+  };
+
+  const handleRemove = async () => {
+    // If there's a Firebase URL, delete it from Firebase Storage
+    if (idPhotoUrl && isFirebaseStorageAvailable()) {
+      try {
+        await deleteIdPhoto(idPhotoUrl);
+        toast({
+          title: t("id.deleteSuccess") || "Photo deleted",
+          description: t("id.deleteSuccessDesc") || "Photo has been removed from Firebase Storage.",
+        });
+      } catch (err: any) {
+        console.error("Error deleting photo from Firebase:", err);
+        // Still allow removal even if Firebase deletion fails
+        toast({
+          variant: "destructive",
+          title: t("id.deleteError") || "Warning",
+          description: t("id.deleteErrorDesc") || "Photo removed locally but may still exist in Firebase Storage.",
+        });
+      }
+    }
+    
     setIdPhoto(null);
     setIdPhotoUrl(null);
     setSelectedFile(null);
     setError("");
     setSuccess(false);
     setIsUploading(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    setUploadProgress(0);
+    
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = "";
+    }
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = "";
     }
   };
 
@@ -259,6 +335,18 @@ export function Identification({ onBack }: IdentificationProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 py-8 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* Back to Home Button */}
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push("/")}
+            className="h-9 w-9 p-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        </div>
+
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
             {t("id.title")}
@@ -288,21 +376,27 @@ export function Identification({ onBack }: IdentificationProps) {
 
         {!idPhoto && !idPhotoUrl ? (
           <Card
-            className={`p-8 md:p-12 border-2 border-dashed transition-all cursor-pointer ${
+            className={`p-8 md:p-12 border-2 border-dashed transition-all ${
               isDragging
                 ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                : "border-gray-300 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600"
+                : "border-gray-300 dark:border-gray-700"
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            onClick={() => fileInputRef.current?.click()}
           >
             <input
-              ref={fileInputRef}
+              ref={cameraInputRef}
               type="file"
               accept="image/*"
               capture="environment"
+              onChange={handleFileInput}
+              className="hidden"
+            />
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
               onChange={handleFileInput}
               className="hidden"
             />
@@ -323,16 +417,27 @@ export function Identification({ onBack }: IdentificationProps) {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Camera className="w-5 h-5" />
-                  <span>{t("id.useCamera")}</span>
-                </div>
-                <div className="hidden sm:block">•</div>
-                <div className="flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5" />
-                  <span>{t("id.chooseFromGallery")}</span>
-                </div>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={handleCameraClick}
+                  className="w-full sm:w-auto"
+                >
+                  <Camera className="w-5 h-5 mr-2" />
+                  {t("id.useCamera")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={handleGalleryClick}
+                  className="w-full sm:w-auto"
+                >
+                  <ImageIcon className="w-5 h-5 mr-2" />
+                  {t("id.chooseFromGallery")}
+                </Button>
               </div>
 
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -361,9 +466,15 @@ export function Identification({ onBack }: IdentificationProps) {
               <div className="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
                 {isUploading && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                    <div className="flex flex-col items-center gap-2 text-white">
+                    <div className="flex flex-col items-center gap-3 text-white w-full px-4">
                       <Loader2 className="w-8 h-8 animate-spin" />
-                      <span className="text-sm">Uploading...</span>
+                      <span className="text-sm font-medium">{t("id.uploading") || "Uploading..."}</span>
+                      {uploadProgress > 0 && (
+                        <div className="w-full max-w-xs">
+                          <Progress value={uploadProgress} className="h-2" />
+                          <span className="text-xs mt-1 block text-center">{uploadProgress}%</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -380,6 +491,19 @@ export function Identification({ onBack }: IdentificationProps) {
                 />
               </div>
 
+              {/* Upload progress bar (shown outside overlay when not full-screen) */}
+              {isUploading && uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {t("id.uploadProgress") || "Upload progress"}
+                    </span>
+                    <span className="text-gray-900 dark:text-white font-medium">{uploadProgress}%</span>
+                  </div>
+                  <Progress value={uploadProgress} className="h-2" />
+                </div>
+              )}
+
               <div className="space-y-3">
                 {!idPhotoUrl && selectedFile && isFirebaseStorageAvailable() && (
                   <Button
@@ -391,34 +515,53 @@ export function Identification({ onBack }: IdentificationProps) {
                     {isUploading ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Uploading...
+                        {t("id.uploading") || "Uploading..."}
                       </>
                     ) : (
                       <>
                         <Upload className="w-5 h-5 mr-2" />
-                        Upload ID Photo
+                        {t("id.uploadButton") || "Upload ID Photo"}
                       </>
                     )}
                   </Button>
                 )}
 
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full"
-                  disabled={isUploading}
-                >
-                  <Upload className="w-5 h-5 mr-2" />
-                  {idPhotoUrl ? t("id.replacePhoto") : "Select Different Photo"}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={handleCameraClick}
+                    className="w-full sm:flex-1"
+                    disabled={isUploading}
+                  >
+                    <Camera className="w-5 h-5 mr-2" />
+                    {t("id.useCamera")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={handleGalleryClick}
+                    className="w-full sm:flex-1"
+                    disabled={isUploading}
+                  >
+                    <ImageIcon className="w-5 h-5 mr-2" />
+                    {t("id.chooseFromGallery")}
+                  </Button>
+                </div>
               </div>
 
               <input
-                ref={fileInputRef}
+                ref={cameraInputRef}
                 type="file"
                 accept="image/*"
                 capture="environment"
+                onChange={handleFileInput}
+                className="hidden"
+              />
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
                 onChange={handleFileInput}
                 className="hidden"
               />

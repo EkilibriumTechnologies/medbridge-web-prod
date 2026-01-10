@@ -11,6 +11,8 @@ import { MedicalProfile } from "@/types/medical";
 import { useRouter } from "next/router";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+type Language = "es" | "en" | "pt";
+
 const initialProfile: MedicalProfile = {
   firstName: "",
   lastName: "",
@@ -69,13 +71,74 @@ const validateDate = (date: string): boolean => {
   return selectedDate <= today && selectedDate >= minDate;
 };
 
+// Convert locale date format (DD/MM/YYYY or MM/DD/YYYY) to YYYY-MM-DD
+// Uses locale to determine format: Spanish/European = DD/MM/YYYY, US = MM/DD/YYYY
+const parseLocaleDate = (dateStr: string, locale: string = "es"): string | null => {
+  if (!dateStr) return null;
+  
+  const dateMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!dateMatch) {
+    // Try YYYY-MM-DD (ISO format)
+    const isoMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (isoMatch) {
+      return dateStr;
+    }
+    return null;
+  }
+  
+  const [, first, second, year] = dateMatch;
+  let month: string, day: string;
+  
+  // Use locale to determine format: Spanish/European = DD/MM/YYYY, US = MM/DD/YYYY
+  // Default to DD/MM/YYYY for Spanish/European locales
+  if (locale === "es" || locale === "pt" || locale.startsWith("es-") || locale.startsWith("pt-")) {
+    day = first;
+    month = second;
+  } else {
+    // US format: MM/DD/YYYY
+    month = first;
+    day = second;
+  }
+  
+  // Validate date
+  const parsedDate = new Date(`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`);
+  if (!isNaN(parsedDate.getTime())) {
+    // Verify the date components match (catch invalid dates like 32/13/2024)
+    const [parsedYear, parsedMonth, parsedDay] = [
+      parsedDate.getFullYear(),
+      parsedDate.getMonth() + 1,
+      parsedDate.getDate()
+    ];
+    if (parsedYear.toString() === year && 
+        parsedMonth.toString() === month && 
+        parsedDay.toString() === day) {
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+  }
+  
+  return null;
+};
+
+// Format YYYY-MM-DD to locale format (DD/MM/YYYY)
+const formatDateForDisplay = (dateStr: string): string => {
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+};
+
 export function MedicalForm() {
   const router = useRouter();
-  const { t, isLoaded } = useLanguage();
+  const { t, isLoaded, language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [profile, setProfile] = useState<MedicalProfile>(initialProfile);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [hasAttemptedAction, setHasAttemptedAction] = useState(false);
+  const [dateInputMode, setDateInputMode] = useState<"picker" | "text" | "dropdown">("dropdown");
+  const [dateTextValue, setDateTextValue] = useState("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [selectedDay, setSelectedDay] = useState<string>("");
 
   const STEPS = [
     { id: 1, title: t("form.steps.personalInfo"), icon: User },
@@ -93,11 +156,119 @@ export function MedicalForm() {
       try {
         const savedProfile = JSON.parse(saved);
         setProfile({ ...initialProfile, ...savedProfile });
+        if (savedProfile.dateOfBirth) {
+          setDateTextValue(formatDateForDisplay(savedProfile.dateOfBirth));
+          // Parse date for dropdown selectors
+          const [year, month, day] = savedProfile.dateOfBirth.split("-");
+          setSelectedYear(year || "");
+          setSelectedMonth(month || "");
+          setSelectedDay(day || "");
+        }
       } catch (error) {
         console.error("Error loading medical profile:", error);
       }
     }
   }, []);
+
+  // Update date when dropdowns change (only in dropdown mode)
+  useEffect(() => {
+    if (dateInputMode !== "dropdown") return;
+    
+    if (selectedYear && selectedMonth && selectedDay) {
+      const dateStr = `${selectedYear}-${selectedMonth.padStart(2, "0")}-${selectedDay.padStart(2, "0")}`;
+      if (validateDate(dateStr)) {
+        // Only update if different to avoid loops
+        if (profile.dateOfBirth !== dateStr) {
+          updateProfile("dateOfBirth", dateStr);
+        }
+        if (hasAttemptedAction) {
+          const error = validateField("dateOfBirth", dateStr);
+          if (errors.dateOfBirth !== error) {
+            setErrors(prev => ({ ...prev, dateOfBirth: error }));
+          }
+        }
+      }
+    } else if (!selectedYear && !selectedMonth && !selectedDay && profile.dateOfBirth) {
+      updateProfile("dateOfBirth", "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedYear, selectedMonth, selectedDay, dateInputMode, hasAttemptedAction]);
+
+  // Get days in month based on year and month
+  const getDaysInMonth = (year: string, month: string): number => {
+    if (!year || !month) return 31;
+    return new Date(parseInt(year), parseInt(month), 0).getDate();
+  };
+
+  // Generate years array (from 1900 to current year)
+  const generateYears = (): string[] => {
+    const currentYear = new Date().getFullYear();
+    const years: string[] = [];
+    for (let year = currentYear; year >= 1900; year--) {
+      years.push(year.toString());
+    }
+    return years;
+  };
+
+  // Generate months array with proper translations
+  const generateMonths = (): { value: string; label: string }[] => {
+    const monthNames: Record<Language, string[]> = {
+      es: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+      en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+      pt: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+    };
+
+    const monthLabels = monthNames[language] || monthNames.es;
+    
+    return [
+      { value: "01", label: monthLabels[0] },
+      { value: "02", label: monthLabels[1] },
+      { value: "03", label: monthLabels[2] },
+      { value: "04", label: monthLabels[3] },
+      { value: "05", label: monthLabels[4] },
+      { value: "06", label: monthLabels[5] },
+      { value: "07", label: monthLabels[6] },
+      { value: "08", label: monthLabels[7] },
+      { value: "09", label: monthLabels[8] },
+      { value: "10", label: monthLabels[9] },
+      { value: "11", label: monthLabels[10] },
+      { value: "12", label: monthLabels[11] },
+    ];
+  };
+
+  // Generate days array based on selected month/year
+  const generateDays = (): string[] => {
+    const maxDays = getDaysInMonth(selectedYear, selectedMonth);
+    const days: string[] = [];
+    for (let day = 1; day <= maxDays; day++) {
+      days.push(day.toString().padStart(2, "0"));
+    }
+    return days;
+  };
+
+  // Handle year change
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year);
+    // Validate day when year changes (for leap years)
+    if (selectedDay && selectedMonth) {
+      const maxDays = getDaysInMonth(year, selectedMonth);
+      if (parseInt(selectedDay) > maxDays) {
+        setSelectedDay(maxDays.toString().padStart(2, "0"));
+      }
+    }
+  };
+
+  // Handle month change
+  const handleMonthChange = (month: string) => {
+    setSelectedMonth(month);
+    // Validate day when month changes
+    if (selectedDay && selectedYear) {
+      const maxDays = getDaysInMonth(selectedYear, month);
+      if (parseInt(selectedDay) > maxDays) {
+        setSelectedDay(maxDays.toString().padStart(2, "0"));
+      }
+    }
+  };
 
   const validateField = (fieldName: string, value: string): string => {
     if (fieldName === "firstName" || fieldName === "lastName") {
@@ -135,6 +306,12 @@ export function MedicalForm() {
         const error = validateField(field, profile[field as keyof MedicalProfile] as string);
         if (error) newErrors[field] = error;
       });
+      
+      // Validate date of birth if hasAttemptedAction
+      if (hasAttemptedAction && profile.dateOfBirth) {
+        const dateError = validateField("dateOfBirth", profile.dateOfBirth);
+        if (dateError) newErrors.dateOfBirth = dateError;
+      }
     }
 
     if (step === 2) {
@@ -149,6 +326,7 @@ export function MedicalForm() {
   };
 
   const handleNext = () => {
+    setHasAttemptedAction(true);
     if (validateStep(currentStep)) {
       if (currentStep < 7) {
         setCurrentStep(currentStep + 1);
@@ -168,11 +346,31 @@ export function MedicalForm() {
   };
 
   const handleSave = () => {
+    setHasAttemptedAction(true);
+    // Validate date before saving
+    if (profile.dateOfBirth) {
+      const dateError = validateField("dateOfBirth", profile.dateOfBirth);
+      if (dateError) {
+        setErrors({ ...errors, dateOfBirth: dateError });
+        window.scrollTo(0, 0);
+        return;
+      }
+    }
     localStorage.setItem("medicalProfile", JSON.stringify(profile));
     router.push("/medcard");
   };
 
   const handleSaveAndUploadId = () => {
+    setHasAttemptedAction(true);
+    // Validate date before saving
+    if (profile.dateOfBirth) {
+      const dateError = validateField("dateOfBirth", profile.dateOfBirth);
+      if (dateError) {
+        setErrors({ ...errors, dateOfBirth: dateError });
+        window.scrollTo(0, 0);
+        return;
+      }
+    }
     localStorage.setItem("medicalProfile", JSON.stringify(profile));
     router.push("/identification");
   };
@@ -187,9 +385,30 @@ export function MedicalForm() {
 
   const handleFieldChange = (field: keyof MedicalProfile, value: any) => {
     updateProfile(field, value);
-    if (touched[field]) {
+    // Only show errors if user has attempted an action
+    if (hasAttemptedAction && touched[field]) {
       const error = validateField(field, value);
       setErrors({ ...errors, [field]: error });
+    } else if (hasAttemptedAction && field === "dateOfBirth") {
+      // Validate date immediately when in action mode
+      const error = validateField(field, value);
+      setErrors({ ...errors, [field]: error });
+    }
+  };
+  
+  const handleDateTextChange = (value: string) => {
+    setDateTextValue(value);
+    // Try to parse locale format using current language
+    const parsedDate = parseLocaleDate(value, language);
+    if (parsedDate) {
+      updateProfile("dateOfBirth", parsedDate);
+      if (hasAttemptedAction) {
+        const error = validateField("dateOfBirth", parsedDate);
+        setErrors({ ...errors, dateOfBirth: error });
+      }
+    } else if (value === "") {
+      updateProfile("dateOfBirth", "");
+      setErrors({ ...errors, dateOfBirth: "" });
     }
   };
 
@@ -208,6 +427,18 @@ export function MedicalForm() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-6 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* Back to Home Button */}
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push("/")}
+            className="h-9 w-9 p-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        </div>
+
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
@@ -255,7 +486,7 @@ export function MedicalForm() {
                   className={`mt-2 h-12 text-lg ${errors.firstName ? "border-red-500" : ""}`}
                   placeholder={t("form.placeholders.firstName")}
                 />
-                {errors.firstName && (
+                {hasAttemptedAction && errors.firstName && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.firstName}
@@ -275,7 +506,7 @@ export function MedicalForm() {
                   className={`mt-2 h-12 text-lg ${errors.lastName ? "border-red-500" : ""}`}
                   placeholder={t("form.placeholders.lastName")}
                 />
-                {errors.lastName && (
+                {hasAttemptedAction && errors.lastName && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.lastName}
@@ -287,15 +518,141 @@ export function MedicalForm() {
                 <Label htmlFor="dateOfBirth" className="text-lg font-medium">
                   {t("form.fields.dateOfBirth")}
                 </Label>
-                <Input
-                  id="dateOfBirth"
-                  type="date"
-                  value={profile.dateOfBirth}
-                  onChange={(e) => handleFieldChange("dateOfBirth", e.target.value)}
-                  onBlur={() => handleBlur("dateOfBirth")}
-                  className={`mt-2 h-12 text-lg ${errors.dateOfBirth ? "border-red-500" : ""}`}
-                />
-                {errors.dateOfBirth && (
+                <div className="mt-2 space-y-2">
+                  {/* Mode selector buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={dateInputMode === "dropdown" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setDateInputMode("dropdown")}
+                      className="flex-1 h-10 text-sm"
+                    >
+                      📅 {t("date.mode.dropdown") || "Selector"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={dateInputMode === "picker" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setDateInputMode("picker")}
+                      className="flex-1 h-10 text-sm"
+                    >
+                      🗓️ {t("date.mode.calendar") || "Calendario"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={dateInputMode === "text" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setDateInputMode("text")}
+                      className="flex-1 h-10 text-sm"
+                    >
+                      ⌨️ {t("date.mode.text") || "Texto"}
+                    </Button>
+                  </div>
+
+                  {/* Dropdown selectors mode (default) */}
+                  {dateInputMode === "dropdown" && (
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Select
+                          value={selectedYear}
+                          onValueChange={handleYearChange}
+                        >
+                          <SelectTrigger className={`h-12 text-lg ${errors.dateOfBirth && !selectedYear ? "border-red-500" : ""}`}>
+                            <SelectValue placeholder={t("date.year") || "Año"} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {generateYears().map((year) => (
+                              <SelectItem key={year} value={year}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Select
+                          value={selectedMonth}
+                          onValueChange={handleMonthChange}
+                          disabled={!selectedYear}
+                        >
+                          <SelectTrigger className={`h-12 text-lg ${errors.dateOfBirth && !selectedMonth ? "border-red-500" : ""}`}>
+                            <SelectValue placeholder={t("date.month") || "Mes"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {generateMonths().map((month) => (
+                              <SelectItem key={month.value} value={month.value}>
+                                {month.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Select
+                          value={selectedDay}
+                          onValueChange={(day) => setSelectedDay(day)}
+                          disabled={!selectedYear || !selectedMonth}
+                        >
+                          <SelectTrigger className={`h-12 text-lg ${errors.dateOfBirth && !selectedDay ? "border-red-500" : ""}`}>
+                            <SelectValue placeholder={t("date.day") || "Día"} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {generateDays().map((day) => (
+                              <SelectItem key={day} value={day}>
+                                {parseInt(day)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Native date picker mode */}
+                  {dateInputMode === "picker" && (
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      value={profile.dateOfBirth}
+                      onChange={(e) => {
+                        handleFieldChange("dateOfBirth", e.target.value);
+                        if (e.target.value) {
+                          const [year, month, day] = e.target.value.split("-");
+                          setSelectedYear(year || "");
+                          setSelectedMonth(month || "");
+                          setSelectedDay(day || "");
+                        }
+                      }}
+                      onBlur={() => handleBlur("dateOfBirth")}
+                      min="1900-01-01"
+                      max={new Date().toISOString().split("T")[0]}
+                      className={`h-12 text-lg ${errors.dateOfBirth ? "border-red-500" : ""}`}
+                    />
+                  )}
+
+                  {/* Text input mode */}
+                  {dateInputMode === "text" && (
+                    <Input
+                      type="text"
+                      placeholder="DD/MM/YYYY"
+                      value={dateTextValue || formatDateForDisplay(profile.dateOfBirth)}
+                      onChange={(e) => handleDateTextChange(e.target.value)}
+                      onBlur={() => {
+                        handleBlur("dateOfBirth");
+                        if (!dateTextValue && profile.dateOfBirth) {
+                          setDateTextValue(formatDateForDisplay(profile.dateOfBirth));
+                          const [year, month, day] = profile.dateOfBirth.split("-");
+                          setSelectedYear(year || "");
+                          setSelectedMonth(month || "");
+                          setSelectedDay(day || "");
+                        }
+                      }}
+                      className={`h-12 text-lg ${errors.dateOfBirth ? "border-red-500" : ""}`}
+                    />
+                  )}
+                </div>
+                {hasAttemptedAction && errors.dateOfBirth && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.dateOfBirth}
@@ -360,7 +717,7 @@ export function MedicalForm() {
                   className={`mt-2 h-12 text-lg ${errors.phoneNumber ? "border-red-500" : ""}`}
                   placeholder={t("form.placeholders.phone")}
                 />
-                {errors.phoneNumber && (
+                {hasAttemptedAction && errors.phoneNumber && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.phoneNumber}
@@ -381,7 +738,7 @@ export function MedicalForm() {
                   className={`mt-2 h-12 text-lg ${errors.email ? "border-red-500" : ""}`}
                   placeholder={t("form.placeholders.email")}
                 />
-                {errors.email && (
+                {hasAttemptedAction && errors.email && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.email}
@@ -476,7 +833,7 @@ export function MedicalForm() {
                     className={`mt-2 h-12 text-lg ${errors.emergencyContactName ? "border-red-500" : ""}`}
                     placeholder={t("form.placeholders.fullName")}
                   />
-                  {errors.emergencyContactName && (
+                  {hasAttemptedAction && errors.emergencyContactName && (
                     <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                       <AlertCircle className="w-4 h-4" />
                       {errors.emergencyContactName}
@@ -519,7 +876,7 @@ export function MedicalForm() {
                     className={`mt-2 h-12 text-lg ${errors.emergencyContactPhone ? "border-red-500" : ""}`}
                     placeholder={t("form.placeholders.phone")}
                   />
-                  {errors.emergencyContactPhone && (
+                  {hasAttemptedAction && errors.emergencyContactPhone && (
                     <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                       <AlertCircle className="w-4 h-4" />
                       {errors.emergencyContactPhone}
