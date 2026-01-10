@@ -1,17 +1,25 @@
 /**
- * Capacitor Plugin Wrapper for Google Play Billing
+ * Capacitor Plugin Wrapper for In-App Purchases (Google Play Billing / StoreKit)
  * 
- * This is a TypeScript interface for the native Google Play Billing plugin.
- * The actual native implementation will be in the Android plugin code.
+ * MOBILE-ONLY REPOSITORY: TypeScript interface for native in-app purchase plugins.
+ * - Android: Google Play Billing (one-time INAPP purchase, non-consumable)
+ * - iOS: StoreKit (one-time purchase, non-consumable) - TODO: Implement iOS plugin
  * 
- * IMPORTANT: This file is for TypeScript types only.
- * The actual plugin implementation must be created in the Android native code.
+ * IMPORTANT:
+ * - This file defines TypeScript types only
+ * - Android implementation: android/app/src/main/java/com/ekilibrium/medbridge/GooglePlayBillingPlugin.java
+ * - iOS implementation: TODO - Create StoreKit plugin
+ * - Web fallback: google-play-billing.web.ts (returns empty/no-op)
+ * 
+ * Product ID: "pdf_export_annual" (one-time purchase, non-consumable)
  */
 
 import { registerPlugin } from "@capacitor/core";
 
 export interface PurchaseProductOptions {
   productId: string;
+  // NOTE: Only "nonConsumable" is used in this mobile-only repository
+  // This interface includes other types for type safety, but we only use one-time purchases
   productType: "consumable" | "nonConsumable" | "subscription";
 }
 

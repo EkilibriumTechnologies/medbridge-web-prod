@@ -1,18 +1,23 @@
 /**
- * Google Play Billing Integration for Android
+ * In-App Purchase Integration for Mobile (iOS + Android)
  * 
- * Provides billing functionality for premium PDF export feature.
- * Uses Google Play Billing API for one-time purchases.
+ * MOBILE-ONLY REPOSITORY: This module provides billing functionality for premium features.
+ * - Android: Google Play Billing (INAPP, non-consumable, one-time purchase)
+ * - iOS: StoreKit (one-time purchase, non-consumable) - TODO: Implement iOS support
  * 
  * IMPORTANT:
- * - Android-only (web builds are no-ops)
+ * - MOBILE-ONLY: This code ONLY runs in mobile builds (iOS/Android via Capacitor/Appflow)
  * - Product ID: "pdf_export_annual" (one-time purchase, non-consumable)
  * - All purchase state stored locally (no backend)
- * - Integrates with existing license cycle system
+ * - PDF export and sharing require active purchase
+ * - Restore purchases must be supported for store compliance
+ * 
+ * Web/B2B version lives in a separate repository and does not use this module.
  */
 
+import { MOBILE_BUILD } from "@/config/build";
 import { Capacitor } from "@capacitor/core";
-import { isAndroid } from "./platform";
+import { isAndroid, isIOS, isNative } from "./platform";
 
 const PREMIUM_PURCHASE_STORAGE_KEY = "medbridge_premium_purchased";
 const PRODUCT_ID = "pdf_export_annual";
@@ -55,13 +60,32 @@ export interface BillingResult {
 
 /**
  * Checks if billing is available on this platform.
- * Returns false for web, true for Android (if properly configured).
+ * 
+ * MOBILE ONLY: Returns true only for mobile builds (iOS/Android) when:
+ * - MOBILE_BUILD is true (this repository)
+ * - Platform is native (Android or iOS)
+ * - Billing services are properly configured
+ * 
+ * Returns false for:
+ * - Web builds (this repo should not build for web, but graceful fallback)
+ * - Server-side rendering
+ * - Non-mobile platforms
+ * 
+ * @returns true if billing is available, false otherwise
  */
 export function isBillingAvailable(): boolean {
-  if (typeof window === "undefined") {
+  if (!MOBILE_BUILD) {
+    // Not a mobile build - billing not available
     return false;
   }
-  return isAndroid();
+  
+  if (typeof window === "undefined") {
+    // Server-side rendering - no billing
+    return false;
+  }
+  
+  // Only available on native mobile platforms
+  return isNative(); // Android or iOS
 }
 
 /**
@@ -122,17 +146,29 @@ export function clearStalePurchaseState(): void {
 
 /**
  * Initializes the billing connection.
- * This should be called when the app starts (optional for web).
+ * 
+ * MOBILE ONLY: This should be called when the app starts on mobile platforms.
+ * - Android: Initializes Google Play Billing connection
+ * - iOS: TODO - Initialize StoreKit connection
+ * 
+ * Graceful no-op if billing is not available (web builds, SSR, etc.)
  * 
  * @returns Promise that resolves when billing is initialized
  */
 export async function initBilling(): Promise<BillingResult> {
+  // MOBILE BUILD CHECK: Only initialize if this is a mobile build
+  if (!MOBILE_BUILD) {
+    console.warn("[Billing] Not a mobile build - billing initialization skipped");
+    return { success: false, error: BillingError.BILLING_NOT_SUPPORTED, message: "Billing not available in non-mobile builds" };
+  }
+  
   // Clear stale purchase state when initializing (if testing mode is disabled)
   clearStalePurchaseState();
   
   if (!isBillingAvailable()) {
-    // Web: no-op, return success
-    return { success: true };
+    // Not a mobile platform or billing unavailable - graceful no-op
+    console.warn("[Billing] Billing not available on this platform");
+    return { success: false, error: BillingError.BILLING_NOT_SUPPORTED, message: "Billing not supported on this platform" };
   }
 
   try {
@@ -174,11 +210,21 @@ export async function initBilling(): Promise<BillingResult> {
 
 /**
  * Checks if the user has purchased the premium PDF export feature.
- * Checks both localStorage and Google Play purchase state.
+ * 
+ * MOBILE ONLY: Verifies purchase state via Google Play (Android) or StoreKit (iOS).
+ * Checks both localStorage cache and native billing API.
+ * 
+ * Graceful fallback: Returns false if not a mobile build or billing unavailable.
  * 
  * @returns true if premium is purchased, false otherwise
  */
 export async function hasPremiumPurchase(): Promise<boolean> {
+  // MOBILE BUILD CHECK: Only check purchases in mobile builds
+  if (!MOBILE_BUILD) {
+    console.warn("[Billing] Not a mobile build - hasPremiumPurchase() returns false");
+    return false;
+  }
+  
   // TESTING MODE: Simulate premium purchase for testing
   // This bypasses all checks and always returns true for testing
   if (TESTING_MODE_SIMULATE_PREMIUM) {
@@ -306,11 +352,27 @@ export async function hasPremiumPurchase(): Promise<boolean> {
 
 /**
  * Initiates the purchase flow for premium PDF export.
- * Opens Google Play purchase dialog.
+ * 
+ * MOBILE ONLY: Opens in-app purchase dialog (Google Play on Android, StoreKit on iOS).
+ * - Android: Google Play Billing (one-time INAPP purchase)
+ * - iOS: StoreKit (one-time purchase) - TODO: Implement iOS support
+ * 
+ * Requires active purchase for:
+ * - PDF export functionality
+ * - Share medical profile feature
  * 
  * @returns Promise with purchase result
  */
 export async function purchasePremiumPdfAnnual(): Promise<BillingResult> {
+  // MOBILE BUILD CHECK: Only allow purchases in mobile builds
+  if (!MOBILE_BUILD) {
+    return {
+      success: false,
+      error: BillingError.BILLING_NOT_SUPPORTED,
+      message: "Purchases are only available in mobile builds",
+    };
+  }
+  
   if (!isBillingAvailable()) {
     return {
       success: false,
@@ -439,12 +501,30 @@ export async function purchasePremiumPdfAnnual(): Promise<BillingResult> {
 }
 
 /**
- * Restores previous purchases from Google Play.
- * Useful after app reinstall or device change.
+ * Restores previous purchases from Google Play / App Store.
+ * 
+ * MOBILE ONLY: Queries native billing APIs for previous purchases.
+ * Required for App Store / Google Play compliance.
+ * - Android: Queries Google Play Billing API
+ * - iOS: TODO - Query StoreKit for previous purchases
+ * 
+ * Useful after:
+ * - App reinstall
+ * - Device change
+ * - Account restoration
  * 
  * @returns Promise with restore result
  */
 export async function restorePurchases(): Promise<BillingResult> {
+  // MOBILE BUILD CHECK: Only restore purchases in mobile builds
+  if (!MOBILE_BUILD) {
+    return {
+      success: false,
+      error: BillingError.BILLING_NOT_SUPPORTED,
+      message: "Restore purchases is only available in mobile builds",
+    };
+  }
+  
   if (!isBillingAvailable()) {
     return {
       success: false,

@@ -1,13 +1,20 @@
 /**
  * Premium Upgrade / Renewal Modal for PDF Export
  * 
- * Handles first-time upgrade and renewal states for the PDF export license.
- * Integrated with the existing annual license cycle logic.
+ * MOBILE-ONLY REPOSITORY: This modal handles in-app purchases for premium features.
+ * - Android: Google Play Billing (one-time INAPP purchase)
+ * - iOS: StoreKit (one-time purchase) - TODO: Implement iOS support
  * 
- * IMPORTANT:
- * - No billing implementation (placeholder function)
- * - Applies only to Android (Capacitor) app
- * - Web version remains unchanged
+ * Features:
+ * - First-time upgrade: Shows purchase dialog
+ * - Renewal: Shows renewal dialog when license expires
+ * - Restore purchases: Required for App Store / Google Play compliance
+ * 
+ * Premium features require active purchase:
+ * - PDF export functionality
+ * - Share medical profile feature
+ * 
+ * Web/B2B version lives in a separate repository and does not use this modal.
  */
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";

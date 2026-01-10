@@ -1,3 +1,21 @@
+/**
+ * Medical Card Component
+ * 
+ * MOBILE-ONLY REPOSITORY: This component displays the medical profile card with PDF export
+ * and sharing functionality. These features require a one-time in-app purchase on mobile.
+ * 
+ * Premium Features (require purchase):
+ * - PDF Export: Generate professional medical report PDF
+ * - Share Profile: Share medical profile via native share sheet
+ * 
+ * Purchase Gates:
+ * - If purchase is not active: PDF and Share buttons show upgrade modal
+ * - If purchase is active: Features are enabled with license cycle tracking
+ * - License cycle: 1 year from first use (PDF or Share) after purchase
+ * 
+ * Web/B2B version lives in a separate repository.
+ */
+
 import { useState, useEffect } from "react";
 import { AlertCircle, Phone, Edit, Share2, Activity, ArrowLeft, FileText, User, Heart, Shield, Stethoscope, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";

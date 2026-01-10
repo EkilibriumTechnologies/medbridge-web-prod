@@ -1,48 +1,58 @@
 /**
  * Feature flags for premium features.
  * 
- * This module controls which features are enabled based on platform.
- * Premium features are ONLY enabled in native Android app.
- * Web version remains fully free and unchanged.
+ * MOBILE-ONLY REPOSITORY: This is for iOS/Android builds via Capacitor/Appflow.
+ * Web/B2B functionality lives in a separate repository.
+ * 
+ * Premium features require a one-time in-app purchase (Google Play / App Store).
+ * When purchase is not active:
+ * - PDF export is blocked
+ * - Share button is disabled
+ * - UI clearly indicates premium is required
  * 
  * IMPORTANT: 
  * - Do NOT add paywall UI here
  * - Do NOT add billing logic here
  * - This is infrastructure only for feature gating
+ * - All features are gated behind MOBILE_BUILD flag
  */
 
-import { isAndroid, isWeb } from "./platform";
+import { MOBILE_BUILD } from "@/config/build";
+import { isAndroid, isIOS, isNative } from "./platform";
 
 /**
  * Master flag for premium features.
- * When true, premium features are available.
  * 
- * Current behavior:
- * - Web: false (all features free)
- * - Android: true (premium features enabled)
+ * Premium features are ONLY enabled in mobile builds (iOS/Android) when:
+ * - MOBILE_BUILD is true (this repository)
+ * - Platform is native (Android or iOS)
+ * 
+ * For this mobile-only repository, this should be true for native platforms.
  */
-export const PREMIUM_ENABLED: boolean = isAndroid();
+export const PREMIUM_ENABLED: boolean = MOBILE_BUILD && isNative();
 
 /**
  * Enables professional PDF export feature.
  * 
- * V1 Premium scope:
+ * MOBILE ONLY: Requires one-time in-app purchase (Google Play / App Store).
  * - Professional PDF medical report generation
  * - Enhanced formatting and branding
+ * - Blocked if purchase is not active
  * 
- * Default: false (web), true (Android)
+ * Enabled only in mobile builds (iOS/Android) when PREMIUM_ENABLED is true.
  */
 export const PDF_EXPORT_ENABLED: boolean = PREMIUM_ENABLED;
 
 /**
  * Enables share/export medical profile feature.
  * 
- * V1 Premium scope:
+ * MOBILE ONLY: Requires one-time in-app purchase (Google Play / App Store).
  * - Share medical profile via native share sheet
  * - Export without handing over the phone
  * - Works with WhatsApp, SMS, Email, AirDrop, etc.
+ * - Disabled if purchase is not active
  * 
- * Default: false (web), true (Android)
+ * Enabled only in mobile builds (iOS/Android) when PREMIUM_ENABLED is true.
  */
 export const SHARE_ENABLED: boolean = PREMIUM_ENABLED;
 

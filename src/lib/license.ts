@@ -1,14 +1,18 @@
 /**
  * Premium PDF License System
  * 
- * Manages annual license cycles anchored to the FIRST PDF generated.
- * All PDFs within a cycle share the same generation and expiration timestamps.
+ * MOBILE-ONLY REPOSITORY: Manages annual license cycles for premium features.
+ * - License cycles are anchored to FIRST use (PDF generation or Share) after purchase
+ * - All PDFs within a cycle share the same generation and expiration timestamps
+ * - Cycle duration: 1 year from first use
+ * - Requires active purchase (verified via Google Play / App Store)
  * 
  * IMPORTANT:
+ * - MOBILE ONLY: This license system is only active in mobile builds
  * - No backend, no cloud storage, no authentication
  * - All data stored locally (localStorage)
- * - Applies only to Android (Capacitor) app
- * - Web version remains free and unchanged
+ * - Applies to iOS and Android (Capacitor/Appflow builds)
+ * - Web/B2B version lives in a separate repository
  */
 
 const LICENSE_STORAGE_KEY = "medbridge_pdf_license";
