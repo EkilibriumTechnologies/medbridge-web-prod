@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "node scripts/detect-build-type.js && npm run build:capacitor || npm run build:web",
     "build:capacitor": "cross-env CAPACITOR_BUILD=true next build && node scripts/fix-capacitor-paths.js",
+    "build:web": "next build",
     "start": "next start",
     "lint": "next lint",
     "cap:sync": "npx cap sync",
